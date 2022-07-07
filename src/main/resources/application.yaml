@@ -1,0 +1,37 @@
+server:
+  port: 15674
+spring:
+  mail:
+    host: smtp.qq.com #发送邮件服务器
+    username: 1430271732@qq.com #发送邮件的邮箱地址
+    password: wwcxxjaiwqjeffgc #客户端授权码，不是邮箱密码，这个在qq邮箱设置里面自动生成的
+    properties.mail.smtp.ssl.enable: true
+  jackson:
+    date-format: yyyy-MM-dd hh:mm:ss
+    time-zone: GMT+8
+    #   返回时间戳
+    serialization:
+      #使用数值timestamp表示日期
+      write-dates-as-timestamps: true
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://47.98.249.34/gblog?useSSL=false&serverTimezone=UTC&nullCatalogMeansCurrent=true
+    username: root
+    password: HMETAO
+    hikari:
+      max-lifetime: 30000
+  redis:
+    host: 47.98.249.34
+    password: 111111
+mybatis-plus:
+  mapper-locations: classpath:mybatis/mapper/*.xml
+  type-aliases-package: com.hmetao.code_dictionary.entity
+logging:
+  level:
+    com:
+      hmetao:
+        code_dictionary:
+          mapper: debug
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
