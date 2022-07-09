@@ -1,10 +1,15 @@
 package com.hmetao.code_dictionary.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+
+import java.time.LocalDateTime;
+import java.util.Date;
+
 import com.baomidou.mybatisplus.annotation.TableId;
 
 import java.io.Serializable;
 
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -13,29 +18,28 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 文章标签关系表
+ *
  * </p>
  *
  * @author HMETAO
- * @since 2022-07-08
+ * @since 2022-07-09
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(value = "SnippetCategory对象", description = "片断分类关系表")
-public class SnippetCategory implements Serializable {
+@ApiModel(value = "Menus对象", description = "菜单表")
+public class Menus extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "主键")
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    @ApiModelProperty(value = "菜单名")
+    private String menusName;
 
-    @ApiModelProperty(value = "标签ID")
-    private Long categoryId;
+    @ApiModelProperty(value = "跳转路径")
+    private String path;
 
-    @ApiModelProperty(value = "文章ID")
-    private Long snippetId;
+    @ApiModelProperty(value = "父类id")
+    private Integer pid;
 
 
 }
