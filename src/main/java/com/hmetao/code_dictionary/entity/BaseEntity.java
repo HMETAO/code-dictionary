@@ -5,10 +5,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-public class BaseEntity {
+public class BaseEntity implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
     protected Long id;
@@ -16,15 +19,15 @@ public class BaseEntity {
     /**
      * 时间格式统一采用 ISO 规范
      */
-    @TableField(value = "created_date", fill = FieldFill.INSERT)
+    @TableField(fill = FieldFill.INSERT)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    protected LocalDateTime createdDate;
+    protected LocalDateTime createTime;
 
-    @TableField(value = "last_modified_date", fill = FieldFill.INSERT_UPDATE)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    protected LocalDateTime lastModifiedDate;
+    protected LocalDateTime modifyTime;
 
     @ApiModelProperty(value = "0-存在 1-删除")
     @TableLogic
-    private Integer isDelete;
+    private Integer isDeleted;
 }

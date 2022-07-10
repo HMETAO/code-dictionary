@@ -1,7 +1,10 @@
 package com.hmetao.code_dictionary.service;
 
+import com.hmetao.code_dictionary.dto.MenusDTO;
 import com.hmetao.code_dictionary.entity.Menus;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface MenusService extends IService<Menus> {
 
+    List<MenusDTO> getMenus();
 }

@@ -39,7 +39,7 @@ public class Menus extends BaseEntity implements Serializable {
     private String path;
 
     @ApiModelProperty(value = "父类id")
-    private Integer pid;
+    private Long pid;
 
 
 }
