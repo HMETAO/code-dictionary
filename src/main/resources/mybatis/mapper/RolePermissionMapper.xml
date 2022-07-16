@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hmetao.code_dictionary.mapper.RolePermissionMapper">
+
+    <select id="getPermissionList" resultType="com.hmetao.code_dictionary.dto.PermissionDTO" parameterType="list">
+        select *
+        from role_permission rp
+        inner join permission p on rp.permission_id = p.id
+        where role_id in
+        <foreach collection="collection" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

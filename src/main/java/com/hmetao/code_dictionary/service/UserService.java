@@ -2,6 +2,7 @@ package com.hmetao.code_dictionary.service;
 
 import com.hmetao.code_dictionary.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.hmetao.code_dictionary.form.LoginForm;
 
 /**
  * <p>
@@ -13,4 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface UserService extends IService<User> {
 
+    void login(LoginForm loginForm);
 }

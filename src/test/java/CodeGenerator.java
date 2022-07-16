@@ -1,3 +1,4 @@
+import cn.dev33.satoken.secure.SaSecureUtil;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.generator.AutoGenerator;
@@ -56,7 +57,7 @@ public class CodeGenerator {
 
         // 5、策略配置
         StrategyConfig strategy = new StrategyConfig();
-        strategy.setInclude("menus");
+        strategy.setInclude("role", "role_permission", "permission", "user_role");
         strategy.setNaming(NamingStrategy.underline_to_camel);//数据库表映射到实体的命名策略
         strategy.setTablePrefix(pc.getModuleName() + "_"); //生成实体时去掉表前缀
 
@@ -71,5 +72,11 @@ public class CodeGenerator {
 
         // 6、执行
         mpg.execute();
+    }
+
+
+    @Test
+    public  void te() {
+        System.out.println(SaSecureUtil.md5BySalt("123456", "HMETAO"));
     }
 }
