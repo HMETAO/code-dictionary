@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Result> processException(Exception e) {
         log.error(e.getMessage());
         e.printStackTrace();
-        return Result.error(HttpStatus.BAD_REQUEST, "服务器发生错误");
+        return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 
 }
