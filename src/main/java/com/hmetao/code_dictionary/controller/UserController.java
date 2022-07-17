@@ -1,6 +1,7 @@
 package com.hmetao.code_dictionary.controller;
 
 
+import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.form.LoginForm;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.UserService;
@@ -32,8 +33,8 @@ public class UserController {
 
     @PostMapping("login")
     public ResponseEntity<Result> login(@RequestBody LoginForm loginForm) {
-        userService.login(loginForm);
-        return Result.success(HttpStatus.OK, "登录成功");
+        UserDTO userDTO = userService.login(loginForm);
+        return Result.success(userDTO, HttpStatus.OK, "登录成功");
     }
 }
 

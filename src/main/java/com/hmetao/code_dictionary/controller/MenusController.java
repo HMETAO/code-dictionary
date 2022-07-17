@@ -28,6 +28,11 @@ public class MenusController {
     @Resource
     private MenusService menuService;
 
+    /**
+     * 获取菜单列表
+     *
+     * @return 菜单列表
+     */
     @GetMapping
     public ResponseEntity<Result> getMenus() {
         List<MenusDTO> menus = menuService.getMenus();
