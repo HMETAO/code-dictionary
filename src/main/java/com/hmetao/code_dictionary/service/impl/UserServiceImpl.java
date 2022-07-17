@@ -37,18 +37,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public UserDTO login(LoginForm loginForm) {
-        User useEntity = baseMapper.selectOne(new QueryWrapper<User>().eq("username", loginForm.getUsername()));
+        User userEntity = baseMapper.selectOne(new QueryWrapper<User>().eq("username", loginForm.getUsername()));
         String password = loginForm.getPassword();
         // 判断密码是否相同
-        if (Objects.equals(useEntity.getPassword(),
+        if (Objects.equals(userEntity.getPassword(),
                 SaSecureUtil.md5BySalt(password, BaseConstants.SALT_PASSWORD))) {
             // 登录成功
-            StpUtil.login(useEntity.getId());
+            StpUtil.login(userEntity.getId());
+            // 存储用户信息
+            StpUtil.getSession().set("userInfo", userEntity);
             // 获取token信息
             SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
             // 将token写入
             httpServletResponse.setHeader(tokenInfo.getTokenName(), tokenInfo.getTokenValue());
-           return MapUtils.beanMap(useEntity,UserDTO.class);
+            return MapUtils.beanMap(userEntity, UserDTO.class);
         } else {
             throw new AccessErrorException("登录失败：请检查用户名或密码");
         }

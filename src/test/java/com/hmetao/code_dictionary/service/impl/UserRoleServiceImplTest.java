@@ -1,5 +1,6 @@
 package com.hmetao.code_dictionary.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.hmetao.code_dictionary.service.UserRoleService;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +21,8 @@ class UserRoleServiceImplTest {
 
     @Test
     public void getRoleListTest(){
-        System.out.println(userRoleService.getRoleList(1L));
+        StpUtil.isDisable(1);
+//        System.out.println(userRoleService.getRoleList(1L));
     }
 
 }
