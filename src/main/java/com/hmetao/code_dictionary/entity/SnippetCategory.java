@@ -27,15 +27,13 @@ public class SnippetCategory implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "主键")
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
-
     @ApiModelProperty(value = "标签ID")
     private Long categoryId;
 
-    @ApiModelProperty(value = "文章ID")
+    @ApiModelProperty(value = "片段ID")
     private Long snippetId;
 
+    @ApiModelProperty(value = "片段标题")
+    private String snippetTitle;
 
 }

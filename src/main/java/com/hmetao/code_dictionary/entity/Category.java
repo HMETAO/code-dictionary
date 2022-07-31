@@ -38,5 +38,10 @@ public class Category extends BaseEntity implements Serializable {
     @ApiModelProperty(value = "排序")
     private Integer sort;
 
+    @ApiModelProperty(value = "用户id")
+    private Long userId;
+
+    @ApiModelProperty(value = "父级id")
+    private Long parentId;
 
 }
