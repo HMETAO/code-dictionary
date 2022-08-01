@@ -53,22 +53,24 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
         // 按category分组找出每个category下的snippet
         Map<String, List<CategorySnippetMenusDTO>> categorySnippetMap = snippets.stream().map(snippet -> {
-            CategorySnippetMenusDTO categorySnippetMenusDTO = new CategorySnippetMenusDTO();
-            categorySnippetMenusDTO.setId("sn-" + snippet.getSnippetId());
-            categorySnippetMenusDTO.setLabel(snippet.getSnippetTitle());
-            categorySnippetMenusDTO.setParentId(String.valueOf(snippet.getCategoryId()));
+            CategorySnippetMenusDTO categorySnippetMenusDTO =
+                    new CategorySnippetMenusDTO("sn-" + snippet.getSnippetId(),
+                            snippet.getSnippetTitle(),
+                            String.valueOf(snippet.getCategoryId()),
+                            true);
             return categorySnippetMenusDTO;
         }).collect(Collectors.groupingBy(CategorySnippetMenusDTO::getParentId));
 
         // 转换成DTO
         List<CategorySnippetMenusDTO> categorySnippetMenusDTOS = categories.stream()
                 .map(category -> {
-                    CategorySnippetMenusDTO categorySnippetMenusDTO = new CategorySnippetMenusDTO();
-                    categorySnippetMenusDTO.setId(String.valueOf(category.getId()));
-                    categorySnippetMenusDTO.setParentId(String.valueOf(category.getParentId()));
-                    categorySnippetMenusDTO.setLabel(category.getName());
+                    CategorySnippetMenusDTO categorySnippetMenusDTO =
+                            new CategorySnippetMenusDTO(String.valueOf(category.getId()),
+                                    category.getName(),
+                                    String.valueOf(category.getParentId()));
                     return categorySnippetMenusDTO;
                 }).collect(Collectors.toList());
+
         // 构建树状结构
         return (List<CategorySnippetMenusDTO>) BaseTreeDTO.buildTree(categorySnippetMenusDTOS, "0", node -> {
             String categoryId = node.getId();
@@ -82,6 +84,4 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
             }
         });
     }
-
-
 }

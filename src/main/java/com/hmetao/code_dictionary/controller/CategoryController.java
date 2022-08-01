@@ -33,7 +33,7 @@ public class CategoryController {
      *
      * @return 菜单
      */
-    @GetMapping("category/snippet")
+    @GetMapping("/menus")
     public ResponseEntity<Result> getCategorySnippetMenus() {
         return Result.success(categoryService.getCategorySnippetMenus());
     }

@@ -21,6 +21,10 @@ public class BaseTreeDTO<T> implements Serializable {
 
     List<? extends BaseTreeDTO<T>> children;
 
+    public BaseTreeDTO(T id, T parentId) {
+        this.id = id;
+        this.parentId = parentId;
+    }
 
     public static <T> List<? extends BaseTreeDTO<T>> buildTree(List<? extends BaseTreeDTO<T>> tree, T parentId) {
         return tree.stream()
