@@ -16,6 +16,7 @@ import com.hmetao.code_dictionary.service.UserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.utils.MapUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -32,26 +33,26 @@ import java.util.Objects;
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
-    @Resource
-    private HttpServletResponse httpServletResponse;
 
     @Override
     public UserDTO login(LoginForm loginForm) {
         User userEntity = baseMapper.selectOne(new QueryWrapper<User>().eq("username", loginForm.getUsername()));
         String password = loginForm.getPassword();
-        if (userEntity == null) {
+        if (userEntity == null)
             throw new AccessErrorException("登录失败：请先完成注册操作");
-        }
         // 判断密码是否相同
-        if (Objects.equals(userEntity.getPassword(),
-                SaSecureUtil.md5BySalt(password, BaseConstants.SALT_PASSWORD))) {
+        if (checkPassword(userEntity, password)) {
             // 登录成功
             StpUtil.login(userEntity.getId());
             // 存储用户信息
             StpUtil.getSession().set(BaseConstants.LOGIN_USERINFO_SESSION_KEY, userEntity);
             return MapUtils.beanMap(userEntity, UserDTO.class);
-        } else {
-            throw new AccessErrorException("登录失败：请检查用户名或密码");
         }
+        throw new AccessErrorException("登录失败：请检查用户名或密码");
+    }
+
+    private boolean checkPassword(User userEntity, String password) {
+        return Objects.equals(userEntity.getPassword(),
+                SaSecureUtil.md5BySalt(password, BaseConstants.SALT_PASSWORD));
     }
 }
