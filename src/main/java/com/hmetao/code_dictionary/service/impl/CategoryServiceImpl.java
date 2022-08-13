@@ -46,13 +46,20 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         // 查询出该用户所有的category
         ArrayList<Category> categories = new ArrayList<>(baseMapper.selectList(new LambdaQueryWrapper<Category>()
                 .eq(Category::getUserId, sysUser.getId())));
+        // 转换成DTO后续构造为树形结构
+        List<CategorySnippetMenusDTO> categorySnippetMenusDTOS = categories.stream()
+                .map(category -> {
+                    CategorySnippetMenusDTO categorySnippetMenusDTO =
+                            new CategorySnippetMenusDTO(String.valueOf(category.getId()),
+                                    category.getName(),
+                                    String.valueOf(category.getParentId()));
+                    return categorySnippetMenusDTO;
+                }).collect(Collectors.toList());
 
-        List<Long> categoryIds = categories.stream().map(Category::getId).collect(Collectors.toList());
-        // 查询所有snippet
-        List<SnippetCategory> snippets = snippetCategoryService.list(new QueryWrapper<SnippetCategory>()
-                .in("category_id", categoryIds));
+        // 查出category下的所有snippet
+        List<SnippetCategory> snippets = getSnippetCategories(categories);
 
-        // 按category分组找出每个category下的snippet
+        // 按category分组找出每个category下的snippet(类似每个文件夹下的文件 category就是文件夹 snippet就是文件)
         Map<String, List<CategorySnippetMenusDTO>> categorySnippetMap = snippets.stream().map(snippet -> {
             CategorySnippetMenusDTO categorySnippetMenusDTO =
                     new CategorySnippetMenusDTO("sn-" + snippet.getSnippetId(),
@@ -62,15 +69,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
             return categorySnippetMenusDTO;
         }).collect(Collectors.groupingBy(CategorySnippetMenusDTO::getParentId));
 
-        // 转换成DTO
-        List<CategorySnippetMenusDTO> categorySnippetMenusDTOS = categories.stream()
-                .map(category -> {
-                    CategorySnippetMenusDTO categorySnippetMenusDTO =
-                            new CategorySnippetMenusDTO(String.valueOf(category.getId()),
-                                    category.getName(),
-                                    String.valueOf(category.getParentId()));
-                    return categorySnippetMenusDTO;
-                }).collect(Collectors.toList());
 
         // 构建树状结构
         return (List<CategorySnippetMenusDTO>) BaseTreeDTO.buildTree(categorySnippetMenusDTOS, "0", node -> {
@@ -84,5 +82,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                 }
             }
         });
+    }
+
+    private List<SnippetCategory> getSnippetCategories(ArrayList<Category> categories) {
+        List<Long> categoryIds = categories.stream().map(Category::getId).collect(Collectors.toList());
+        // 查询所有snippet
+        return snippetCategoryService.list(new QueryWrapper<SnippetCategory>()
+                .in("category_id", categoryIds));
     }
 }
