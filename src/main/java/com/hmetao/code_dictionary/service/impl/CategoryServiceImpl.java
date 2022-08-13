@@ -14,6 +14,7 @@ import com.hmetao.code_dictionary.service.CategoryService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.service.SnippetCategoryService;
 import com.hmetao.code_dictionary.utils.MapUtils;
+import com.hmetao.code_dictionary.utils.SaTokenUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -40,7 +41,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Override
     public List<CategorySnippetMenusDTO> getCategorySnippetMenus() {
         // 获取登录用户
-        User sysUser = (User) StpUtil.getSession().get(BaseConstants.LOGIN_USERINFO_SESSION_KEY);
+        User sysUser = SaTokenUtils.getLoginUserInfo();
 
         // 查询出该用户所有的category
         ArrayList<Category> categories = new ArrayList<>(baseMapper.selectList(new LambdaQueryWrapper<Category>()

@@ -1,5 +1,6 @@
 package com.hmetao.code_dictionary.service;
 
+import com.hmetao.code_dictionary.dto.SnippetDTO;
 import com.hmetao.code_dictionary.entity.Snippet;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -13,4 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface SnippetService extends IService<Snippet> {
 
+    SnippetDTO getSnippet(Integer id);
 }
