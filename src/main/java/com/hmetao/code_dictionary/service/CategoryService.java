@@ -17,5 +17,5 @@ import java.util.List;
  */
 public interface CategoryService extends IService<Category> {
 
-    List<CategorySnippetMenusDTO> getCategorySnippetMenus();
+    List<CategorySnippetMenusDTO> getCategorySnippetMenus(Boolean snippet);
 }
