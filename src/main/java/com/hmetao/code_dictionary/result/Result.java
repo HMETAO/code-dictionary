@@ -40,6 +40,10 @@ public class Result implements Serializable {
         return success(null, HttpStatus.OK);
     }
 
+    public static ResponseEntity<Result> success(HttpStatus status) {
+        return success(null, status);
+    }
+
     public static ResponseEntity<Result> success(Object data) {
         return success(data, HttpStatus.OK);
     }

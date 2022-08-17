@@ -2,14 +2,12 @@ package com.hmetao.code_dictionary.controller;
 
 
 import com.hmetao.code_dictionary.dto.CategoryDTO;
+import com.hmetao.code_dictionary.form.CategoryForm;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.CategoryService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -37,6 +35,18 @@ public class CategoryController {
     @GetMapping("/menus")
     public ResponseEntity<Result> getCategorySnippetMenus(@RequestParam(defaultValue = "true") Boolean snippet) {
         return Result.success(categoryService.getCategorySnippetMenus(snippet));
+    }
+
+    /**
+     * 新建category
+     *
+     * @param categoryForm category数据
+     * @return 统一返回
+     */
+    @PostMapping
+    public ResponseEntity<Result> insertCategory(@RequestBody CategoryForm categoryForm) {
+        categoryService.insertCategory(categoryForm);
+        return Result.success(HttpStatus.CREATED);
     }
 }
 

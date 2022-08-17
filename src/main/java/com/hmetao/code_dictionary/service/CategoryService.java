@@ -4,6 +4,7 @@ import com.hmetao.code_dictionary.dto.CategoryDTO;
 import com.hmetao.code_dictionary.dto.CategorySnippetMenusDTO;
 import com.hmetao.code_dictionary.entity.Category;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.hmetao.code_dictionary.form.CategoryForm;
 
 import java.util.List;
 
@@ -18,4 +19,6 @@ import java.util.List;
 public interface CategoryService extends IService<Category> {
 
     List<CategorySnippetMenusDTO> getCategorySnippetMenus(Boolean snippet);
+
+    void insertCategory(CategoryForm categoryForm);
 }

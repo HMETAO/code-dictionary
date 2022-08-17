@@ -7,10 +7,12 @@ import com.hmetao.code_dictionary.dto.CategorySnippetMenusDTO;
 import com.hmetao.code_dictionary.entity.Category;
 import com.hmetao.code_dictionary.entity.SnippetCategory;
 import com.hmetao.code_dictionary.entity.User;
+import com.hmetao.code_dictionary.form.CategoryForm;
 import com.hmetao.code_dictionary.mapper.CategoryMapper;
 import com.hmetao.code_dictionary.service.CategoryService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.service.SnippetCategoryService;
+import com.hmetao.code_dictionary.utils.MapUtils;
 import com.hmetao.code_dictionary.utils.SaTokenUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -79,6 +81,15 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                 }
             }
         });
+    }
+
+    @Override
+    public void insertCategory(CategoryForm categoryForm) {
+        // 获取登录用户
+        User sysUser = SaTokenUtils.getLoginUserInfo();
+        Category category = MapUtils.beanMap(categoryForm, Category.class);
+        category.setUserId(sysUser.getId());
+        baseMapper.insert(category);
     }
 
     private Map<String, List<CategorySnippetMenusDTO>> getMapOfSnippetGroupedByCategory(List<Category> categories) {

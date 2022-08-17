@@ -17,14 +17,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotLoginException.class)
     @ResponseBody
     public ResponseEntity<Result> notLoginException(Exception e) {
+        log.error("GlobalExceptionHandler === > " + e.getMessage(), e);
         return Result.error(HttpStatus.FORBIDDEN, "未能识别登录状态，请重新登陆");
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public ResponseEntity<Result> processException(Exception e) {
-        log.error(e.getMessage());
-        e.printStackTrace();
+        log.error("GlobalExceptionHandler === > " + e.getMessage(), e);
         return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 
