@@ -15,6 +15,8 @@ import com.hmetao.code_dictionary.service.SnippetCategoryService;
 import com.hmetao.code_dictionary.utils.MapUtils;
 import com.hmetao.code_dictionary.utils.SaTokenUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -92,6 +94,57 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         baseMapper.insert(category);
     }
 
+    @Override
+    @Transactional
+    public void deleteCategory(Long categoryId) {
+        // 获取用户信息
+        User sysUser = SaTokenUtils.getLoginUserInfo();
+        Long userId = sysUser.getId();
+
+        // 查询category
+        Category category = baseMapper.selectOne(new LambdaQueryWrapper<Category>()
+                .eq(Category::getUserId, userId)
+                .eq(Category::getId, categoryId));
+
+        // 系统目录禁删
+        Assert.isTrue(!category.getIsSystem(), "通用分组禁止删除");
+
+        // 查询系统目录
+        Category systemCategory = baseMapper.selectOne(new LambdaQueryWrapper<Category>()
+                .eq(Category::getIsSystem, true)
+                .eq(Category::getUserId, userId));
+
+        // 转移分组信息
+        transferCategoryInfo(categoryId, category, systemCategory);
+
+        // 删除该分组
+        baseMapper.delete(new LambdaQueryWrapper<Category>()
+                .eq(Category::getUserId, userId)
+                .eq(Category::getId, categoryId));
+
+
+    }
+
+    private void transferCategoryInfo(Long categoryId, Category category, Category transferCategory) {
+        // 查询子目录
+        List<Category> childrenCategory = baseMapper.selectList(new LambdaQueryWrapper<Category>()
+                .eq(Category::getParentId, categoryId));
+
+        childrenCategory.forEach(item -> item.setParentId(transferCategory.getId()));
+
+        if (!CollectionUtils.isEmpty(childrenCategory))
+            this.updateBatchById(childrenCategory);
+
+        // 转移分组下的snippet
+        List<SnippetCategory> snippetCategory = snippetCategoryService.list(new LambdaQueryWrapper<SnippetCategory>()
+                .eq(SnippetCategory::getCategoryId, category.getId()));
+
+        snippetCategory.forEach(item -> item.setCategoryId(transferCategory.getId()));
+
+        if (!CollectionUtils.isEmpty(snippetCategory))
+            snippetCategoryService.updateBatchById(snippetCategory);
+    }
+
     private Map<String, List<CategorySnippetMenusDTO>> getMapOfSnippetGroupedByCategory(List<Category> categories) {
         // 查出category下的所有snippet
         List<Long> categoryIds = categories.stream().map(Category::getId).collect(Collectors.toList());
@@ -111,6 +164,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         Category category = new Category();
         category.setUserId(sysUser.getId());
         category.setName("通用分组");
+        category.setIsSystem(true);
         baseMapper.insert(category);
         return Collections.singletonList(category);
     }

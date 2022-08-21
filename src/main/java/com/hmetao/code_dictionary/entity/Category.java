@@ -44,4 +44,7 @@ public class Category extends BaseEntity implements Serializable {
     @ApiModelProperty(value = "父级id")
     private Long parentId;
 
+    @ApiModelProperty(value = "系统类别")
+    private Boolean isSystem;
+
 }

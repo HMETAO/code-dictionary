@@ -48,5 +48,17 @@ public class CategoryController {
         categoryService.insertCategory(categoryForm);
         return Result.success(HttpStatus.CREATED);
     }
+
+    /**
+     * 删除category
+     *
+     * @param categoryId categoryId
+     * @return 统一返回
+     */
+    @DeleteMapping("/{categoryId}")
+    public ResponseEntity<Result> deleteCategory(@PathVariable Long categoryId) {
+        categoryService.deleteCategory(categoryId);
+        return Result.success(HttpStatus.NO_CONTENT);
+    }
 }
 
