@@ -54,6 +54,11 @@ public class SnippetController {
         return Result.success(HttpStatus.CREATED);
     }
 
+    @DeleteMapping("/{snippetId}")
+    public ResponseEntity<Result> deleteSnippet(@PathVariable Long snippetId) {
+        snippetService.deleteSnippet(snippetId);
+        return Result.success(HttpStatus.NO_CONTENT);
+    }
 
 }
 

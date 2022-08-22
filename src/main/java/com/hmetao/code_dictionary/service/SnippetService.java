@@ -18,4 +18,6 @@ public interface SnippetService extends IService<Snippet> {
     SnippetDTO getSnippet(Integer id);
 
     void insertSnippet(SnippetForm snippetForm);
+
+    void deleteSnippet(Long snippetId);
 }

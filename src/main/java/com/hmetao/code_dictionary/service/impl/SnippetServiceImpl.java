@@ -62,4 +62,18 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
         snippetCategory.setSnippetTitle(snippet.getTitle());
         snippetCategoryService.save(snippetCategory);
     }
+
+    @Override
+    @Transactional
+    public void deleteSnippet(Long snippetId) {
+        // 获取登录用户
+        User sysUser = SaTokenUtils.getLoginUserInfo();
+
+        baseMapper.delete(new LambdaQueryWrapper<Snippet>()
+                .eq(Snippet::getUid, sysUser.getId())
+                .eq(Snippet::getId, snippetId));
+
+        snippetCategoryService.remove(new LambdaQueryWrapper<SnippetCategory>()
+                .eq(SnippetCategory::getSnippetId, snippetId));
+    }
 }
