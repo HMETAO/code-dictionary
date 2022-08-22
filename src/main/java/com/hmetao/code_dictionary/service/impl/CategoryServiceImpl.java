@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 /**
  * <p>
- * 文章标签表 服务实现类
+ * 分类表 服务实现类
  * </p>
  *
  * @author HMETAO
