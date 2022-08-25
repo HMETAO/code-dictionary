@@ -2,6 +2,7 @@ package com.hmetao.code_dictionary.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.hmetao.code_dictionary.dto.BaseTreeDTO;
 import com.hmetao.code_dictionary.dto.CategorySnippetMenusDTO;
 import com.hmetao.code_dictionary.entity.Category;
@@ -14,6 +15,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.service.SnippetCategoryService;
 import com.hmetao.code_dictionary.utils.MapUtils;
 import com.hmetao.code_dictionary.utils.SaTokenUtils;
+import org.springframework.objenesis.ObjenesisBase;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -139,10 +141,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         List<SnippetCategory> snippetCategory = snippetCategoryService.list(new LambdaQueryWrapper<SnippetCategory>()
                 .eq(SnippetCategory::getCategoryId, category.getId()));
 
-        snippetCategory.forEach(item -> item.setCategoryId(transferCategory.getId()));
+        // todo 暂时修复 需要优化为在for外批量更新
+        snippetCategory.forEach(item -> {
+            item.setCategoryId(transferCategory.getId());
+            snippetCategoryService.update(item, null);
+        });
 
-        if (!CollectionUtils.isEmpty(snippetCategory))
-            snippetCategoryService.updateBatchById(snippetCategory);
     }
 
     private Map<String, List<CategorySnippetMenusDTO>> getMapOfSnippetGroupedByCategory(List<Category> categories) {
