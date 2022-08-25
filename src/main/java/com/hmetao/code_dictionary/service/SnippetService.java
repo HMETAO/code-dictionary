@@ -20,4 +20,7 @@ public interface SnippetService extends IService<Snippet> {
     void insertSnippet(SnippetForm snippetForm);
 
     void deleteSnippet(Long snippetId);
+
+    void updateSnippet(SnippetForm snippetForm);
+
 }

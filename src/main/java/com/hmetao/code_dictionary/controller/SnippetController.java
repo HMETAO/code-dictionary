@@ -27,18 +27,17 @@ public class SnippetController {
 
 
     @Resource
-    @Autowired
     private SnippetService snippetService;
 
     /**
      * 查询具体snippet
      *
-     * @param id snippetId
+     * @param snippetId snippetId
      * @return snippetDTO
      */
-    @GetMapping("/{id}")
-    public ResponseEntity<Result> getSnippet(@PathVariable Integer id) {
-        SnippetDTO snippetDTO = snippetService.getSnippet(id);
+    @GetMapping("/{snippetId}")
+    public ResponseEntity<Result> getSnippet(@PathVariable Integer snippetId) {
+        SnippetDTO snippetDTO = snippetService.getSnippet(snippetId);
         return Result.success(snippetDTO);
     }
 
@@ -56,6 +55,7 @@ public class SnippetController {
 
     /**
      * 删除snippet
+     *
      * @param snippetId snippetId
      * @return 统一返回
      */
@@ -65,5 +65,16 @@ public class SnippetController {
         return Result.success(HttpStatus.NO_CONTENT);
     }
 
-}
+    /**
+     * 更新snippet
+     *
+     * @param snippetForm snippet信息
+     * @return 统一返回
+     */
+    @PutMapping
+    public ResponseEntity<Result> updateSnippet(@RequestBody SnippetForm snippetForm) {
+        snippetService.updateSnippet(snippetForm);
+        return Result.success(HttpStatus.CREATED);
+    }
 
+}

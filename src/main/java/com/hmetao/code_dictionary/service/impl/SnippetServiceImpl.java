@@ -76,4 +76,10 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
         snippetCategoryService.remove(new LambdaQueryWrapper<SnippetCategory>()
                 .eq(SnippetCategory::getSnippetId, snippetId));
     }
+
+    @Override
+    public void updateSnippet(SnippetForm snippetForm) {
+        Snippet snippet = MapUtils.beanMap(snippetForm, Snippet.class);
+        baseMapper.updateById(snippet);
+    }
 }
