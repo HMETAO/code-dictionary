@@ -1,9 +1,13 @@
 package com.hmetao.code_dictionary.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+
 import java.util.Date;
+
 import com.baomidou.mybatisplus.annotation.TableId;
+
 import java.io.Serializable;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -12,7 +16,7 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author HMETAO
@@ -21,7 +25,7 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(value="Tool对象", description="")
+@ApiModel(value = "Tool对象", description = "")
 public class Tool extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -31,6 +35,9 @@ public class Tool extends BaseEntity implements Serializable {
 
     @ApiModelProperty(value = "工具类型")
     private String toolType;
+
+    @ApiModelProperty(value = "工具大小")
+    private String toolSize;
 
     @ApiModelProperty(value = "下载地址")
     private String url;

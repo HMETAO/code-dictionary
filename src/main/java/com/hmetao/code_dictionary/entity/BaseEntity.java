@@ -20,11 +20,11 @@ public class BaseEntity implements Serializable {
      * 时间格式统一采用 ISO 规范
      */
     @TableField(fill = FieldFill.INSERT)
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS", timezone = "GMT+8")
     protected LocalDateTime createTime;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS", timezone = "GMT+8")
     protected LocalDateTime modifyTime;
 
     @ApiModelProperty(value = "0-存在 1-删除")
