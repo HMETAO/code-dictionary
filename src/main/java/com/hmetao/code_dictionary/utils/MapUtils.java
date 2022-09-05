@@ -1,6 +1,9 @@
 package com.hmetao.code_dictionary.utils;
 
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
+
+import java.util.List;
 
 public class MapUtils {
     public static <T> T beanMap(Object source, Class<T> mapClazz) {
@@ -12,5 +15,12 @@ public class MapUtils {
             e.printStackTrace();
         }
         return target;
+    }
+
+    public static <V,T> PageInfo<T> PageInfoCopy(List<V> source, List<T> target) {
+        PageInfo<V> PageSource = new PageInfo<>(source);
+        PageInfo<T> PageTarget = new PageInfo<>(target);
+        BeanUtils.copyProperties(PageSource, PageTarget);
+        return PageTarget;
     }
 }

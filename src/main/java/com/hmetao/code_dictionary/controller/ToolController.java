@@ -5,8 +5,10 @@ import com.github.pagehelper.PageInfo;
 import com.hmetao.code_dictionary.dto.ToolDTO;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.ToolService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -37,8 +39,19 @@ public class ToolController {
     @GetMapping
     public ResponseEntity<Result> getTools(@RequestParam(name = "pageSize", defaultValue = "5") Integer pageSize,
                                            @RequestParam(name = "pageNum", defaultValue = "1") Integer pageNum) {
-        List<ToolDTO> tools = toolService.getTools(pageSize, pageNum);
-        return Result.success(new PageInfo<>(tools));
+        return Result.success(toolService.getTools(pageSize, pageNum));
+    }
+
+    /**
+     * 上传tools
+     *
+     * @param files 上传列表
+     * @return 统一返回
+     */
+    @PostMapping("upload")
+    public ResponseEntity<Result> upload(@RequestBody List<MultipartFile> files) {
+        toolService.upload(files);
+        return Result.success(HttpStatus.CREATED);
     }
 }
 
