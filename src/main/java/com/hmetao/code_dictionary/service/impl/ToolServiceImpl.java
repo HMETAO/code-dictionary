@@ -87,7 +87,7 @@ public class ToolServiceImpl extends ServiceImpl<ToolMapper, Tool> implements To
         Tool tool = new Tool();
         tool.setToolName(fileNameInfo[0]);
         tool.setToolType(fileNameInfo[1]);
-        tool.setToolSize(file.getSize() + " kb");
+        tool.setToolSize(String.valueOf(file.getSize()));
         tool.setUid(userId);
         tool.setUrl(buildDownloadUrl(fileName));
         return tool;
