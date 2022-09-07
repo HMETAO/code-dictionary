@@ -63,11 +63,15 @@ public class ToolServiceImpl extends ServiceImpl<ToolMapper, Tool> implements To
         List<Tool> tools = files.stream().map(file -> {
             log.info("ToolServiceImpl === > fileName：" + file.getOriginalFilename() + " fileSize: " + file.getSize());
             // 用户传过来的文件信息
-            String[] fileNameInfo = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
+            String fileNameInfo = Objects.requireNonNullElse(file.getOriginalFilename(), "NONE.warren");
+            int startTypeIndex = file.getOriginalFilename().lastIndexOf(".");
+            String fileName = fileNameInfo.substring(0, startTypeIndex);
+            String fileType = fileNameInfo.substring(startTypeIndex + 1);
+
             // 生成上传到云端的文件名
-            String uploadFileName = buildUploadFileName(String.valueOf(userId), fileNameInfo[1]);
+            String uploadFileName = buildUploadFileName(String.valueOf(userId), fileType);
             // 构建entity对象
-            Tool tool = buildToolEntity(userId, file, fileNameInfo, uploadFileName);
+            Tool tool = buildToolEntity(userId, file, new String[]{fileName, fileType}, uploadFileName);
             try {
                 uploadFileMap.put(uploadFileName, file.getInputStream());
             } catch (IOException e) {
