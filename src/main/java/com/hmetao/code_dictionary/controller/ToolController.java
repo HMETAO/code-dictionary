@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -52,6 +54,18 @@ public class ToolController {
     public ResponseEntity<Result> upload(@RequestBody List<MultipartFile> files) {
         toolService.upload(files);
         return Result.success(HttpStatus.CREATED);
+    }
+
+
+    /**
+     * 下载tools
+     *
+     * @param ids      ids
+     * @param response 响应
+     */
+    @GetMapping("download")
+    public void downloadTools(@RequestParam("ids") List<Long> ids, HttpServletResponse response) throws IOException {
+        toolService.download(ids, response);
     }
 }
 

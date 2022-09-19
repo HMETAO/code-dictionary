@@ -19,15 +19,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * <p>
@@ -44,6 +44,7 @@ public class ToolServiceImpl extends ServiceImpl<ToolMapper, Tool> implements To
 
     @Resource
     private AliOSSProperties aliOSSProperties;
+
 
     @Override
     public PageInfo<ToolDTO> getTools(Integer pageSize, Integer pageNum) {
@@ -85,6 +86,53 @@ public class ToolServiceImpl extends ServiceImpl<ToolMapper, Tool> implements To
         // 上传至OSS
         AliOssUtils.upload(uploadFileMap, aliOSSProperties);
 
+    }
+
+    @Override
+    public void download(List<Long> ids, HttpServletResponse response) throws IOException {
+        User user = SaTokenUtils.getLoginUserInfo();
+        Long userId = user.getId();
+        response.setContentType("application/zip;charset=utf-8");
+        response.setHeader("content-disposition", "attachment;filename=" + buildDownloadName());
+        // 查出该用户下需要下载的文件url列表
+        List<Tool> downloadToolInfo = baseMapper.selectList(new LambdaQueryWrapper<Tool>().eq(Tool::getUid, userId)
+                .in(Tool::getId, ids)
+                .select(Tool::getUrl, Tool::getToolName, Tool::getToolType));
+
+        // 映射成Map<fileName,fileURL>
+        Map<String, String> toolsMap = buildToolsMap(downloadToolInfo);
+        ZipOutputStream zos = new ZipOutputStream(response.getOutputStream());
+        toolsMap.forEach((fileName, downloadUrl) -> {
+            try {
+                zos.putNextEntry(new ZipEntry(fileName));
+                // 将文件写入输出流
+                zos.write(AliOssUtils.download(aliOSSProperties, downloadUrl));
+            } catch (IOException e) {
+                log.error("ToolServiceImpl === > " + e.getMessage(), e);
+            } finally {
+                try {
+                    zos.closeEntry();
+                } catch (IOException e) {
+                    log.error("ToolServiceImpl === > " + e.getMessage(), e);
+                }
+            }
+        });
+        zos.finish();
+        zos.close();
+
+    }
+
+    private Map<String, String> buildToolsMap(List<Tool> downloadToolInfo) {
+        return downloadToolInfo.stream()
+                .collect(Collectors.toMap(tool -> tool.getToolName() + "." + tool.getToolType(),
+                        tool -> {
+                            String urlStr = tool.getUrl();
+                            return urlStr.substring(urlStr.indexOf(BaseConstants.ALI_OSS_TOOL_UPLOAD_PREFIX));
+                        }));
+    }
+
+    private String buildDownloadName() {
+        return "code-dictionary_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_")) + "tools.zip";
     }
 
     private Tool buildToolEntity(Long userId, MultipartFile file, String[] fileNameInfo, String fileName) {
