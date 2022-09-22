@@ -25,4 +25,6 @@ public interface ToolService extends IService<Tool> {
     void upload(List<MultipartFile> files);
 
     void download(List<Long> ids, HttpServletResponse response) throws IOException;
+
+    void deleteTool(Long toolId);
 }

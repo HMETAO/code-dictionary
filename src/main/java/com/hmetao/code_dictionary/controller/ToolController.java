@@ -67,5 +67,17 @@ public class ToolController {
     public void downloadTools(@RequestParam("ids") List<Long> ids, HttpServletResponse response) throws IOException {
         toolService.download(ids, response);
     }
+
+    /**
+     * 删除tool
+     *
+     * @param toolId toolId
+     * @return 统一返回
+     */
+    @DeleteMapping("{id}")
+    public ResponseEntity<Result> deleteTool(@PathVariable("id") Long toolId) {
+        toolService.deleteTool(toolId);
+        return Result.success(HttpStatus.NO_CONTENT);
+    }
 }
 

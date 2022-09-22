@@ -1,5 +1,6 @@
 package com.hmetao.code_dictionary.service.impl;
 
+import cn.dev33.satoken.fun.SaFunction;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -25,6 +26,7 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -120,6 +122,18 @@ public class ToolServiceImpl extends ServiceImpl<ToolMapper, Tool> implements To
         zos.finish();
         zos.close();
 
+    }
+
+    @Override
+    public void deleteTool(Long toolId) {
+        User userInfo = SaTokenUtils.getLoginUserInfo();
+        Tool sysTool = baseMapper.selectOne(new LambdaQueryWrapper<Tool>()
+                .eq(Tool::getUid, userInfo.getId())
+                .eq(Tool::getId, toolId));
+        System.out.println();
+        String urlStr = sysTool.getUrl();
+        AliOssUtils.delete(urlStr.substring(urlStr.indexOf(BaseConstants.ALI_OSS_TOOL_UPLOAD_PREFIX)), aliOSSProperties);
+        baseMapper.deleteById(sysTool);
     }
 
     private Map<String, String> buildToolsMap(List<Tool> downloadToolInfo) {
