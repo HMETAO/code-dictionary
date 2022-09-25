@@ -5,11 +5,13 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
 @EnableTransactionManagement
 @MapperScan("com.hmetao.code_dictionary.mapper")
+@EnableRetry
 @EnableConfigurationProperties(AliOSSProperties.class)
 public class CodeDictionaryApplication {
     public static void main(String[] args) {
