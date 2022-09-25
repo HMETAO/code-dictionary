@@ -1,21 +1,29 @@
 package com.hmetao.code_dictionary.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hmetao.code_dictionary.constants.GithubConstants;
+import com.hmetao.code_dictionary.constants.RedisConstants;
 import com.hmetao.code_dictionary.dto.GithubTrendDTO;
 import com.hmetao.code_dictionary.enums.GithubSinceEnum;
 import com.hmetao.code_dictionary.form.TrendForm;
 import com.hmetao.code_dictionary.service.GithubTrendService;
+import com.hmetao.code_dictionary.utils.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -23,19 +31,48 @@ import java.util.stream.Collectors;
 @Service
 public class GithubTrendServiceImpl implements GithubTrendService {
 
+
+    @Resource
+    private RedisUtils redisUtils;
+
+    @Resource
+    private ObjectMapper objectMapper;
+
     @Override
-    public List<GithubTrendDTO> trending(TrendForm trendForm) {
+    public List<GithubTrendDTO> trending(TrendForm trendForm) throws JsonProcessingException {
         // 获取since
-        GithubSinceEnum sinceEnum = trendForm.getSince();
-        String since = sinceEnum.getSinceRequestName();
-        // 构造url
-        String url = buildGithubRequestURL(since);
+        String since = trendForm.getSince().getSinceRequestName();
+        String redisTrend = redisUtils.getCacheObject(RedisConstants.GITHUB_TREND_KEY + since);
+        // 还是保持着穿透状态
+        if (redisTrend.equals(RedisConstants.REDIS_CACHE_ERROR_VALUE)) {
+            return new ArrayList<>();
+        }
+        if (StringUtils.isEmpty(redisTrend)) {
+            // 请求GitHub获取数据
+            List<GithubTrendDTO> trendList = requestGitHubGetTrend(since);
+            // 缓存穿透了没查到数据
+            if (trendList.isEmpty()) {
+                redisUtils.setCacheObject(RedisConstants.GITHUB_TREND_KEY + since,
+                        RedisConstants.REDIS_CACHE_ERROR_VALUE, 30, TimeUnit.SECONDS);
+            } else {
+                // 缓存到redis
+                redisUtils.setCacheObject(RedisConstants.GITHUB_TREND_KEY + since,
+                        objectMapper.writeValueAsString(trendList), 1, TimeUnit.DAYS);
+            }
+            return trendList;
+        }
+        return objectMapper.readValue(redisTrend, new TypeReference<>() {
+        });
+    }
+
+    private List<GithubTrendDTO> requestGitHubGetTrend(String since) {
         try {
-            // 生成dom
-            Document doc = Jsoup.connect(url)
+            // 请求并生成dom
+            Document doc = Jsoup.connect(buildGithubRequestURL(since))
                     .timeout(3000)
                     .get();
             Elements trendBox = doc.body().select(".Box-row");
+            // 解析dom并返回dto
             return trendBox.stream().map(this::BuildGithubTrendDTOByDom).collect(Collectors.toList());
         } catch (IOException e) {
             log.error("GithubTrendServiceImpl === >" + e.getMessage(), e);

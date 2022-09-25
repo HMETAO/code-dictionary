@@ -1,6 +1,7 @@
 package com.hmetao.code_dictionary.controller;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hmetao.code_dictionary.form.TrendForm;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.GithubTrendService;
@@ -35,7 +36,7 @@ public class GithubTrendController {
      * @return trending列表
      */
     @GetMapping
-    public ResponseEntity<Result> trending(TrendForm trendForm) {
+    public ResponseEntity<Result> trending(TrendForm trendForm) throws JsonProcessingException {
         return Result.success(githubTrendService.trending(trendForm));
 
     }

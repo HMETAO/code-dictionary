@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @SpringBootApplication
 @EnableTransactionManagement
 @MapperScan("com.hmetao.code_dictionary.mapper")
-@EnableRetry
 @EnableConfigurationProperties(AliOSSProperties.class)
 public class CodeDictionaryApplication {
     public static void main(String[] args) {
