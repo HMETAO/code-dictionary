@@ -7,6 +7,7 @@ import com.hmetao.code_dictionary.constants.GithubConstants;
 import com.hmetao.code_dictionary.constants.RedisConstants;
 import com.hmetao.code_dictionary.dto.GithubTrendDTO;
 import com.hmetao.code_dictionary.enums.GithubSinceEnum;
+import com.hmetao.code_dictionary.exception.GitHubException;
 import com.hmetao.code_dictionary.form.TrendForm;
 import com.hmetao.code_dictionary.service.GithubTrendService;
 import com.hmetao.code_dictionary.utils.RedisUtils;
@@ -42,9 +43,10 @@ public class GithubTrendServiceImpl implements GithubTrendService {
     public List<GithubTrendDTO> trending(TrendForm trendForm) throws JsonProcessingException {
         // 获取since
         String since = trendForm.getSince().getSinceRequestName();
+        log.info("GithubTrendServiceImpl === > 开始拉取GitHub " + since + "信息");
         String redisTrend = redisUtils.getCacheObject(RedisConstants.GITHUB_TREND_KEY + since);
         // 还是保持着穿透状态
-        if (redisTrend.equals(RedisConstants.REDIS_CACHE_ERROR_VALUE)) {
+        if (redisTrend != null && redisTrend.equals(RedisConstants.REDIS_CACHE_ERROR_VALUE)) {
             return new ArrayList<>();
         }
         if (StringUtils.isEmpty(redisTrend)) {
@@ -54,6 +56,7 @@ public class GithubTrendServiceImpl implements GithubTrendService {
             if (trendList.isEmpty()) {
                 redisUtils.setCacheObject(RedisConstants.GITHUB_TREND_KEY + since,
                         RedisConstants.REDIS_CACHE_ERROR_VALUE, 30, TimeUnit.SECONDS);
+                throw new GitHubException("获取信息失败请稍后重试");
             } else {
                 // 缓存到redis
                 redisUtils.setCacheObject(RedisConstants.GITHUB_TREND_KEY + since,

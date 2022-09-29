@@ -23,8 +23,8 @@ import javax.annotation.Resource;
  * @since 2022-09-24
  */
 @RestController
-@RequestMapping("/code_dictionary/github")
-public class GithubTrendController {
+@RequestMapping("/code_dictionary/api/v1/other")
+public class OtherController {
 
     @Resource
     private GithubTrendService githubTrendService;
@@ -35,8 +35,8 @@ public class GithubTrendController {
      * @param trendForm 请求参数
      * @return trending列表
      */
-    @GetMapping
-    public ResponseEntity<Result> trending(TrendForm trendForm) throws JsonProcessingException {
+    @GetMapping("github")
+    public ResponseEntity<Result> githubTrend(TrendForm trendForm) throws JsonProcessingException {
         return Result.success(githubTrendService.trending(trendForm));
 
     }
