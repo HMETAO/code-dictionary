@@ -12,7 +12,7 @@ pipeline {
         stage('buildCode') {
             steps {
                 echo 'buildCode'
-                sh 'mvn clean package'
+                sh 'mvn clean package -DskipTests'
             }
         }
         stage('buildDockerImages & pullDockerImages') {
