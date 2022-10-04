@@ -42,6 +42,12 @@ public class OtherController {
         return Result.success(githubTrendService.trending(trendForm));
     }
 
+    /**
+     * 设置ssh信息
+     *
+     * @param webSSHForm ssh配置信息
+     * @return 统一返回
+     */
     @PostMapping("ssh")
     public ResponseEntity<Result> ssh(@RequestBody WebSSHForm webSSHForm) {
         otherService.ssh(webSSHForm);
