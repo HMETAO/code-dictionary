@@ -1,5 +1,7 @@
 server:
   port: 8972
+  ssl:
+    enabled: false
 spring:
   mail:
     host: smtp.qq.com #发送邮件服务器
@@ -62,3 +64,9 @@ ali:
     accessKeyId: LTAI5tLmvXnQGJBZHZHSGdFa
     accessKeySecret: 4tKvctcUtl8yHRqj1MVaVG7G4XbIAI
     bucketName: code-dictionary
+# 自定义线程池参数
+hmetao:
+  thread:
+    corePoolSize: 10
+    maxPoolSize: 20
+    keepAliveTime: 300

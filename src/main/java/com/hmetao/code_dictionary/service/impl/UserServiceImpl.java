@@ -44,7 +44,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (checkPassword(userEntity, password)) {
             // 登录成功
             StpUtil.login(userEntity.getId());
-            // 存储用户信息
+            // 用户信息放入token-session
+            StpUtil.getTokenSession().set(BaseConstants.LOGIN_USERINFO_SESSION_KEY, userEntity);
+            // 用户信息放入user-session
             StpUtil.getSession().set(BaseConstants.LOGIN_USERINFO_SESSION_KEY, userEntity);
             return MapUtils.beanMap(userEntity, UserDTO.class);
         }
