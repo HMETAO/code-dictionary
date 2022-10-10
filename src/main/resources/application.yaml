@@ -19,7 +19,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://47.98.249.34/code_dictionary?useSSL=false&serverTimezone=UTC&nullCatalogMeansCurrent=true
     username: root
-    password: root
+    password: HMETAO
     hikari:
       max-lifetime: 30000
   redis:
