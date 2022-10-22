@@ -18,6 +18,7 @@ pipeline {
         stage('buildDockerImages & pullDockerImages') {
             steps {
                 echo 'buildDockerImages'
+                sh 'docker rmi registry.cn-hangzhou.aliyuncs.com/hmetao_docker/code-dictionary'
                 sh 'docker build -t registry.cn-hangzhou.aliyuncs.com/hmetao_docker/code-dictionary -f Dockerfile .'
                 withCredentials([usernamePassword(credentialsId: '213b39c7-770e-4802-afc1-b769eb2dafb1', passwordVariable: 'password', usernameVariable: 'username')]) {
                     // some block
