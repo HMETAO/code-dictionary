@@ -33,6 +33,7 @@ public interface WebSSHService {
      * 关闭连接
      *
      * @param session
+     * @param message
      */
-    public void close(WebSocketSession session);
+    public void close(WebSocketSession session, String message) throws IOException;
 }

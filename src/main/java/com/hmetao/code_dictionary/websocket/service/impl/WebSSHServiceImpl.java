@@ -1,7 +1,5 @@
 package com.hmetao.code_dictionary.websocket.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hmetao.code_dictionary.constants.BaseConstants;
 import com.hmetao.code_dictionary.constants.SSHConstants;
 import com.hmetao.code_dictionary.entity.User;
 import com.hmetao.code_dictionary.websocket.pojo.SSHConnectInfo;
@@ -11,8 +9,11 @@ import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -49,7 +50,7 @@ public class WebSSHServiceImpl implements WebSSHService {
             } catch (JSchException | IOException e) {
                 log.error("webssh连接异常");
                 log.error("异常信息:{}", e.getMessage());
-                close(session);
+                close(session, e.getMessage());
             }
         });
     }
@@ -65,7 +66,7 @@ public class WebSSHServiceImpl implements WebSSHService {
             } catch (IOException e) {
                 log.error("webssh连接异常");
                 log.error("异常信息:{}", e.getMessage());
-                close(session);
+                close(session, e.getMessage());
             }
         }
     }
@@ -124,8 +125,12 @@ public class WebSSHServiceImpl implements WebSSHService {
         session.sendMessage(new TextMessage(buffer));
     }
 
+    @SneakyThrows
     @Override
-    public void close(WebSocketSession session) {
+    public void close(WebSocketSession session, String message) {
+        if (!StringUtils.isEmpty(message))
+            session.close(new CloseStatus(CloseStatus.REQUIRED_EXTENSION.getCode(), message));
+
         User user = (User) session.getAttributes().get(SSHConstants.SSH_SESSION_KEY);
         Long userId = user.getId();
         SSHConnectInfo sshConnectInfo = sshMap.get(userId);

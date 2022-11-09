@@ -24,6 +24,7 @@ public class WebSocketInterceptor implements HandshakeInterceptor {
             String query = request.getURI().getQuery();
             // 保存登录用户到websocket的session
             SaSession tokenSession = StpUtil.getTokenSessionByToken(query.replaceAll("token=", ""));
+            if (tokenSession == null) return false;
             map.put(SSHConstants.SSH_SESSION_KEY, tokenSession.get(BaseConstants.LOGIN_USERINFO_SESSION_KEY));
             map.put(SSHConstants.SSH_DATA_KEY, tokenSession.get(SSHConstants.SSH_DATA_KEY));
             return true;

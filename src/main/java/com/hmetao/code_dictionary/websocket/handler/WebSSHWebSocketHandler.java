@@ -1,6 +1,5 @@
 package com.hmetao.code_dictionary.websocket.handler;
 
-import com.hmetao.code_dictionary.constants.BaseConstants;
 import com.hmetao.code_dictionary.constants.SSHConstants;
 import com.hmetao.code_dictionary.websocket.service.WebSSHService;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +46,7 @@ public class WebSSHWebSocketHandler implements WebSocketHandler {
     public void afterConnectionClosed(WebSocketSession webSocketSession, CloseStatus closeStatus) throws Exception {
         log.info("用户:{}断开webssh连接", webSocketSession.getAttributes().get(SSHConstants.SSH_SESSION_KEY));
         //调用service关闭连接
-        webSSHService.close(webSocketSession);
+        webSSHService.close(webSocketSession, null);
     }
 
     @Override
