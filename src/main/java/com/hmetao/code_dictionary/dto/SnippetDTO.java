@@ -28,8 +28,6 @@ public class SnippetDTO implements Serializable {
 
     private String title;
 
-    private String subtitle;
-
     private String snippet;
 
 
