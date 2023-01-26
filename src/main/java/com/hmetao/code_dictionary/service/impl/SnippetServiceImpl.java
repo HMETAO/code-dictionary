@@ -1,6 +1,7 @@
 package com.hmetao.code_dictionary.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hmetao.code_dictionary.dto.SnippetDTO;
 import com.hmetao.code_dictionary.entity.Snippet;
 import com.hmetao.code_dictionary.entity.SnippetCategory;
@@ -50,6 +51,13 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
     public void insertSnippet(SnippetForm snippetForm) {
         // 获取登录用户
         User sysUser = SaTokenUtils.getLoginUserInfo();
+
+        SnippetCategory exit = snippetCategoryService.getOne(new LambdaQueryWrapper<SnippetCategory>()
+                .eq(SnippetCategory::getCategoryId,
+                        snippetForm.getCategoryId()).eq(SnippetCategory::getSnippetTitle, snippetForm.getTitle()), true);
+        if (exit != null) {
+            throw new RuntimeException("在改分组下已存在此 Title 的 Snippet");
+        }
 
         // 写入snippet
         Snippet snippet = MapUtils.beanMap(snippetForm, Snippet.class);

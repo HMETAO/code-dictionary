@@ -35,6 +35,7 @@ public class Snippet extends BaseEntity implements Serializable {
     @ApiModelProperty(value = "主标题")
     private String title;
 
+    // 保留字段 未使用
     @ApiModelProperty(value = "子标题")
     private String subtitle;
 

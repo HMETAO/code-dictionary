@@ -22,10 +22,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -161,7 +158,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                     snippet.getSnippetTitle(),
                     String.valueOf(snippet.getCategoryId()),
                     true);
-        }).collect(Collectors.groupingBy(CategorySnippetMenusDTO::getParentId));
+        })      // 按字典序排序
+                .sorted(Comparator.comparing(CategorySnippetMenusDTO::getLabel))
+                .collect(Collectors.groupingBy(CategorySnippetMenusDTO::getParentId));
     }
 
     private List<Category> generateInitialCategory(User sysUser) {
