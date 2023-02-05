@@ -3,10 +3,9 @@ package com.hmetao.code_dictionary.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hmetao.code_dictionary.constants.GithubConstants;
+import com.hmetao.code_dictionary.constants.OtherConstants;
 import com.hmetao.code_dictionary.constants.RedisConstants;
 import com.hmetao.code_dictionary.dto.GithubTrendDTO;
-import com.hmetao.code_dictionary.enums.GithubSinceEnum;
 import com.hmetao.code_dictionary.exception.GitHubException;
 import com.hmetao.code_dictionary.form.TrendForm;
 import com.hmetao.code_dictionary.service.GithubTrendService;
@@ -92,7 +91,7 @@ public class GithubTrendServiceImpl implements GithubTrendService {
         String starNumber = projectInfo[0];
         String shareNumber = projectInfo[1];
         githubTrendDTO.setTitle(href.substring(1));
-        githubTrendDTO.setUrl(GithubConstants.GITHUB_URL + href);
+        githubTrendDTO.setUrl(OtherConstants.GITHUB_URL + href);
         githubTrendDTO.setLanguage(language);
         githubTrendDTO.setDescription(description);
         githubTrendDTO.setStarNumber(starNumber);
@@ -102,7 +101,7 @@ public class GithubTrendServiceImpl implements GithubTrendService {
 
     private String buildGithubRequestURL(String since) {
         return UriComponentsBuilder
-                .fromUriString(GithubConstants.GITHUB_TRENDING_URL)
+                .fromUriString(OtherConstants.GITHUB_TRENDING_URL)
                 .queryParam("since", since)
                 .toUriString();
     }

@@ -53,5 +53,11 @@ public class OtherController {
         otherService.ssh(webSSHForm);
         return Result.success(HttpStatus.CREATED);
     }
+
+    @GetMapping("calendar")
+    public ResponseEntity<Result> calendar() {
+        return Result.success(otherService.calendar());
+    }
+
 }
 

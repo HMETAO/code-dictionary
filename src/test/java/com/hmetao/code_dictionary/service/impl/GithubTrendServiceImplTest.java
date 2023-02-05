@@ -1,19 +1,15 @@
 package com.hmetao.code_dictionary.service.impl;
 
-import com.hmetao.code_dictionary.constants.GithubConstants;
-import com.hmetao.code_dictionary.enums.GithubSinceEnum;
+import com.hmetao.code_dictionary.constants.OtherConstants;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.Arrays;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class GithubTrendServiceImplTest {
 
@@ -35,7 +31,7 @@ class GithubTrendServiceImplTest {
                 System.out.println("language  == > " + language);
                 System.out.println("description  == > " + description);
                 System.out.println("title  == > " + href.substring(1));
-                System.out.println("url === > " + GithubConstants.GITHUB_URL + href);
+                System.out.println("url === > " + OtherConstants.GITHUB_URL + href);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -44,7 +40,7 @@ class GithubTrendServiceImplTest {
 
     private String buildGithubRequestURL(String since) {
         return UriComponentsBuilder
-                .fromUriString(GithubConstants.GITHUB_TRENDING_URL)
+                .fromUriString(OtherConstants.GITHUB_TRENDING_URL)
                 .queryParam("since", since)
                 .toUriString();
     }
