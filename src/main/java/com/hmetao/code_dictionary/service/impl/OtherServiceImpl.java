@@ -4,13 +4,16 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hmetao.code_dictionary.constants.OtherConstants;
+import com.hmetao.code_dictionary.constants.RedisConstants;
 import com.hmetao.code_dictionary.constants.SSHConstants;
 import com.hmetao.code_dictionary.dto.CalendarDTO;
 import com.hmetao.code_dictionary.dto.LeetCodeDTO;
 import com.hmetao.code_dictionary.form.WebSSHForm;
 import com.hmetao.code_dictionary.service.OtherService;
+import com.hmetao.code_dictionary.utils.RedisUtils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.covariance.codeforcesapi.CodeforcesApi;
@@ -31,6 +34,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -44,7 +48,10 @@ public class OtherServiceImpl implements OtherService {
     @Resource
     private ObjectMapper objectMapper;
 
-    private final LocalDate localDate = LocalDate.now().minusMonths(2);
+    @Resource
+    private RedisUtils redisUtils;
+
+    private final LocalDate localDate = LocalDate.now();
 
     @Override
     public void ssh(WebSSHForm webSSHForm) {
@@ -55,24 +62,35 @@ public class OtherServiceImpl implements OtherService {
     @SneakyThrows
     @Override
     public List<CalendarDTO> calendar() {
+        // 提取缓存
+        String contestJsonStr = redisUtils.getCacheObject(RedisConstants.CALENDAR_CONTESTS_KEY);
+        // 缓存非空
+        if (StringUtils.isNotBlank(contestJsonStr)) {
+            // 转换成对象返回
+            return objectMapper.readValue(contestJsonStr, new TypeReference<List<CalendarDTO>>() {
+            });
+        }
         // 请求 codeforces 比赛信息
-        int second = (int) localDate.atStartOfDay(ZoneOffset.ofHours(8)).toInstant().getEpochSecond();
+        int second = (int) localDate.minusMonths(2).atStartOfDay(ZoneOffset.ofHours(8)).toInstant().getEpochSecond();
         List<Contest> codeForces = new CodeforcesApi().contestList(false)
                 .stream().filter(item -> second < item.getStartTimeSeconds())
                 .collect(Collectors.toList());
         // 转换成的DTO
-        log.info(codeForces.toString());
+        log.info("OtherServiceImpl === > 拉取 CodeForces 比赛信息 " + codeForces);
         List<CalendarDTO> codeForcesCalendarDTO = returnCodeForcesCalendarDTO(codeForces);
 
         // 请求 leetcode 比赛信息
-        List<LeetCodeDTO> leetCodeDTOS = leetcodeContentList();
+        List<LeetCodeDTO> leetCodeDTOS = leetcodeContestList();
 
-        log.info(leetCodeDTOS.toString());
+        log.info("OtherServiceImpl === > 拉取 LeetCode 比赛信息 " + leetCodeDTOS);
         // 转换成的DTO
         List<CalendarDTO> leetcodeCalendarDTO = returnLeetCodeCalendarDTO(leetCodeDTOS);
 
         // 合并返回
         leetcodeCalendarDTO.addAll(codeForcesCalendarDTO);
+        // 将数据存入redis ( time:[7 Day] )
+        redisUtils.setCacheObject(RedisConstants.CALENDAR_CONTESTS_KEY,
+                objectMapper.writeValueAsString(leetcodeCalendarDTO), 7, TimeUnit.DAYS);
         return leetcodeCalendarDTO;
     }
 
@@ -96,7 +114,7 @@ public class OtherServiceImpl implements OtherService {
     }
 
     @SuppressWarnings("All")
-    private List<LeetCodeDTO> leetcodeContentList() throws IOException, InterruptedException {
+    private List<LeetCodeDTO> leetcodeContestList() throws IOException, InterruptedException {
 
         HttpRequest leetcodeRequest = HttpRequest.newBuilder()
                 .header("Content-type", "application/json")
