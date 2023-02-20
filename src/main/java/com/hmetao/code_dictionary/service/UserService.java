@@ -4,6 +4,7 @@ import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.hmetao.code_dictionary.form.LoginForm;
+import com.hmetao.code_dictionary.form.UserRegistryForm;
 
 /**
  * <p>
@@ -16,4 +17,6 @@ import com.hmetao.code_dictionary.form.LoginForm;
 public interface UserService extends IService<User> {
 
     UserDTO login(LoginForm loginForm);
+
+    void registry(UserRegistryForm userRegistryForm);
 }

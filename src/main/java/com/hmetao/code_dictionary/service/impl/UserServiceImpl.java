@@ -1,25 +1,20 @@
 package com.hmetao.code_dictionary.service.impl;
 
 import cn.dev33.satoken.secure.SaSecureUtil;
-import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.sql.SqlUtils;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.constants.BaseConstants;
 import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.User;
 import com.hmetao.code_dictionary.exception.AccessErrorException;
-import com.hmetao.code_dictionary.exception.HMETAOException;
 import com.hmetao.code_dictionary.form.LoginForm;
+import com.hmetao.code_dictionary.form.UserRegistryForm;
 import com.hmetao.code_dictionary.mapper.UserMapper;
 import com.hmetao.code_dictionary.service.UserService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.utils.MapUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 
 /**
@@ -51,6 +46,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return MapUtils.beanMap(userEntity, UserDTO.class);
         }
         throw new AccessErrorException("登录失败：请检查用户名或密码");
+    }
+
+    @Override
+    public void registry(UserRegistryForm userRegistryForm) {
+        
     }
 
     private boolean checkPassword(User userEntity, String password) {

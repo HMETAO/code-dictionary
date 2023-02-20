@@ -4,10 +4,12 @@ package com.hmetao.code_dictionary.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.form.LoginForm;
+import com.hmetao.code_dictionary.form.UserRegistryForm;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -38,6 +40,12 @@ public class UserController {
     public ResponseEntity<Result> logout() {
         StpUtil.logout();
         return Result.success(HttpStatus.OK, "登出成功");
+    }
+
+    @PostMapping("registry")
+    public ResponseEntity<Result> registry(@Validated @RequestBody UserRegistryForm userRegistryForm) {
+        userService.registry(userRegistryForm);
+        return Result.success(HttpStatus.CREATED);
     }
 }
 

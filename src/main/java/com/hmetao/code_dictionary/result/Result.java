@@ -1,22 +1,13 @@
 package com.hmetao.code_dictionary.result;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -63,6 +54,16 @@ public class Result implements Serializable {
         return new ResponseEntity<>(result, status);
     }
 
+    public static ResponseEntity<Result> error(Object data, HttpStatus status, String message) {
+        Result result = BuildErrorResult(data, status, message);
+        return new ResponseEntity<>(result, status);
+    }
+
+    public static ResponseEntity<Result> error(Object data, HttpStatus status) {
+        Result result = BuildErrorResult(data, status);
+        return new ResponseEntity<>(result, status);
+    }
+
     public static ResponseEntity<Result> error(HttpStatus status, String message) {
         Result result = BuildErrorResult(status, message);
         return new ResponseEntity<>(result, status);
@@ -81,11 +82,29 @@ public class Result implements Serializable {
         return result;
     }
 
+    public static Result BuildErrorResult(Object data, HttpStatus status) {
+        Result result = new Result();
+        result.success = false;
+        result.code = status.value();
+        result.message = status.name();
+        result.data = data;
+        return result;
+    }
+
     public static Result BuildErrorResult(HttpStatus status, String message) {
         Result result = new Result();
         result.success = false;
         result.code = status.value();
         result.message = message;
+        return result;
+    }
+
+    public static Result BuildErrorResult(Object data, HttpStatus status, String message) {
+        Result result = new Result();
+        result.success = false;
+        result.code = status.value();
+        result.message = message;
+        result.data = data;
         return result;
     }
 
