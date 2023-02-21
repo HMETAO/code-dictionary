@@ -2,20 +2,31 @@ package com.hmetao.code_dictionary.service.impl;
 
 import cn.dev33.satoken.secure.SaSecureUtil;
 import cn.dev33.satoken.stp.StpUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.constants.BaseConstants;
 import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.User;
 import com.hmetao.code_dictionary.exception.AccessErrorException;
+import com.hmetao.code_dictionary.exception.ValidationException;
 import com.hmetao.code_dictionary.form.LoginForm;
 import com.hmetao.code_dictionary.form.UserRegistryForm;
 import com.hmetao.code_dictionary.mapper.UserMapper;
+import com.hmetao.code_dictionary.properties.QiNiuProperties;
 import com.hmetao.code_dictionary.service.UserService;
 import com.hmetao.code_dictionary.utils.MapUtils;
+import com.hmetao.code_dictionary.utils.QiniuUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * <p>
@@ -25,9 +36,15 @@ import java.util.Objects;
  * @author HMETAO
  * @since 2022-07-08
  */
+@Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
+
+    @Resource
+    private QiNiuProperties qiNiuProperties;
+
+    private final LocalDate localDate = LocalDate.now();
 
     @Override
     public UserDTO login(LoginForm loginForm) {
@@ -50,8 +67,37 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public void registry(UserRegistryForm userRegistryForm) {
-        
+        Integer count = baseMapper.selectCount(new LambdaQueryWrapper<User>()
+                .eq(User::getUsername, userRegistryForm.getUsername())
+                .or().eq(User::getMobile, userRegistryForm.getMobile()));
+        if (count > 0) {
+            throw new ValidationException("注册失败：用户名或手机号重复");
+        }
+
+        try {
+            User user = MapUtils.beanMap(userRegistryForm, User.class);
+            user.setPassword(SaSecureUtil.md5BySalt(user.getPassword(), BaseConstants.SALT_PASSWORD));
+            MultipartFile file = userRegistryForm.getFile();
+            // 若上传了文件 切 上传的文件并不为空
+            if (file != null && !file.isEmpty()) {
+                StringBuilder fileName = new StringBuilder(BaseConstants.QINIU_OSS_UPLOAD_PREFIX);
+                // filename: avatar/date/UUID.jpg
+                fileName.append(localDate.format(DateTimeFormatter.ofPattern("yyyy/MM/dd")))
+                        .append(UUID.randomUUID().toString().replaceAll("-", ""))
+                        .append(".")
+                        .append(Objects.requireNonNull(file.getOriginalFilename()).split("\\.")[1]);
+                // 上传头像文件
+                QiniuUtils.upload2qiniu(qiNiuProperties, file.getBytes(), fileName.toString());
+                user.setAvatar(fileName.insert(0, qiNiuProperties.getUrl()).toString());
+            }
+            // 插入数据库
+            baseMapper.insert(user);
+        } catch (IOException e) {
+            log.error("UserServiceImpl === > 注册用户接口 ERROR ", e);
+            throw new RuntimeException(e);
+        }
     }
+
 
     private boolean checkPassword(User userEntity, String password) {
         return Objects.equals(userEntity.getPassword(),

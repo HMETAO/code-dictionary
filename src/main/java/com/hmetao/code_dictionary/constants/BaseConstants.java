@@ -8,4 +8,6 @@ public class BaseConstants {
 
     public static final String ALI_OSS_TOOL_UPLOAD_PREFIX = "tool/";
 
+    public static final String QINIU_OSS_UPLOAD_PREFIX = "avatar/";
+
 }

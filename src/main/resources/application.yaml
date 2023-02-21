@@ -7,7 +7,6 @@ spring:
     host: smtp.qq.com #发送邮件服务器
     username: 1430271732@qq.com #发送邮件的邮箱地址
     password: wwcxxjaiwqjeffgc #客户端授权码，不是邮箱密码，这个在qq邮箱设置里面自动生成的
-    properties.mail.smtp.ssl.enable: true
   jackson:
     date-format: yyyy-MM-dd hh:mm:ss
     time-zone: GMT+8
@@ -70,3 +69,9 @@ hmetao:
     corePoolSize: 10
     maxPoolSize: 20
     keepAliveTime: 300
+# 七牛云
+qiniu:
+  AK: enuhRFcajWYE1KgKbeycmGIvHEYOFpu2GMb8krId
+  SK: Hm6N7O5yFAMQU6EgDDlsKXgv-ZJPRMfm_1QlXWl1
+  BT: code-dictionary
+  url: http://code-dictionary.hmetao.cn/

@@ -43,7 +43,7 @@ public class UserController {
     }
 
     @PostMapping("registry")
-    public ResponseEntity<Result> registry(@Validated @RequestBody UserRegistryForm userRegistryForm) {
+    public ResponseEntity<Result> registry(@Validated UserRegistryForm userRegistryForm) {
         userService.registry(userRegistryForm);
         return Result.success(HttpStatus.CREATED);
     }

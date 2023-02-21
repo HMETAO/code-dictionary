@@ -4,7 +4,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
@@ -36,4 +38,12 @@ public class UserRegistryForm implements Serializable {
     @Pattern(message = "长度至少为8，至少含有一个字母和一个数字", regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")
     @ApiModelProperty(value = "密码")
     private String password;
+
+
+    @NotNull
+    @Email(message = "Email 格式错误")
+    private String email;
+
+
+    private MultipartFile file;
 }
