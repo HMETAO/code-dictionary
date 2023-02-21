@@ -30,18 +30,35 @@ public class UserController {
     private UserService userService;
 
 
+    /**
+     * 用户登录
+     *
+     * @param loginForm 登录表单
+     * @return 统一返回
+     */
     @PostMapping("login")
     public ResponseEntity<Result> login(@RequestBody LoginForm loginForm) {
         UserDTO userDTO = userService.login(loginForm);
         return Result.success(userDTO, HttpStatus.OK, "登录成功");
     }
 
+    /**
+     * 登出
+     *
+     * @return 统一返回
+     */
     @GetMapping("logout")
     public ResponseEntity<Result> logout() {
         StpUtil.logout();
         return Result.success(HttpStatus.OK, "登出成功");
     }
 
+    /**
+     * 用户注册
+     *
+     * @param userRegistryForm 注册表单
+     * @return 统一返回
+     */
     @PostMapping("registry")
     public ResponseEntity<Result> registry(@Validated UserRegistryForm userRegistryForm) {
         userService.registry(userRegistryForm);

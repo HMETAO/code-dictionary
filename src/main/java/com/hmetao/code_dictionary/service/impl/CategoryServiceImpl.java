@@ -2,7 +2,7 @@ package com.hmetao.code_dictionary.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.dto.BaseTreeDTO;
 import com.hmetao.code_dictionary.dto.CategorySnippetMenusDTO;
 import com.hmetao.code_dictionary.entity.Category;
@@ -11,11 +11,9 @@ import com.hmetao.code_dictionary.entity.User;
 import com.hmetao.code_dictionary.form.CategoryForm;
 import com.hmetao.code_dictionary.mapper.CategoryMapper;
 import com.hmetao.code_dictionary.service.CategoryService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.service.SnippetCategoryService;
 import com.hmetao.code_dictionary.utils.MapUtils;
 import com.hmetao.code_dictionary.utils.SaTokenUtils;
-import org.springframework.objenesis.ObjenesisBase;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -50,7 +48,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                 .eq(Category::getUserId, sysUser.getId())));
 
         // 如果没有分类生成一个默认分类
-        if (CollectionUtils.isEmpty(categories)) {
+        if (CollectionUtils.isEmpty(categories) && snippet) {
             categories = generateInitialCategory(sysUser);
         }
 
@@ -153,12 +151,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
         // 按category分组找出每个category下的snippet(类似每个文件夹下的文件 category就是文件夹 snippet就是文件)
         return snippets.stream().map(snippet -> {
-            // 为了区分snippet与category所以加上'sn-'的前缀
-            return new CategorySnippetMenusDTO("sn-" + snippet.getSnippetId(),
-                    snippet.getSnippetTitle(),
-                    String.valueOf(snippet.getCategoryId()),
-                    true);
-        })      // 按字典序排序
+                    // 为了区分snippet与category所以加上'sn-'的前缀
+                    return new CategorySnippetMenusDTO("sn-" + snippet.getSnippetId(),
+                            snippet.getSnippetTitle(),
+                            String.valueOf(snippet.getCategoryId()),
+                            true);
+                })      // 按字典序排序
                 .sorted(Comparator.comparing(CategorySnippetMenusDTO::getLabel))
                 .collect(Collectors.groupingBy(CategorySnippetMenusDTO::getParentId));
     }
