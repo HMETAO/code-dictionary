@@ -8,17 +8,20 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.constants.BaseConstants;
 import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.User;
+import com.hmetao.code_dictionary.entity.UserRole;
 import com.hmetao.code_dictionary.exception.AccessErrorException;
 import com.hmetao.code_dictionary.exception.ValidationException;
 import com.hmetao.code_dictionary.form.LoginForm;
 import com.hmetao.code_dictionary.form.UserRegistryForm;
 import com.hmetao.code_dictionary.mapper.UserMapper;
 import com.hmetao.code_dictionary.properties.QiNiuProperties;
+import com.hmetao.code_dictionary.service.UserRoleService;
 import com.hmetao.code_dictionary.service.UserService;
 import com.hmetao.code_dictionary.utils.MapUtils;
 import com.hmetao.code_dictionary.utils.QiniuUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -44,6 +47,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     private QiNiuProperties qiNiuProperties;
 
+    @Resource
+    private UserRoleService userRoleService;
+
     private final LocalDate localDate = LocalDate.now();
 
     @Override
@@ -66,6 +72,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
+    @Transactional
     public void registry(UserRegistryForm userRegistryForm) {
         Integer count = baseMapper.selectCount(new LambdaQueryWrapper<User>()
                 .eq(User::getUsername, userRegistryForm.getUsername())
@@ -92,6 +99,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
             // 插入数据库
             baseMapper.insert(user);
+            // 分配普通用户权限
+            UserRole userRole = new UserRole(BaseConstants.BASE_ROLE_USER, user.getId(), BaseConstants.BASE_ADMIN_USER);
+            userRoleService.save(userRole);
         } catch (IOException e) {
             log.error("UserServiceImpl === > 注册用户接口 ERROR ", e);
             throw new RuntimeException(e);

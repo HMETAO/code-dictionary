@@ -59,7 +59,7 @@ public class GithubTrendServiceImpl implements GithubTrendService {
             } else {
                 // 缓存到redis
                 redisUtils.setCacheObject(RedisConstants.GITHUB_TREND_KEY + since,
-                        objectMapper.writeValueAsString(trendList), 1, TimeUnit.DAYS);
+                        objectMapper.writeValueAsString(trendList), 5, TimeUnit.DAYS);
             }
             return trendList;
         }
