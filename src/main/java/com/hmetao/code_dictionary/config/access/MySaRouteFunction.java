@@ -10,6 +10,7 @@ public class MySaRouteFunction implements SaRouteFunction {
     @Override
     public void run(SaRequest request, SaResponse response, Object handler) {
         // 根据路由划分模块，不同模块不同鉴权
-        SaRouter.match("/**", r -> StpUtil.checkLogin());
+        SaRouter.match("/**", r -> StpUtil.checkLogin())
+                .match("/admin/**", r -> StpUtil.checkRole("admin"));
     }
 }

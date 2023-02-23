@@ -1,6 +1,7 @@
 package com.hmetao.code_dictionary.service.impl;
 
 import cn.dev33.satoken.secure.SaSecureUtil;
+import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -61,12 +62,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 判断密码是否相同
         if (checkPassword(userEntity, password)) {
             // 登录成功
-            StpUtil.login(userEntity.getId());
+            StpUtil.login(userEntity.getId(), true);
             // 用户信息放入token-session
             StpUtil.getTokenSession().set(BaseConstants.LOGIN_USERINFO_SESSION_KEY, userEntity);
             // 用户信息放入user-session
             StpUtil.getSession().set(BaseConstants.LOGIN_USERINFO_SESSION_KEY, userEntity);
-            return MapUtils.beanMap(userEntity, UserDTO.class);
+            UserDTO userDTO = MapUtils.beanMap(userEntity, UserDTO.class);
+            // 获取token
+            SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
+            userDTO.setToken(tokenInfo.getTokenValue());
+            return userDTO;
         }
         throw new AccessErrorException("登录失败：请检查用户名或密码");
     }

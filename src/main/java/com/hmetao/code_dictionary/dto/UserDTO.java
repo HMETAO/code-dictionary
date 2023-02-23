@@ -1,8 +1,6 @@
 package com.hmetao.code_dictionary.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.hmetao.code_dictionary.entity.BaseEntity;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -44,5 +42,7 @@ public class UserDTO implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime lastLoginTime;
 
+    @ApiModelProperty(value = "token")
+    private String token;
 
 }
