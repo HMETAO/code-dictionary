@@ -1,12 +1,10 @@
 package com.hmetao.code_dictionary.form;
 
-import com.hmetao.code_dictionary.entity.BaseEntity;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -26,10 +24,12 @@ public class SnippetForm implements Serializable {
 
     private Long id;
 
+    @NotNull(message = "标题禁止为空")
     private String title;
 
     private String snippet;
 
+    @NotNull(message = "请选择分组")
     private Long categoryId;
 
 }

@@ -1,17 +1,16 @@
 package com.hmetao.code_dictionary.controller;
 
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.hmetao.code_dictionary.dto.SnippetDTO;
 import com.hmetao.code_dictionary.form.SnippetForm;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.SnippetService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 /**
  * <p>
@@ -48,7 +47,7 @@ public class SnippetController {
      * @return 统一返回
      */
     @PostMapping
-    public ResponseEntity<Result> insertSnippet(@RequestBody SnippetForm snippetForm) {
+    public ResponseEntity<Result> insertSnippet(@Valid @RequestBody SnippetForm snippetForm) {
         try {
             snippetService.insertSnippet(snippetForm);
         } catch (Exception e) {

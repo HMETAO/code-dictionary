@@ -9,10 +9,10 @@ import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 /**
  * <p>
@@ -60,7 +60,7 @@ public class UserController {
      * @return 统一返回
      */
     @PostMapping("registry")
-    public ResponseEntity<Result> registry(@Validated UserRegistryForm userRegistryForm) {
+    public ResponseEntity<Result> registry(@Valid UserRegistryForm userRegistryForm) {
         userService.registry(userRegistryForm);
         return Result.success(HttpStatus.CREATED);
     }

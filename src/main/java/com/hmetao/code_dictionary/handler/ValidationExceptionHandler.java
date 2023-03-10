@@ -3,12 +3,12 @@ package com.hmetao.code_dictionary.handler;
 import cn.dev33.satoken.exception.NotLoginException;
 import com.hmetao.code_dictionary.exception.ValidationException;
 import com.hmetao.code_dictionary.result.Result;
-import com.hmetao.code_dictionary.utils.SaTokenUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -49,19 +49,38 @@ public class ValidationExceptionHandler {
 
 
     /**
-     * 请求参数校验失败
+     * 请求参数校验失败( json 提交 )
      *
      * @param e MethodArgumentNotValidException
      * @return 失败对象，携带失败信息
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<Result> handleConstraintViolation(MethodArgumentNotValidException e) {
-        List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
-        log.error(String.format("ValidationExceptionHandler === > 请求信息校验错误{ userId = %s } ", SaTokenUtils.getLoginUserInfo().getId()), e);
+        return errorsHandler(e.getBindingResult().getFieldErrors());
+    }
+
+    /**
+     * 请求参数校验失败( 表单 提交 )
+     *
+     * @param e BindException
+     * @return 失败对象，携带失败信息
+     */
+    @ExceptionHandler(BindException.class)
+    ResponseEntity<Result> handleConstraintViolation(BindException e) {
+        return errorsHandler(e.getBindingResult().getFieldErrors());
+    }
+
+    public ResponseEntity<Result> errorsHandler(List<FieldError> fieldErrors) {
+        StringBuilder errMsg = new StringBuilder();
         Map<String, String> errMap = fieldErrors.stream()
+                .peek(fieldError -> {
+                    // 拼接异常信息
+                    errMsg.append(fieldError.getField()).append(": ").append(fieldError.getDefaultMessage()).append(" ");
+                })
                 .collect(Collectors.toMap(FieldError::getField,
                         DefaultMessageSourceResolvable::getDefaultMessage));
-        return Result.error(errMap, HttpStatus.BAD_REQUEST);
+        log.error("ValidationExceptionHandler === > 请求信息校验错误: " + errMsg);
+        return Result.error(errMap, HttpStatus.BAD_REQUEST, errMsg.toString());
     }
 
 }
