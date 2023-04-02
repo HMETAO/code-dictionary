@@ -37,7 +37,7 @@ public class UserController {
      * @return 统一返回
      */
     @PostMapping("login")
-    public ResponseEntity<Result> login(@RequestBody LoginForm loginForm) {
+    public ResponseEntity<Result> login(@RequestBody @Valid LoginForm loginForm) {
         UserDTO userDTO = userService.login(loginForm);
         return Result.success(userDTO, HttpStatus.OK, "登录成功");
     }
