@@ -1,20 +1,12 @@
 package com.hmetao.code_dictionary.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-
-import java.time.LocalDateTime;
-import java.util.Date;
-
-import com.baomidou.mybatisplus.annotation.TableId;
-
-import java.io.Serializable;
-
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -47,6 +39,9 @@ public class Snippet extends BaseEntity implements Serializable {
 
     @ApiModelProperty(value = "置顶（0:不置顶，1:置顶）")
     private Boolean top;
+
+    @ApiModelProperty(value = "snippet 类型")
+    private Integer type;
 
 
 }

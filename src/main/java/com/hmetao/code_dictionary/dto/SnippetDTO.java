@@ -1,8 +1,5 @@
 package com.hmetao.code_dictionary.dto;
 
-import com.hmetao.code_dictionary.entity.BaseEntity;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -29,6 +26,8 @@ public class SnippetDTO implements Serializable {
     private String title;
 
     private String snippet;
+
+    private Integer type;
 
 
 }
