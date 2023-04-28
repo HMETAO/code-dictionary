@@ -1,9 +1,11 @@
 package com.hmetao.code_dictionary.service;
 
-import com.hmetao.code_dictionary.dto.SnippetDTO;
-import com.hmetao.code_dictionary.entity.Snippet;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.hmetao.code_dictionary.dto.SnippetDTO;
+import com.hmetao.code_dictionary.dto.SnippetUploadImageDTO;
+import com.hmetao.code_dictionary.entity.Snippet;
 import com.hmetao.code_dictionary.form.SnippetForm;
+import com.hmetao.code_dictionary.form.SnippetUploadImageForm;
 
 /**
  * <p>
@@ -23,4 +25,5 @@ public interface SnippetService extends IService<Snippet> {
 
     void updateSnippet(SnippetForm snippetForm);
 
+    SnippetUploadImageDTO uploadImage(SnippetUploadImageForm snippetUploadImageForm);
 }

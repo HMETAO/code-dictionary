@@ -13,6 +13,7 @@ public class BaseConstants {
 
     // 七牛云 oss 前缀
     public static final String QINIU_OSS_UPLOAD_PREFIX = "avatar/";
+    public static final String QINIU_OSS_MARKDOWN_IMAGE_UPLOAD_PREFIX = "markdown/images";
 
     // 用户角色 id
     public static final Long BASE_ROLE_USER = 2L;

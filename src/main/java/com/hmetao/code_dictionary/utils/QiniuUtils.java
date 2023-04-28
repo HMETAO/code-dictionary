@@ -37,7 +37,7 @@ public class QiniuUtils {
                 Response response = uploadManager.put(bytes, key, upToken);
                 //解析上传成功的结果
                 DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
-                log.info(String.format("QiniuUtils === > 文件 { %s } 上传成功", key));
+                log.info("QiniuUtils === > 文件 {} 上传成功", key);
             } catch (QiniuException ex) {
                 Response r = ex.response;
                 log.error("QiniuUtils === > " + r.bodyString(), ex);

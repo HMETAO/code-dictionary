@@ -2,7 +2,9 @@ package com.hmetao.code_dictionary.controller;
 
 
 import com.hmetao.code_dictionary.dto.SnippetDTO;
+import com.hmetao.code_dictionary.dto.SnippetUploadImageDTO;
 import com.hmetao.code_dictionary.form.SnippetForm;
+import com.hmetao.code_dictionary.form.SnippetUploadImageForm;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.SnippetService;
 import org.springframework.http.HttpStatus;
@@ -27,6 +29,19 @@ public class SnippetController {
 
     @Resource
     private SnippetService snippetService;
+
+
+    /**
+     * 上传markdown图片
+     *
+     * @param snippetUploadImageForm files
+     * @return 返回上传后的url
+     */
+    @PostMapping("/img/upload")
+    public ResponseEntity<Result> uploadImage(SnippetUploadImageForm snippetUploadImageForm) {
+        SnippetUploadImageDTO snippetUploadImageDTO = snippetService.uploadImage(snippetUploadImageForm);
+        return Result.success(snippetUploadImageDTO);
+    }
 
     /**
      * 查询具体snippet
