@@ -1,15 +1,12 @@
 package com.hmetao.code_dictionary.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-
-import java.io.Serializable;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -36,4 +33,6 @@ public class SnippetCategory implements Serializable {
     @ApiModelProperty(value = "片段标题")
     private String snippetTitle;
 
+    @ApiModelProperty(value = "snippet 类型")
+    private Integer type;
 }

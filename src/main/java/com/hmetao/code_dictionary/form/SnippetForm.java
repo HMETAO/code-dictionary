@@ -32,5 +32,5 @@ public class SnippetForm implements Serializable {
     @NotNull(message = "请选择分组")
     private Long categoryId;
 
-    private String type;
+    private Integer type;
 }

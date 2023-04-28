@@ -21,6 +21,8 @@ public class CategorySnippetMenusDTO extends BaseTreeDTO<String> implements Seri
 
     private Boolean snippet;
 
+    private Integer type;
+
     public CategorySnippetMenusDTO(String id, String label, String parentId) {
         super(id, parentId);
         this.label = label;
@@ -30,5 +32,11 @@ public class CategorySnippetMenusDTO extends BaseTreeDTO<String> implements Seri
         super(id, parentId);
         this.label = label;
         this.snippet = snippet;
+    }
+    public CategorySnippetMenusDTO(String id, String label, String parentId, Boolean snippet, Integer type) {
+        super(id, parentId);
+        this.label = label;
+        this.snippet = snippet;
+        this.type = type;
     }
 }

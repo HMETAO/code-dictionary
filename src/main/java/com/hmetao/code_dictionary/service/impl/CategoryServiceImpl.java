@@ -155,7 +155,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                     return new CategorySnippetMenusDTO("sn-" + snippet.getSnippetId(),
                             snippet.getSnippetTitle(),
                             String.valueOf(snippet.getCategoryId()),
-                            true);
+                            true,snippet.getType());
                 })      // 按字典序排序
                 .sorted(Comparator.comparing(CategorySnippetMenusDTO::getLabel))
                 .collect(Collectors.groupingBy(CategorySnippetMenusDTO::getParentId));
