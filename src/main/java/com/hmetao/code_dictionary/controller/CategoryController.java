@@ -1,7 +1,6 @@
 package com.hmetao.code_dictionary.controller;
 
 
-import com.hmetao.code_dictionary.dto.CategoryDTO;
 import com.hmetao.code_dictionary.form.CategoryForm;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.CategoryService;
@@ -10,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * <p>
@@ -45,8 +43,7 @@ public class CategoryController {
      */
     @PostMapping
     public ResponseEntity<Result> insertCategory(@RequestBody CategoryForm categoryForm) {
-        categoryService.insertCategory(categoryForm);
-        return Result.success(HttpStatus.CREATED);
+        return Result.success(categoryService.insertCategory(categoryForm), HttpStatus.CREATED);
     }
 
     /**

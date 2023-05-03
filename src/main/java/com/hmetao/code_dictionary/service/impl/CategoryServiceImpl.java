@@ -83,12 +83,16 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
-    public void insertCategory(CategoryForm categoryForm) {
+    public CategorySnippetMenusDTO insertCategory(CategoryForm categoryForm) {
         // 获取登录用户
         User sysUser = SaTokenUtils.getLoginUserInfo();
         Category category = MapUtils.beanMap(categoryForm, Category.class);
         category.setUserId(sysUser.getId());
         baseMapper.insert(category);
+        return new CategorySnippetMenusDTO(String.valueOf(category.getId()),
+                category.getName(),
+                String.valueOf(category.getParentId())
+                , false);
     }
 
     @Override
@@ -155,7 +159,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                     return new CategorySnippetMenusDTO("sn-" + snippet.getSnippetId(),
                             snippet.getSnippetTitle(),
                             String.valueOf(snippet.getCategoryId()),
-                            true,snippet.getType());
+                            true, snippet.getType());
                 })      // 按字典序排序
                 .sorted(Comparator.comparing(CategorySnippetMenusDTO::getLabel))
                 .collect(Collectors.groupingBy(CategorySnippetMenusDTO::getParentId));
