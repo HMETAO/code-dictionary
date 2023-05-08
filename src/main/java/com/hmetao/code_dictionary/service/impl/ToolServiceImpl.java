@@ -1,17 +1,17 @@
 package com.hmetao.code_dictionary.service.impl;
 
-import cn.dev33.satoken.fun.SaFunction;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hmetao.code_dictionary.constants.BaseConstants;
 import com.hmetao.code_dictionary.dto.ToolDTO;
 import com.hmetao.code_dictionary.entity.Tool;
 import com.hmetao.code_dictionary.entity.User;
+import com.hmetao.code_dictionary.exception.ValidationException;
 import com.hmetao.code_dictionary.mapper.ToolMapper;
 import com.hmetao.code_dictionary.properties.AliOSSProperties;
 import com.hmetao.code_dictionary.service.ToolService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.utils.AliOssUtils;
 import com.hmetao.code_dictionary.utils.MapUtils;
 import com.hmetao.code_dictionary.utils.SaTokenUtils;
@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -130,7 +129,7 @@ public class ToolServiceImpl extends ServiceImpl<ToolMapper, Tool> implements To
         Tool sysTool = baseMapper.selectOne(new LambdaQueryWrapper<Tool>()
                 .eq(Tool::getUid, userInfo.getId())
                 .eq(Tool::getId, toolId));
-        System.out.println();
+        if (sysTool == null) throw new ValidationException("未找到要删除的tool");
         String urlStr = sysTool.getUrl();
         AliOssUtils.delete(urlStr.substring(urlStr.indexOf(BaseConstants.ALI_OSS_TOOL_UPLOAD_PREFIX)), aliOSSProperties);
         baseMapper.deleteById(sysTool);

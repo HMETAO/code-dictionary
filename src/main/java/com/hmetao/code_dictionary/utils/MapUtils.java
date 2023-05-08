@@ -20,10 +20,11 @@ public class MapUtils {
         return target;
     }
 
-    public static <V,T> PageInfo<T> PageInfoCopy(List<V> source, List<T> target) {
-        PageInfo<V> PageSource = new PageInfo<>(source);
-        PageInfo<T> PageTarget = new PageInfo<>(target);
-        BeanUtils.copyProperties(PageSource, PageTarget);
-        return PageTarget;
+    public static <V, T> PageInfo<T> PageInfoCopy(List<V> source, List<T> target) {
+        PageInfo<V> pageSource = new PageInfo<>(source);
+        PageInfo<T> pageTarget = new PageInfo<>();
+        BeanUtils.copyProperties(pageSource, pageTarget);
+        pageTarget.setList(target);
+        return pageTarget;
     }
 }

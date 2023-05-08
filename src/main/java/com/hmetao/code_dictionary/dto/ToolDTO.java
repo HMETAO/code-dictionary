@@ -1,9 +1,6 @@
 package com.hmetao.code_dictionary.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.hmetao.code_dictionary.entity.BaseEntity;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -35,7 +32,7 @@ public class ToolDTO implements Serializable {
 
     private String toolSize;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createTime;
 
     private String url;
