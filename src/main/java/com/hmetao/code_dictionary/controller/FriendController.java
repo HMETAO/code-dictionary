@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2023-05-25
  */
 @RestController
-@RequestMapping("/code_dictionary/friend")
+@RequestMapping("/code_dictionary/api/v1/friend")
 public class FriendController {
 
 }
