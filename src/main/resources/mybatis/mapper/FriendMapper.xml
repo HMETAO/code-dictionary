@@ -2,4 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hmetao.code_dictionary.mapper.FriendMapper">
 
+    <select id="getFriendsByMasterId" parameterType="long"
+            resultType="com.hmetao.code_dictionary.dto.FriendDTO">
+        select f.id, avatar, slave_id, u.username as friendName
+        from friend as f
+                 inner join user as u
+                            on u.id = f.slave_id
+        where master_id = #{masterId}
+    </select>
 </mapper>
