@@ -1,7 +1,10 @@
 package com.hmetao.code_dictionary.service;
 
+import com.hmetao.code_dictionary.dto.FriendInformationDTO;
 import com.hmetao.code_dictionary.entity.FriendInformation;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface FriendInformationService extends IService<FriendInformation> {
 
+    List<FriendInformationDTO> getInformation(Long id);
 }

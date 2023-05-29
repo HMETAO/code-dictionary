@@ -1,82 +1,44 @@
-import cn.dev33.satoken.secure.SaSecureUtil;
-import com.baomidou.mybatisplus.annotation.DbType;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.generator.AutoGenerator;
-import com.baomidou.mybatisplus.generator.config.DataSourceConfig;
-import com.baomidou.mybatisplus.generator.config.GlobalConfig;
-import com.baomidou.mybatisplus.generator.config.PackageConfig;
-import com.baomidou.mybatisplus.generator.config.StrategyConfig;
-import com.baomidou.mybatisplus.generator.config.rules.DateType;
-import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
+import com.baomidou.mybatisplus.generator.FastAutoGenerator;
+import com.baomidou.mybatisplus.generator.config.OutputFile;
+import com.baomidou.mybatisplus.generator.config.rules.DbColumnType;
 import org.junit.Test;
 
-/**
- * @author
- * @since 2018/12/13
- */
+import java.sql.Types;
+import java.util.Collections;
+
 public class CodeGenerator {
 
     @Test
     public void run() {
-
-        // 1、创建代码生成器
-        AutoGenerator mpg = new AutoGenerator();
-
-        // 2、全局配置
-        GlobalConfig gc = new GlobalConfig();
         String projectPath = System.getProperty("user.dir");
-        gc.setOutputDir(projectPath + "/src/main/java");
-        gc.setAuthor("HMETAO");
-        gc.setOpen(false); //生成后是否打开资源管理器
-        gc.setFileOverride(false); //重新生成时文件是否覆盖
-        gc.setServiceName("%sService");    //去掉Service接口的首字母I
-        gc.setIdType(IdType.AUTO); //主键策略
-        gc.setDateType(DateType.ONLY_DATE);//定义生成的实体类中日期类型
-        gc.setSwagger2(true);//开启Swagger2模式
-
-        mpg.setGlobalConfig(gc);
-
-        // 3、数据源配置
-        DataSourceConfig dsc = new DataSourceConfig();
-        dsc.setUrl("jdbc:mysql://127.0.0.1:3306/code_dictionary?serverTimezone=GMT%2B8");
-        dsc.setDriverName("com.mysql.jdbc.Driver");
-        dsc.setUsername("root");
-        dsc.setPassword("root");
-        dsc.setDbType(DbType.MYSQL);
-        mpg.setDataSource(dsc);
-
-        // 4、包配置
-        PackageConfig pc = new PackageConfig();
-        pc.setParent("com.hmetao");
-        pc.setModuleName("code_dictionary"); //模块名
-        pc.setController("controller");
-        pc.setEntity("entity");
-        pc.setService("service");
-        pc.setMapper("mapper");
-        mpg.setPackageInfo(pc);
-
-        // 5、策略配置
-        StrategyConfig strategy = new StrategyConfig();
-        strategy.setInclude("friend_information");
-        strategy.setNaming(NamingStrategy.underline_to_camel);//数据库表映射到实体的命名策略
-        strategy.setTablePrefix(pc.getModuleName() + "_"); //生成实体时去掉表前缀
-
-        strategy.setColumnNaming(NamingStrategy.underline_to_camel);//数据库表字段映射到实体的命名策略
-        strategy.setEntityLombokModel(true); // lombok 模型 @Accessors(chain = true) setter链式操作
-
-        strategy.setRestControllerStyle(true); //restful api风格控制器
-        strategy.setControllerMappingHyphenStyle(true); //url中驼峰转连字符
-
-        mpg.setStrategy(strategy);
-
-
-        // 6、执行
-        mpg.execute();
+        FastAutoGenerator.create("jdbc:mysql://127.0.0.1:3306/code_dictionary?serverTimezone=GMT%2B8", "root", "root")
+                .globalConfig(builder -> {
+                    builder.author("HMETAO") // 设置作者
+                            .disableOpenDir()
+                            .enableSwagger() // 开启 swagger 模式
+                            .outputDir(projectPath + "/src/main/java"); // 指定输出目录
+                })
+                .dataSourceConfig(builder -> builder.typeConvertHandler((globalConfig, typeRegistry, metaInfo) -> {
+                    int typeCode = metaInfo.getJdbcType().TYPE_CODE;
+                    if (typeCode == Types.SMALLINT) {
+                        // 自定义类型转换
+                        return DbColumnType.INTEGER;
+                    }
+                    return typeRegistry.getColumnType(metaInfo);
+                }))
+                .packageConfig(builder -> {
+                    builder.parent("com.hmetao.code_dictionary") // 设置父包名
+                            .moduleName("code_dictionary") // 设置父包模块名
+                            .pathInfo(Collections.singletonMap(OutputFile.xml, projectPath + "/src/main/java")); // 设置mapperXml生成路径
+                })
+                .strategyConfig(builder -> {
+                    builder.addInclude("friend") // 设置需要生成的表名
+                            .addTablePrefix("t_", "c_") // 设置过滤表前缀
+                            .entityBuilder().enableLombok().enableChainModel()
+                            .controllerBuilder().enableRestStyle().enableHyphenStyle()
+                            .serviceBuilder().formatServiceFileName("%sService");
+                })
+                .execute();
     }
 
-
-    @Test
-    public  void te() {
-        System.out.println(SaSecureUtil.md5BySalt("123456", "HMETAO"));
-    }
 }

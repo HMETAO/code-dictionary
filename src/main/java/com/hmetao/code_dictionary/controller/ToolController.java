@@ -1,7 +1,7 @@
 package com.hmetao.code_dictionary.controller;
 
 
-import com.github.pagehelper.PageInfo;
+//import com.github.pagehelper.PageInfo;
 import com.hmetao.code_dictionary.dto.ToolDTO;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.ToolService;

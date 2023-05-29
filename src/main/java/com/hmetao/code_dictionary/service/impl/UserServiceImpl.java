@@ -79,7 +79,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     @Transactional
     public void registry(UserRegistryForm userRegistryForm) {
-        Integer count = baseMapper.selectCount(new LambdaQueryWrapper<User>()
+        Long count = baseMapper.selectCount(new LambdaQueryWrapper<User>()
                 .eq(User::getUsername, userRegistryForm.getUsername())
                 .or().eq(User::getMobile, userRegistryForm.getMobile()));
         if (count > 0) {

@@ -1,6 +1,7 @@
 package com.hmetao.code_dictionary.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hmetao.code_dictionary.constants.OtherConstants;
@@ -13,7 +14,6 @@ import com.hmetao.code_dictionary.service.OtherService;
 import com.hmetao.code_dictionary.utils.RedisUtils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.covariance.codeforcesapi.CodeforcesApi;
