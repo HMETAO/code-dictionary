@@ -34,8 +34,12 @@ public class FriendInformationServiceImpl extends ServiceImpl<FriendInformationM
         List<FriendInformation> contents = baseMapper.selectList(new LambdaQueryWrapper<FriendInformation>()
                 .eq(FriendInformation::getMasterId, sysUser.getId())
                 .eq(FriendInformation::getSlaveId, id)
+                .or()
+                .eq(FriendInformation::getMasterId, id)
+                .eq(FriendInformation::getSlaveId, sysUser.getId())
                 .orderByAsc(FriendInformation::getCreateTime)
                 .last("limit 30"));
+
         // 映射成DTO
         return contents.stream()
                 .map(content -> MapUtils.beanMap(content, FriendInformationDTO.class))

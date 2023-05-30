@@ -27,11 +27,16 @@ public class FriendInformationController {
     @Resource
     private FriendInformationService friendInformationService;
 
+    /**
+     * 查询聊天记录
+     *
+     * @param id 用户id
+     * @return 聊天记录列表
+     */
     @GetMapping("{id}")
     public ResponseEntity<Result> getInformation(@PathVariable("id") Long id) {
         List<FriendInformationDTO> information = friendInformationService.getInformation(id);
         return Result.success(information);
-
     }
 }
 

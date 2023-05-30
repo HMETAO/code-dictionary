@@ -1,5 +1,6 @@
 package com.hmetao.code_dictionary.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,5 +34,6 @@ public class FriendInformationDTO implements Serializable {
     @ApiModelProperty(value = "接收方id")
     private Long slaveId;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createTime;
 }
