@@ -2,15 +2,19 @@ package com.hmetao.code_dictionary.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hmetao.code_dictionary.constants.BaseConstants;
 import com.hmetao.code_dictionary.dto.SnippetDTO;
 import com.hmetao.code_dictionary.dto.SnippetUploadImageDTO;
+import com.hmetao.code_dictionary.entity.Category;
 import com.hmetao.code_dictionary.entity.Snippet;
 import com.hmetao.code_dictionary.entity.SnippetCategory;
 import com.hmetao.code_dictionary.entity.User;
+import com.hmetao.code_dictionary.form.ReceiveSnippetForm;
 import com.hmetao.code_dictionary.form.SnippetForm;
 import com.hmetao.code_dictionary.form.SnippetUploadImageForm;
 import com.hmetao.code_dictionary.mapper.SnippetMapper;
 import com.hmetao.code_dictionary.properties.QiNiuProperties;
+import com.hmetao.code_dictionary.service.CategoryService;
 import com.hmetao.code_dictionary.service.SnippetCategoryService;
 import com.hmetao.code_dictionary.service.SnippetService;
 import com.hmetao.code_dictionary.utils.MapUtils;
@@ -47,6 +51,9 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
 
     @Resource
     private SnippetCategoryService snippetCategoryService;
+
+    @Resource
+    private CategoryService categoryService;
 
     @Resource
     private QiNiuProperties qiNiuProperties;
@@ -130,6 +137,31 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
         }
 
         return new SnippetUploadImageDTO(urls);
+    }
+
+    @Override
+    public void receiveSnippet(ReceiveSnippetForm receiveSnippetForm) {
+        User user = SaTokenUtils.getLoginUserInfo();
+        // 查询发送人snippet
+        Snippet snippet = baseMapper.selectOne(new LambdaQueryWrapper<Snippet>()
+                .eq(Snippet::getId, receiveSnippetForm.getSnippetId())
+                .eq(Snippet::getUid, receiveSnippetForm.getUid()));
+
+        // copy生成自己的snippet
+        Snippet copySnippet = new Snippet(snippet.getTitle(),
+                user.getId(),
+                snippet.getSnippet());
+        baseMapper.insert(copySnippet);
+        // 查询通用分组ID
+        Category category = categoryService.getOne(new LambdaQueryWrapper<Category>()
+                .eq(Category::getName, BaseConstants.BASE_GROUP)
+                .eq(Category::getUserId, user.getId()));
+        // 存入中间表
+        SnippetCategory snippetCategory = new SnippetCategory(category.getId(),
+                copySnippet.getId(),
+                snippet.getTitle(),
+                receiveSnippetForm.getType());
+        snippetCategoryService.save(snippetCategory);
     }
 
     private static String getFileName(LocalDate now, MultipartFile file) {

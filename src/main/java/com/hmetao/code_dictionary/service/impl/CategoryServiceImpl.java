@@ -3,6 +3,7 @@ package com.hmetao.code_dictionary.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hmetao.code_dictionary.constants.BaseConstants;
 import com.hmetao.code_dictionary.dto.BaseTreeDTO;
 import com.hmetao.code_dictionary.dto.CategorySnippetMenusDTO;
 import com.hmetao.code_dictionary.entity.Category;
@@ -22,6 +23,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
+
 
 /**
  * <p>
@@ -168,7 +170,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     private List<Category> generateInitialCategory(User sysUser) {
         Category category = new Category();
         category.setUserId(sysUser.getId());
-        category.setName("通用分组");
+        category.setName(BaseConstants.BASE_GROUP);
         category.setIsSystem(true);
         baseMapper.insert(category);
         return Collections.singletonList(category);

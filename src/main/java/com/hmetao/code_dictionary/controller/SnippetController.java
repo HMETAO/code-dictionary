@@ -3,6 +3,7 @@ package com.hmetao.code_dictionary.controller;
 
 import com.hmetao.code_dictionary.dto.SnippetDTO;
 import com.hmetao.code_dictionary.dto.SnippetUploadImageDTO;
+import com.hmetao.code_dictionary.form.ReceiveSnippetForm;
 import com.hmetao.code_dictionary.form.SnippetForm;
 import com.hmetao.code_dictionary.form.SnippetUploadImageForm;
 import com.hmetao.code_dictionary.result.Result;
@@ -94,5 +95,18 @@ public class SnippetController {
         snippetService.updateSnippet(snippetForm);
         return Result.success(HttpStatus.CREATED);
     }
+
+    /**
+     * 接收用户的Snippet
+     *
+     * @param receiveSnippetForm receiveSnippet信息
+     * @return 统一返回
+     */
+    @PostMapping("receive")
+    public ResponseEntity<Result> receiveSnippet(@RequestBody ReceiveSnippetForm receiveSnippetForm) {
+        snippetService.receiveSnippet(receiveSnippetForm);
+        return Result.success(HttpStatus.CREATED);
+    }
+
 
 }

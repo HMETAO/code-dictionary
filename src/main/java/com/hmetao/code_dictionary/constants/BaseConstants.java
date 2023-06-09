@@ -21,4 +21,7 @@ public class BaseConstants {
     // 系统默认用户 id
     public static final Long BASE_ADMIN_USER = 1L;
 
+    // 通用分组
+    public static final String BASE_GROUP = "通用分组";
+
 }

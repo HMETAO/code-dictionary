@@ -2,8 +2,10 @@ package com.hmetao.code_dictionary.entity;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -19,6 +21,8 @@ import java.io.Serializable;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
+@NoArgsConstructor
+@AllArgsConstructor
 @ApiModel(value = "Snippet对象", description = "片断表")
 public class Snippet extends BaseEntity implements Serializable {
 
@@ -41,4 +45,9 @@ public class Snippet extends BaseEntity implements Serializable {
     private Boolean top;
 
 
+    public Snippet(String title, Long uid, String snippet) {
+        this.title = title;
+        this.uid = uid;
+        this.snippet = snippet;
+    }
 }
