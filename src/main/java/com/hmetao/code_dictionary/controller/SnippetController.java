@@ -65,11 +65,10 @@ public class SnippetController {
     @PostMapping
     public ResponseEntity<Result> insertSnippet(@Valid @RequestBody SnippetForm snippetForm) {
         try {
-            snippetService.insertSnippet(snippetForm);
+            return Result.success(snippetService.insertSnippet(snippetForm), HttpStatus.CREATED);
         } catch (Exception e) {
             return Result.error(HttpStatus.BAD_REQUEST, e.getMessage());
         }
-        return Result.success(HttpStatus.CREATED);
     }
 
     /**

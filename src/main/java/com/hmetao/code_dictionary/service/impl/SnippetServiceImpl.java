@@ -73,7 +73,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
 
     @Override
     @Transactional
-    public void insertSnippet(SnippetForm snippetForm) {
+    public SnippetDTO insertSnippet(SnippetForm snippetForm) {
         // 获取登录用户
         User sysUser = SaTokenUtils.getLoginUserInfo();
 
@@ -94,6 +94,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
         snippetCategory.setSnippetId(snippet.getId());
         snippetCategory.setSnippetTitle(snippet.getTitle());
         snippetCategoryService.save(snippetCategory);
+        return MapUtils.beanMap(snippet, SnippetDTO.class);
     }
 
     @Override
