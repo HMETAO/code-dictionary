@@ -38,8 +38,10 @@ logging:
         code_dictionary:
           mapper: debug
 pagehelper:
-  helper-dialect: mysql
+  helperDialect: mysql
   reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
 
 # Sa-Token配置
 sa-token:
