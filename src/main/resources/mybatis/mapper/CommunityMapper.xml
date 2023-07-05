@@ -21,7 +21,7 @@
     <select id="getCommunities" resultMap="CommunityDTOMap">
         select u.id as uid,
                s.id as snippetId,
-               c.id as id,
+               c.id,
                username,
                avatar,
                snippet,
@@ -33,5 +33,6 @@
                             on c.snippet_id = s.id
                  inner join user as u
                             on u.id = c.uid
+        where c.is_deleted = 0
     </select>
 </mapper>
