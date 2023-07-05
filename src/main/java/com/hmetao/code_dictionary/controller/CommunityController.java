@@ -21,7 +21,7 @@ import javax.annotation.Resource;
  * @since 2023-07-04
  */
 @RestController
-@RequestMapping("/code_dictionary/community")
+@RequestMapping("/code_dictionary/api/v1/community")
 public class CommunityController {
 
     @Resource
