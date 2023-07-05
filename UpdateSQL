@@ -1,0 +1,13 @@
+create table community(
+	id BIGINT primary key AUTO_INCREMENT COMMENT 'id',
+	uid BIGINT comment '用户id',
+	snippet_id bigInt comment 'snippetId',
+  `is_deleted` int DEFAULT '0' COMMENT '逻辑删除',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `modify_time` datetime DEFAULT NULL COMMENT '更新时间'
+)
+
+
+alter table snippet add COLUMN type int comment 'snippet 类型'
+update snippet set type = 0 where type is null
+update snippet as s set s.type = (select sc.type from snippet_category as sc where s.id = sc.snippet_id)

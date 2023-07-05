@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hmetao.code_dictionary.mapper.CommunityMapper">
+
+    <resultMap id="CommunityDTOMap" type="com.hmetao.code_dictionary.dto.CommunityDTO">
+        <id property="id" column="id"/>
+        <result property="createTime" column="create_time"/>
+        <association property="userInfo" javaType="com.hmetao.code_dictionary.dto.CommunityUserDTO">
+            <id property="id" column="uid"/>
+            <result property="avatar" column="avatar"/>
+            <result property="username" column="username"/>
+        </association>
+        <association property="snippetInfo" javaType="com.hmetao.code_dictionary.dto.CommunitySnippetDTO">
+            <id property="id" column="snippetId"/>
+            <result property="title" column="title"/>
+            <result property="snippet" column="snippet"/>
+            <result property="type" column="type"/>
+        </association>
+    </resultMap>
+
+    <select id="getCommunities" resultMap="CommunityDTOMap">
+        select u.id as uid,
+               s.id as snippetId,
+               c.id as id,
+               username,
+               avatar,
+               snippet,
+               title,
+               type,
+               c.create_time
+        from community as c
+                 inner join snippet as s
+                            on c.snippet_id = s.id
+                 inner join user as u
+                            on u.id = c.uid
+    </select>
+</mapper>

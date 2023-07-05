@@ -27,12 +27,12 @@ public class CodeGenerator {
                     return typeRegistry.getColumnType(metaInfo);
                 }))
                 .packageConfig(builder -> {
-                    builder.parent("com.hmetao.code_dictionary") // 设置父包名
+                    builder.parent("com.hmetao") // 设置父包名
                             .moduleName("code_dictionary") // 设置父包模块名
                             .pathInfo(Collections.singletonMap(OutputFile.xml, projectPath + "/src/main/java")); // 设置mapperXml生成路径
                 })
                 .strategyConfig(builder -> {
-                    builder.addInclude("friend") // 设置需要生成的表名
+                    builder.addInclude("community") // 设置需要生成的表名
                             .addTablePrefix("t_", "c_") // 设置过滤表前缀
                             .entityBuilder().enableLombok().enableChainModel()
                             .controllerBuilder().enableRestStyle().enableHyphenStyle()
