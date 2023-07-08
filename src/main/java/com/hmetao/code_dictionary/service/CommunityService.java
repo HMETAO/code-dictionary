@@ -16,4 +16,6 @@ import com.hmetao.code_dictionary.entity.Community;
 public interface CommunityService extends IService<Community> {
 
     PageInfo<CommunityDTO> getCommunities(Integer pageNum, Integer pageSize);
+
+    void insertCommunity(Long snippetId);
 }
