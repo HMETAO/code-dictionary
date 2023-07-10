@@ -1,5 +1,6 @@
 package com.hmetao.code_dictionary.utils;
 
+import cn.hutool.core.io.FileUtil;
 import com.hmetao.code_dictionary.enums.CodeEnum;
 import com.hmetao.code_dictionary.exception.HMETAOException;
 import com.hmetao.code_dictionary.properties.JudgeProperties;
@@ -21,8 +22,8 @@ public class JudgeUtils {
     private static final Runtime runtime = Runtime.getRuntime();
 
     public String runCode(String code, CodeEnum codeEnum) {
-        // 检查是否存在此文件夹
-        generateCodeSources(code, codeEnum);
+        // 生成源代码文件返回目录file
+        File file = generateCodeSources(code, codeEnum);
         // 编译代码
         compileCode(codeEnum);
         ProcessBuilder builder = CmdUtils.executeCmd(codeEnum, judgeProperties.getSave());
@@ -34,6 +35,9 @@ public class JudgeUtils {
             return new String(process.getInputStream().readAllBytes());
         } catch (Exception e) {
             throw new HMETAOException("运行失败", "JudgeUtils");
+        } finally {
+            log.info("JudgeUtils === > 删除CodeSources目录");
+            FileUtil.del(file);
         }
     }
 
@@ -54,7 +58,8 @@ public class JudgeUtils {
     }
 
 
-    private void generateCodeSources(String code, CodeEnum codeEnum) {
+    private File generateCodeSources(String code, CodeEnum codeEnum) {
+        // 生成文件并返回文件地址
         File file = checkOrGenerateDirectory(judgeProperties.getSave() + "Main." + codeEnum.getExt());
         // 写入源码文件
         try (BufferedWriter bf = new BufferedWriter(new FileWriter(file))) {
@@ -62,6 +67,8 @@ public class JudgeUtils {
         } catch (Exception e) {
             throw new HMETAOException("生成源代码文件失败", "JudgeUtils");
         }
+        // 返回文件目录
+        return file.getParentFile();
     }
 
     private File checkOrGenerateDirectory(String path) {
