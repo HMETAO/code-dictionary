@@ -22,22 +22,27 @@ public class JudgeUtils {
 
     private static final Runtime runtime = Runtime.getRuntime();
 
-    public String runCode(String code, CodeEnum codeEnum) {
+
+    public String runCode(String code, CodeEnum codeEnum, String args) {
         String path = judgeProperties.getPath();
         // 生成源代码文件返回目录file
         generateCodeSources(code, codeEnum);
         // 编译代码
         compileCode(codeEnum);
+        // 运行code
         ProcessBuilder builder = CmdUtils.executeCmd(codeEnum, path);
         try {
             Process process = builder.start();
-            if (!process.waitFor(500, TimeUnit.MILLISECONDS)) {
+            // 写入参数
+            IoUtil.write(process.getOutputStream(), true, args.getBytes());
+
+            if (!process.waitFor(1500, TimeUnit.MILLISECONDS)) {
                 process.destroyForcibly();
                 throw new HMETAOException("运行超时", "JudgeUtils");
             }
             return IoUtil.read(process.getInputStream()).toString();
-        } catch (Exception e) {
-            throw new HMETAOException("运行失败", "JudgeUtils");
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
         } finally {
             log.info("JudgeUtils === > 删除CodeSources目录");
             FileUtil.del(path);
