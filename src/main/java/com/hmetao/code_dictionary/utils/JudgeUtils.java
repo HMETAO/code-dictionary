@@ -23,7 +23,7 @@ public class JudgeUtils {
     private static final Runtime runtime = Runtime.getRuntime();
 
     public String runCode(String code, CodeEnum codeEnum) {
-        String path = judgeProperties.getSave();
+        String path = judgeProperties.getPath();
         // 生成源代码文件返回目录file
         generateCodeSources(code, codeEnum);
         // 编译代码
@@ -45,7 +45,7 @@ public class JudgeUtils {
     }
 
     private void compileCode(CodeEnum codeEnum) {
-        String path = judgeProperties.getSave();
+        String path = judgeProperties.getPath();
         String error;
         try {
             Process process = runtime.exec(CmdUtils.compileCmd(codeEnum, path));
@@ -65,7 +65,7 @@ public class JudgeUtils {
 
     private void generateCodeSources(String code, CodeEnum codeEnum) {
         // 生成文件并返回文件地址
-        String path = judgeProperties.getSave();
+        String path = judgeProperties.getPath();
         FileUtil.mkdir(path);
         try {
             // 写入源码文件
