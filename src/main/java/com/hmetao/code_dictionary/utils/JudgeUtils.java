@@ -1,6 +1,7 @@
 package com.hmetao.code_dictionary.utils;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IoUtil;
 import com.hmetao.code_dictionary.enums.CodeEnum;
 import com.hmetao.code_dictionary.exception.HMETAOException;
 import com.hmetao.code_dictionary.properties.JudgeProperties;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.io.*;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -22,64 +23,56 @@ public class JudgeUtils {
     private static final Runtime runtime = Runtime.getRuntime();
 
     public String runCode(String code, CodeEnum codeEnum) {
+        String path = judgeProperties.getSave();
         // 生成源代码文件返回目录file
-        File file = generateCodeSources(code, codeEnum);
+        generateCodeSources(code, codeEnum);
         // 编译代码
         compileCode(codeEnum);
-        ProcessBuilder builder = CmdUtils.executeCmd(codeEnum, judgeProperties.getSave());
+        ProcessBuilder builder = CmdUtils.executeCmd(codeEnum, path);
         try {
             Process process = builder.start();
             if (!process.waitFor(500, TimeUnit.MILLISECONDS)) {
+                process.destroyForcibly();
                 throw new HMETAOException("运行超时", "JudgeUtils");
             }
-            return new String(process.getInputStream().readAllBytes());
+            return IoUtil.read(process.getInputStream()).toString();
         } catch (Exception e) {
             throw new HMETAOException("运行失败", "JudgeUtils");
         } finally {
             log.info("JudgeUtils === > 删除CodeSources目录");
-            FileUtil.del(file);
+            FileUtil.del(path);
         }
     }
 
     private void compileCode(CodeEnum codeEnum) {
+        String path = judgeProperties.getSave();
         String error;
         try {
-            Process process = runtime.exec(CmdUtils.compileCmd(codeEnum, judgeProperties.getSave()));
+            Process process = runtime.exec(CmdUtils.compileCmd(codeEnum, path));
             // 获取编译结果
-            error = new String(process.getErrorStream().readAllBytes());
+            error = IoUtil.read(process.getErrorStream()).toString();
         } catch (IOException e) {
             throw new HMETAOException("执行编译指令失败", "JudgeUtils");
         }
         // 编译出现错误
         if (!StringUtils.isEmpty(error)) {
+            FileUtil.del(path);
             throw new HMETAOException(error, "JudgeUtils");
         }
 
     }
 
 
-    private File generateCodeSources(String code, CodeEnum codeEnum) {
+    private void generateCodeSources(String code, CodeEnum codeEnum) {
         // 生成文件并返回文件地址
-        File file = checkOrGenerateDirectory(judgeProperties.getSave() + "Main." + codeEnum.getExt());
-        // 写入源码文件
-        try (BufferedWriter bf = new BufferedWriter(new FileWriter(file))) {
-            bf.write(code);
+        String path = judgeProperties.getSave();
+        FileUtil.mkdir(path);
+        try {
+            // 写入源码文件
+            FileUtil.writeUtf8String(code, FileUtil.file(path, "Main." + codeEnum.getExt()));
         } catch (Exception e) {
             throw new HMETAOException("生成源代码文件失败", "JudgeUtils");
         }
-        // 返回文件目录
-        return file.getParentFile();
-    }
-
-    private File checkOrGenerateDirectory(String path) {
-        log.info("JudgeUtils === > 开始检测CodeSources目录：{}", path);
-        File file = new File(path);
-        File parentFile = file.getParentFile();
-        if (!parentFile.exists()) {
-            log.info("JudgeUtils === > 不存在CodeSources目录开始创建");
-            parentFile.mkdirs();
-        }
-        return file;
     }
 
 

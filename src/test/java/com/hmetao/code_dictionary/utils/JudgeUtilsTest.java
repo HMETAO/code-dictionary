@@ -18,7 +18,7 @@ public class JudgeUtilsTest {
     public void runCodeTest() {
         System.out.println(judgeUtils.runCode("#include<stdio.h>\n" +
                 "int main(){\n" +
-                "        printf(\"HelloWorld\");\n" +
+                "        printf(\"HelloWorld\")\n" +
                 "        return 0;\n" +
                 "}", CodeEnum.Cpp));
     }

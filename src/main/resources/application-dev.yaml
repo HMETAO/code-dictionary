@@ -34,4 +34,4 @@ logging:
         code_dictionary:
           mapper: debug
 judge:
-  save: D:\judge\
+  save: D:\judge
