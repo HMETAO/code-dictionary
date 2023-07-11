@@ -10,13 +10,16 @@ import com.hmetao.code_dictionary.entity.Snippet;
 import com.hmetao.code_dictionary.entity.SnippetCategory;
 import com.hmetao.code_dictionary.entity.User;
 import com.hmetao.code_dictionary.form.ReceiveSnippetForm;
+import com.hmetao.code_dictionary.form.RunCodeForm;
 import com.hmetao.code_dictionary.form.SnippetForm;
 import com.hmetao.code_dictionary.form.SnippetUploadImageForm;
 import com.hmetao.code_dictionary.mapper.SnippetMapper;
+import com.hmetao.code_dictionary.properties.JudgeProperties;
 import com.hmetao.code_dictionary.properties.QiNiuProperties;
 import com.hmetao.code_dictionary.service.CategoryService;
 import com.hmetao.code_dictionary.service.SnippetCategoryService;
 import com.hmetao.code_dictionary.service.SnippetService;
+import com.hmetao.code_dictionary.utils.JudgeUtil;
 import com.hmetao.code_dictionary.utils.MapUtil;
 import com.hmetao.code_dictionary.utils.QiniuUtil;
 import com.hmetao.code_dictionary.utils.SaTokenUtil;
@@ -57,6 +60,12 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
 
     @Resource
     private QiNiuProperties qiNiuProperties;
+
+    @Resource
+    private JudgeUtil judgeUtil;
+
+    @Resource
+    private JudgeProperties judgeProperties;
 
     @Override
     public SnippetDTO getSnippet(Integer id) {
@@ -163,6 +172,16 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
                 snippet.getTitle(),
                 receiveSnippetForm.getType());
         snippetCategoryService.save(snippetCategory);
+    }
+
+    @Override
+    public String runCode(RunCodeForm runCodeForm) {
+        // 获取登录用户
+        User user = SaTokenUtil.getLoginUserInfo();
+        // 运行代码
+        return judgeUtil.runCode(runCodeForm.getCode(),
+                runCodeForm.getCodeEnum(), runCodeForm.getArgs(),
+                judgeProperties.getPath() + "/" + user.getId());
     }
 
     private static String getFileName(LocalDate now, MultipartFile file) {

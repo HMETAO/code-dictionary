@@ -23,6 +23,6 @@ public class JudgeUtilTest {
                 "\tscanf(\"%d %d\",&a,&b);\n" +
                 "\tprintf(\"%d\",a + b);\n" +
                 "\treturn 0;\n" +
-                "}", CodeEnum.Cpp, "1 2"));
+                "}", CodeEnum.Cpp, "1 2","D:/judge/1"));
     }
 }
