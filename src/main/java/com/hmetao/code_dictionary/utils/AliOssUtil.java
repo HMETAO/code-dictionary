@@ -8,13 +8,11 @@ import com.aliyun.oss.model.OSSObject;
 import com.hmetao.code_dictionary.properties.AliOSSProperties;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 
 @Slf4j
-public class AliOssUtils {
+public class AliOssUtil {
 
     public static byte[] download(AliOSSProperties aliOSSProperties, String objectName) {
         // 创建OSSClient实例。

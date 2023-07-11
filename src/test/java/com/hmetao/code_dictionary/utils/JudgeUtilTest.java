@@ -10,14 +10,14 @@ import javax.annotation.Resource;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class JudgeUtilsTest {
+public class JudgeUtilTest {
     @Resource
-    private JudgeUtils judgeUtils;
+    private JudgeUtil judgeUtil;
 
 
     @Test
     public void runCodeTest() {
-        System.out.println(judgeUtils.runCode("#include<stdio.h>\n" +
+        System.out.println(judgeUtil.runCode("#include<stdio.h>\n" +
                 "int main(){\n" +
                 "\tint a,b;\n" +
                 "\tscanf(\"%d %d\",&a,&b);\n" +

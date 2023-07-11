@@ -2,7 +2,7 @@ package com.hmetao.code_dictionary.utils;
 
 import com.hmetao.code_dictionary.enums.CodeEnum;
 
-public class CmdUtils {
+public class CmdUtil {
 
     /**
      * 获取编译脚本命令

@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-public class JudgeUtils {
+public class JudgeUtil {
 
     @Resource
     private JudgeProperties judgeProperties;
@@ -31,7 +31,7 @@ public class JudgeUtils {
             // 编译代码
             compileCode(codeEnum);
             // 运行code
-            ProcessBuilder builder = CmdUtils.executeCmd(codeEnum, path);
+            ProcessBuilder builder = CmdUtil.executeCmd(codeEnum, path);
 
             Process process = builder.start();
             // 写入参数
@@ -54,7 +54,7 @@ public class JudgeUtils {
         String path = judgeProperties.getPath();
         String error;
         try {
-            Process process = runtime.exec(CmdUtils.compileCmd(codeEnum, path));
+            Process process = runtime.exec(CmdUtil.compileCmd(codeEnum, path));
             // 获取编译结果
             error = IoUtil.read(process.getErrorStream()).toString();
         } catch (IOException e) {

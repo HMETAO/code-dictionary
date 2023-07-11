@@ -11,7 +11,7 @@ import com.hmetao.code_dictionary.dto.CalendarDTO;
 import com.hmetao.code_dictionary.dto.LeetCodeDTO;
 import com.hmetao.code_dictionary.form.WebSSHForm;
 import com.hmetao.code_dictionary.service.OtherService;
-import com.hmetao.code_dictionary.utils.RedisUtils;
+import com.hmetao.code_dictionary.utils.RedisUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -49,7 +49,7 @@ public class OtherServiceImpl implements OtherService {
     private ObjectMapper objectMapper;
 
     @Resource
-    private RedisUtils redisUtils;
+    private RedisUtil redisUtil;
 
     private final LocalDate localDate = LocalDate.now();
 
@@ -63,7 +63,7 @@ public class OtherServiceImpl implements OtherService {
     @Override
     public List<CalendarDTO> calendar() {
         // 提取缓存
-        String contestJsonStr = redisUtils.getCacheObject(RedisConstants.CALENDAR_CONTESTS_KEY);
+        String contestJsonStr = redisUtil.getCacheObject(RedisConstants.CALENDAR_CONTESTS_KEY);
         // 缓存非空
         if (StringUtils.isNotBlank(contestJsonStr)) {
             // 转换成对象返回
@@ -89,7 +89,7 @@ public class OtherServiceImpl implements OtherService {
         // 合并返回
         leetcodeCalendarDTO.addAll(codeForcesCalendarDTO);
         // 将数据存入redis ( time:[7 Day] )
-        redisUtils.setCacheObject(RedisConstants.CALENDAR_CONTESTS_KEY,
+        redisUtil.setCacheObject(RedisConstants.CALENDAR_CONTESTS_KEY,
                 objectMapper.writeValueAsString(leetcodeCalendarDTO), 7, TimeUnit.DAYS);
         return leetcodeCalendarDTO;
     }

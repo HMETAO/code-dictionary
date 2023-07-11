@@ -18,8 +18,8 @@ import com.hmetao.code_dictionary.mapper.UserMapper;
 import com.hmetao.code_dictionary.properties.QiNiuProperties;
 import com.hmetao.code_dictionary.service.UserRoleService;
 import com.hmetao.code_dictionary.service.UserService;
-import com.hmetao.code_dictionary.utils.MapUtils;
-import com.hmetao.code_dictionary.utils.QiniuUtils;
+import com.hmetao.code_dictionary.utils.MapUtil;
+import com.hmetao.code_dictionary.utils.QiniuUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,7 +67,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             StpUtil.getTokenSession().set(BaseConstants.LOGIN_USERINFO_SESSION_KEY, userEntity);
             // 用户信息放入user-session
             StpUtil.getSession().set(BaseConstants.LOGIN_USERINFO_SESSION_KEY, userEntity);
-            UserDTO userDTO = MapUtils.beanMap(userEntity, UserDTO.class);
+            UserDTO userDTO = MapUtil.beanMap(userEntity, UserDTO.class);
             // 获取token
             SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
             userDTO.setToken(tokenInfo.getTokenValue());
@@ -87,7 +87,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         try {
-            User user = MapUtils.beanMap(userRegistryForm, User.class);
+            User user = MapUtil.beanMap(userRegistryForm, User.class);
             user.setPassword(SaSecureUtil.md5BySalt(user.getPassword(), BaseConstants.SALT_PASSWORD));
             MultipartFile file = userRegistryForm.getFile();
             // 若上传了文件 切 上传的文件并不为空
@@ -99,7 +99,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                         .append(".")
                         .append(Objects.requireNonNull(file.getOriginalFilename()).split("\\.")[1]);
                 // 上传头像文件
-                QiniuUtils.upload2qiniu(qiNiuProperties, file.getBytes(), fileName.toString());
+                QiniuUtil.upload2qiniu(qiNiuProperties, file.getBytes(), fileName.toString());
                 user.setAvatar(fileName.insert(0, qiNiuProperties.getUrl()).toString());
             }
             // 插入数据库
