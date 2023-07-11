@@ -37,7 +37,7 @@ public class JudgeUtil {
                 process.destroyForcibly();
                 throw new HMETAOException("JudgeUtils", "运行超时时间大于2s");
             }
-            return IoUtil.read(process.getInputStream()).toString();
+            return IoUtil.readUtf8(process.getInputStream());
         } catch (HMETAOException e) {
             return e.getMessage();
         } catch (IOException | InterruptedException e) {
@@ -52,7 +52,7 @@ public class JudgeUtil {
         String error;
         Process process = runtime.exec(CmdUtil.compileCmd(codeEnum, path));
         // 获取编译结果
-        error = IoUtil.read(process.getErrorStream()).toString();
+        error = IoUtil.readUtf8(process.getErrorStream());
         // 编译出现错误
         if (!StringUtils.isEmpty(error)) {
             throw new HMETAOException("JudgeUtils", error);

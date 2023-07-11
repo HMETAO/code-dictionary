@@ -33,6 +33,12 @@ public class SnippetController {
     private SnippetService snippetService;
 
 
+    /**
+     * 运行代码
+     *
+     * @param runCodeForm runCodeForm
+     * @return 统一返回
+     */
     @PostMapping("/run")
     public ResponseEntity<Result> runCode(@RequestBody RunCodeForm runCodeForm) {
         return Result.success(snippetService.runCode(runCodeForm));
