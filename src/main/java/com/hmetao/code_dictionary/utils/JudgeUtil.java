@@ -30,12 +30,13 @@ public class JudgeUtil {
             ProcessBuilder builder = CmdUtil.executeCmd(codeEnum, path);
 
             Process process = builder.start();
-            // 写入参数
-            IoUtil.write(process.getOutputStream(), true, args.getBytes());
+            if (!StringUtils.isEmpty(args))
+                // 写入参数
+                IoUtil.write(process.getOutputStream(), true, args.getBytes());
 
             if (!process.waitFor(2, TimeUnit.SECONDS)) {
                 process.destroyForcibly();
-                throw new HMETAOException("JudgeUtils", "运行超时时间大于2s");
+                throw new HMETAOException("JudgeUtils", "运行时间大于2s，停止运行");
             }
             return IoUtil.readUtf8(process.getInputStream());
         } catch (HMETAOException e) {
