@@ -25,13 +25,14 @@ public class JudgeUtils {
 
     public String runCode(String code, CodeEnum codeEnum, String args) {
         String path = judgeProperties.getPath();
-        // 生成源代码文件返回目录file
-        generateCodeSources(code, codeEnum);
-        // 编译代码
-        compileCode(codeEnum);
-        // 运行code
-        ProcessBuilder builder = CmdUtils.executeCmd(codeEnum, path);
         try {
+            // 生成源代码文件返回目录file
+            generateCodeSources(code, codeEnum);
+            // 编译代码
+            compileCode(codeEnum);
+            // 运行code
+            ProcessBuilder builder = CmdUtils.executeCmd(codeEnum, path);
+
             Process process = builder.start();
             // 写入参数
             IoUtil.write(process.getOutputStream(), true, args.getBytes());
@@ -41,8 +42,8 @@ public class JudgeUtils {
                 throw new HMETAOException("运行超时", "JudgeUtils");
             }
             return IoUtil.read(process.getInputStream()).toString();
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new HMETAOException(e.getMessage(), "JudgeUtils");
         } finally {
             log.info("JudgeUtils === > 删除CodeSources目录");
             FileUtil.del(path);
@@ -57,14 +58,13 @@ public class JudgeUtils {
             // 获取编译结果
             error = IoUtil.read(process.getErrorStream()).toString();
         } catch (IOException e) {
-            throw new HMETAOException("执行编译指令失败", "JudgeUtils");
+            throw new HMETAOException("执行编译指令失败：" + e.getMessage(), "JudgeUtils");
         }
         // 编译出现错误
         if (!StringUtils.isEmpty(error)) {
             FileUtil.del(path);
             throw new HMETAOException(error, "JudgeUtils");
         }
-
     }
 
 
@@ -76,7 +76,7 @@ public class JudgeUtils {
             // 写入源码文件
             FileUtil.writeUtf8String(code, FileUtil.file(path, "Main." + codeEnum.getExt()));
         } catch (Exception e) {
-            throw new HMETAOException("生成源代码文件失败", "JudgeUtils");
+            throw new HMETAOException("生成源代码文件失败：" + e.getMessage(), "JudgeUtils");
         }
     }
 

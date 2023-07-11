@@ -34,4 +34,4 @@ logging:
         code_dictionary:
           mapper: debug
 judge:
-  path: D:\judge
+  path: D:/judge
