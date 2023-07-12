@@ -13,8 +13,8 @@ import com.hmetao.code_dictionary.form.CategoryForm;
 import com.hmetao.code_dictionary.mapper.CategoryMapper;
 import com.hmetao.code_dictionary.service.CategoryService;
 import com.hmetao.code_dictionary.service.SnippetCategoryService;
-import com.hmetao.code_dictionary.utils.MapUtils;
-import com.hmetao.code_dictionary.utils.SaTokenUtils;
+import com.hmetao.code_dictionary.utils.MapUtil;
+import com.hmetao.code_dictionary.utils.SaTokenUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -43,7 +43,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Override
     public List<CategorySnippetMenusDTO> getCategorySnippetMenus(Boolean snippet) {
         // 获取登录用户
-        User sysUser = SaTokenUtils.getLoginUserInfo();
+        User sysUser = SaTokenUtil.getLoginUserInfo();
 
         // 查询出该用户所有的category
         List<Category> categories = new ArrayList<>(baseMapper.selectList(new LambdaQueryWrapper<Category>()
@@ -87,8 +87,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Override
     public CategorySnippetMenusDTO insertCategory(CategoryForm categoryForm) {
         // 获取登录用户
-        User sysUser = SaTokenUtils.getLoginUserInfo();
-        Category category = MapUtils.beanMap(categoryForm, Category.class);
+        User sysUser = SaTokenUtil.getLoginUserInfo();
+        Category category = MapUtil.beanMap(categoryForm, Category.class);
         category.setUserId(sysUser.getId());
         baseMapper.insert(category);
         return new CategorySnippetMenusDTO(String.valueOf(category.getId()),
@@ -101,7 +101,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Transactional
     public void deleteCategory(Long categoryId) {
         // 获取用户信息
-        User sysUser = SaTokenUtils.getLoginUserInfo();
+        User sysUser = SaTokenUtil.getLoginUserInfo();
         Long userId = sysUser.getId();
 
         // 查询category

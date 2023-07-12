@@ -4,6 +4,7 @@ package com.hmetao.code_dictionary.controller;
 import com.hmetao.code_dictionary.dto.SnippetDTO;
 import com.hmetao.code_dictionary.dto.SnippetUploadImageDTO;
 import com.hmetao.code_dictionary.form.ReceiveSnippetForm;
+import com.hmetao.code_dictionary.form.RunCodeForm;
 import com.hmetao.code_dictionary.form.SnippetForm;
 import com.hmetao.code_dictionary.form.SnippetUploadImageForm;
 import com.hmetao.code_dictionary.result.Result;
@@ -30,6 +31,18 @@ public class SnippetController {
 
     @Resource
     private SnippetService snippetService;
+
+
+    /**
+     * 运行代码
+     *
+     * @param runCodeForm runCodeForm
+     * @return 统一返回
+     */
+    @PostMapping("/run")
+    public ResponseEntity<Result> runCode(@RequestBody RunCodeForm runCodeForm) {
+        return Result.success(snippetService.runCode(runCodeForm));
+    }
 
 
     /**

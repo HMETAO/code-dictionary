@@ -12,9 +12,9 @@ import com.hmetao.code_dictionary.exception.ValidationException;
 import com.hmetao.code_dictionary.mapper.ToolMapper;
 import com.hmetao.code_dictionary.properties.AliOSSProperties;
 import com.hmetao.code_dictionary.service.ToolService;
-import com.hmetao.code_dictionary.utils.AliOssUtils;
-import com.hmetao.code_dictionary.utils.MapUtils;
-import com.hmetao.code_dictionary.utils.SaTokenUtils;
+import com.hmetao.code_dictionary.utils.AliOssUtil;
+import com.hmetao.code_dictionary.utils.MapUtil;
+import com.hmetao.code_dictionary.utils.SaTokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,16 +49,16 @@ public class ToolServiceImpl extends ServiceImpl<ToolMapper, Tool> implements To
 
     @Override
     public PageInfo<ToolDTO> getTools(Integer pageSize, Integer pageNum) {
-        User userInfo = SaTokenUtils.getLoginUserInfo();
+        User userInfo = SaTokenUtil.getLoginUserInfo();
         PageHelper.startPage(pageNum, pageSize);
         List<Tool> tools = baseMapper.selectList(new LambdaQueryWrapper<Tool>().eq(Tool::getUid, userInfo.getId()));
-        return MapUtils.PageInfoCopy(tools,
-                tools.stream().map(tool -> MapUtils.beanMap(tool, ToolDTO.class)).collect(Collectors.toList()));
+        return MapUtil.PageInfoCopy(tools,
+                tools.stream().map(tool -> MapUtil.beanMap(tool, ToolDTO.class)).collect(Collectors.toList()));
     }
 
     @Override
     public void upload(List<MultipartFile> files) {
-        User userInfo = SaTokenUtils.getLoginUserInfo();
+        User userInfo = SaTokenUtil.getLoginUserInfo();
         Long userId = userInfo.getId();
         HashMap<String, InputStream> uploadFileMap = new HashMap<>();
         // 构造tools对象批量插入数据库表
@@ -85,13 +85,13 @@ public class ToolServiceImpl extends ServiceImpl<ToolMapper, Tool> implements To
         this.saveBatch(tools);
 
         // 上传至OSS
-        AliOssUtils.upload(uploadFileMap, aliOSSProperties);
+        AliOssUtil.upload(uploadFileMap, aliOSSProperties);
 
     }
 
     @Override
     public void download(List<Long> ids, HttpServletResponse response) throws IOException {
-        User user = SaTokenUtils.getLoginUserInfo();
+        User user = SaTokenUtil.getLoginUserInfo();
         Long userId = user.getId();
         response.setContentType("application/zip;charset=utf-8");
         response.setHeader("content-disposition", "attachment;filename=" + buildDownloadName());
@@ -107,7 +107,7 @@ public class ToolServiceImpl extends ServiceImpl<ToolMapper, Tool> implements To
             try {
                 zos.putNextEntry(new ZipEntry(fileName));
                 // 将文件写入输出流
-                zos.write(AliOssUtils.download(aliOSSProperties, downloadUrl));
+                zos.write(AliOssUtil.download(aliOSSProperties, downloadUrl));
             } catch (IOException e) {
                 log.error("ToolServiceImpl === > " + e.getMessage(), e);
             } finally {
@@ -125,13 +125,13 @@ public class ToolServiceImpl extends ServiceImpl<ToolMapper, Tool> implements To
 
     @Override
     public void deleteTool(Long toolId) {
-        User userInfo = SaTokenUtils.getLoginUserInfo();
+        User userInfo = SaTokenUtil.getLoginUserInfo();
         Tool sysTool = baseMapper.selectOne(new LambdaQueryWrapper<Tool>()
                 .eq(Tool::getUid, userInfo.getId())
                 .eq(Tool::getId, toolId));
         if (sysTool == null) throw new ValidationException("未找到要删除的tool");
         String urlStr = sysTool.getUrl();
-        AliOssUtils.delete(urlStr.substring(urlStr.indexOf(BaseConstants.ALI_OSS_TOOL_UPLOAD_PREFIX)), aliOSSProperties);
+        AliOssUtil.delete(urlStr.substring(urlStr.indexOf(BaseConstants.ALI_OSS_TOOL_UPLOAD_PREFIX)), aliOSSProperties);
         baseMapper.deleteById(sysTool);
     }
 

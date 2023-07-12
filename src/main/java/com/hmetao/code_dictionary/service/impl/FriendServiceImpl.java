@@ -6,7 +6,7 @@ import com.hmetao.code_dictionary.entity.User;
 import com.hmetao.code_dictionary.mapper.FriendMapper;
 import com.hmetao.code_dictionary.service.FriendService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.hmetao.code_dictionary.utils.SaTokenUtils;
+import com.hmetao.code_dictionary.utils.SaTokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +30,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     @Override
     public List<FriendDTO> getFriends() {
         // 获取登录用户
-        User sysUser = SaTokenUtils.getLoginUserInfo();
+        User sysUser = SaTokenUtil.getLoginUserInfo();
         log.info("FriendServiceImpl === > 用户： {} 查询friend列表", sysUser.getId());
         // 查询列表
         return friendMapper.getFriendsByMasterId(sysUser.getId());

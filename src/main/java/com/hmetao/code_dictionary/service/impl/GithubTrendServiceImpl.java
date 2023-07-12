@@ -9,7 +9,7 @@ import com.hmetao.code_dictionary.dto.GithubTrendDTO;
 import com.hmetao.code_dictionary.exception.GitHubException;
 import com.hmetao.code_dictionary.form.TrendForm;
 import com.hmetao.code_dictionary.service.GithubTrendService;
-import com.hmetao.code_dictionary.utils.RedisUtils;
+import com.hmetao.code_dictionary.utils.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -33,7 +33,7 @@ public class GithubTrendServiceImpl implements GithubTrendService {
 
 
     @Resource
-    private RedisUtils redisUtils;
+    private RedisUtil redisUtil;
 
     @Resource
     private ObjectMapper objectMapper;
@@ -43,7 +43,7 @@ public class GithubTrendServiceImpl implements GithubTrendService {
         // 获取since
         String since = trendForm.getSince().getSinceRequestName();
         log.info("GithubTrendServiceImpl === > 开始拉取GitHub " + since + "信息");
-        String redisTrend = redisUtils.getCacheObject(RedisConstants.GITHUB_TREND_KEY + since);
+        String redisTrend = redisUtil.getCacheObject(RedisConstants.GITHUB_TREND_KEY + since);
         // 还是保持着穿透状态
         if (redisTrend != null && redisTrend.equals(RedisConstants.REDIS_CACHE_ERROR_VALUE)) {
             return new ArrayList<>();
@@ -53,12 +53,12 @@ public class GithubTrendServiceImpl implements GithubTrendService {
             List<GithubTrendDTO> trendList = requestGitHubGetTrend(since);
             // 缓存穿透了没查到数据
             if (trendList.isEmpty()) {
-                redisUtils.setCacheObject(RedisConstants.GITHUB_TREND_KEY + since,
+                redisUtil.setCacheObject(RedisConstants.GITHUB_TREND_KEY + since,
                         RedisConstants.REDIS_CACHE_ERROR_VALUE, 30, TimeUnit.SECONDS);
                 throw new GitHubException("获取信息失败请稍后重试");
             } else {
                 // 缓存到redis
-                redisUtils.setCacheObject(RedisConstants.GITHUB_TREND_KEY + since,
+                redisUtil.setCacheObject(RedisConstants.GITHUB_TREND_KEY + since,
                         objectMapper.writeValueAsString(trendList), 5, TimeUnit.DAYS);
             }
             return trendList;

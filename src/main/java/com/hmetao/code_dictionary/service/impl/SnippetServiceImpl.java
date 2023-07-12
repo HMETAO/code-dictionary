@@ -10,16 +10,19 @@ import com.hmetao.code_dictionary.entity.Snippet;
 import com.hmetao.code_dictionary.entity.SnippetCategory;
 import com.hmetao.code_dictionary.entity.User;
 import com.hmetao.code_dictionary.form.ReceiveSnippetForm;
+import com.hmetao.code_dictionary.form.RunCodeForm;
 import com.hmetao.code_dictionary.form.SnippetForm;
 import com.hmetao.code_dictionary.form.SnippetUploadImageForm;
 import com.hmetao.code_dictionary.mapper.SnippetMapper;
+import com.hmetao.code_dictionary.properties.JudgeProperties;
 import com.hmetao.code_dictionary.properties.QiNiuProperties;
 import com.hmetao.code_dictionary.service.CategoryService;
 import com.hmetao.code_dictionary.service.SnippetCategoryService;
 import com.hmetao.code_dictionary.service.SnippetService;
-import com.hmetao.code_dictionary.utils.MapUtils;
-import com.hmetao.code_dictionary.utils.QiniuUtils;
-import com.hmetao.code_dictionary.utils.SaTokenUtils;
+import com.hmetao.code_dictionary.utils.JudgeUtil;
+import com.hmetao.code_dictionary.utils.MapUtil;
+import com.hmetao.code_dictionary.utils.QiniuUtil;
+import com.hmetao.code_dictionary.utils.SaTokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,24 +61,30 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
     @Resource
     private QiNiuProperties qiNiuProperties;
 
+    @Resource
+    private JudgeUtil judgeUtil;
+
+    @Resource
+    private JudgeProperties judgeProperties;
+
     @Override
     public SnippetDTO getSnippet(Integer id) {
         // 获取登录用户
-        User sysUser = SaTokenUtils.getLoginUserInfo();
+        User sysUser = SaTokenUtil.getLoginUserInfo();
         // 获取该用户的snippet
         Snippet snippet = baseMapper.selectOne(new LambdaQueryWrapper<Snippet>()
                 .eq(Snippet::getUid, sysUser.getId())
                 .eq(Snippet::getId, id));
         Assert.notNull(snippet, "snippet参数错误");
         // 映射成DTO
-        return MapUtils.beanMap(snippet, SnippetDTO.class);
+        return MapUtil.beanMap(snippet, SnippetDTO.class);
     }
 
     @Override
     @Transactional
     public SnippetDTO insertSnippet(SnippetForm snippetForm) {
         // 获取登录用户
-        User sysUser = SaTokenUtils.getLoginUserInfo();
+        User sysUser = SaTokenUtil.getLoginUserInfo();
 
         SnippetCategory exit = snippetCategoryService.getOne(new LambdaQueryWrapper<SnippetCategory>()
                 .eq(SnippetCategory::getCategoryId,
@@ -85,23 +94,23 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
         }
 
         // 写入snippet
-        Snippet snippet = MapUtils.beanMap(snippetForm, Snippet.class);
+        Snippet snippet = MapUtil.beanMap(snippetForm, Snippet.class);
         snippet.setUid(sysUser.getId());
         baseMapper.insert(snippet);
 
         // 写入中间表
-        SnippetCategory snippetCategory = MapUtils.beanMap(snippetForm, SnippetCategory.class);
+        SnippetCategory snippetCategory = MapUtil.beanMap(snippetForm, SnippetCategory.class);
         snippetCategory.setSnippetId(snippet.getId());
         snippetCategory.setSnippetTitle(snippet.getTitle());
         snippetCategoryService.save(snippetCategory);
-        return MapUtils.beanMap(snippet, SnippetDTO.class);
+        return MapUtil.beanMap(snippet, SnippetDTO.class);
     }
 
     @Override
     @Transactional
     public void deleteSnippet(Long snippetId) {
         // 获取登录用户
-        User sysUser = SaTokenUtils.getLoginUserInfo();
+        User sysUser = SaTokenUtil.getLoginUserInfo();
 
         baseMapper.delete(new LambdaQueryWrapper<Snippet>()
                 .eq(Snippet::getUid, sysUser.getId())
@@ -113,13 +122,13 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
 
     @Override
     public void updateSnippet(SnippetForm snippetForm) {
-        Snippet snippet = MapUtils.beanMap(snippetForm, Snippet.class);
+        Snippet snippet = MapUtil.beanMap(snippetForm, Snippet.class);
         baseMapper.updateById(snippet);
     }
 
     @Override
     public SnippetUploadImageDTO uploadImage(SnippetUploadImageForm snippetUploadImageForm) {
-        User user = SaTokenUtils.getLoginUserInfo();
+        User user = SaTokenUtil.getLoginUserInfo();
         ArrayList<MultipartFile> files = snippetUploadImageForm.getFiles();
         LocalDate now = LocalDate.now();
         List<String> urls = new ArrayList<>();
@@ -129,7 +138,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
                 // 构造filename
                 String fileName = getFileName(now, file);
                 log.info("SnippetServiceImpl === > 用户：{} 上传了图片 {}", user.getId(), fileName);
-                QiniuUtils.upload2qiniu(qiNiuProperties, file.getBytes(), fileName);
+                QiniuUtil.upload2qiniu(qiNiuProperties, file.getBytes(), fileName);
                 // 构造图片请求URL返回
                 urls.add(qiNiuProperties.getUrl() + fileName);
             } catch (IOException e) {
@@ -142,7 +151,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
 
     @Override
     public void receiveSnippet(ReceiveSnippetForm receiveSnippetForm) {
-        User user = SaTokenUtils.getLoginUserInfo();
+        User user = SaTokenUtil.getLoginUserInfo();
         // 查询发送人snippet
         Snippet snippet = baseMapper.selectOne(new LambdaQueryWrapper<Snippet>()
                 .eq(Snippet::getId, receiveSnippetForm.getSnippetId())
@@ -163,6 +172,16 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
                 snippet.getTitle(),
                 receiveSnippetForm.getType());
         snippetCategoryService.save(snippetCategory);
+    }
+
+    @Override
+    public String runCode(RunCodeForm runCodeForm) {
+        // 获取登录用户
+        User user = SaTokenUtil.getLoginUserInfo();
+        // 运行代码
+        return judgeUtil.runCode(runCodeForm.getCode(),
+                runCodeForm.getCodeEnum(), runCodeForm.getArgs(),
+                judgeProperties.getPath() + "/" + user.getId());
     }
 
     private static String getFileName(LocalDate now, MultipartFile file) {

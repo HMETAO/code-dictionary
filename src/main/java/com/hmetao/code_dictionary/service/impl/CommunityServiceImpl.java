@@ -12,7 +12,7 @@ import com.hmetao.code_dictionary.exception.ValidationException;
 import com.hmetao.code_dictionary.mapper.CommunityMapper;
 import com.hmetao.code_dictionary.service.CommunityService;
 import com.hmetao.code_dictionary.service.SnippetService;
-import com.hmetao.code_dictionary.utils.SaTokenUtils;
+import com.hmetao.code_dictionary.utils.SaTokenUtil;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -47,7 +47,7 @@ public class CommunityServiceImpl extends ServiceImpl<CommunityMapper, Community
 
     @Override
     public void insertCommunity(Long snippetId) {
-        User user = SaTokenUtils.getLoginUserInfo();
+        User user = SaTokenUtil.getLoginUserInfo();
         // 安全检查判断这个snippetId是否是这个用户的
         Snippet snippet = snippetService.getOne(new LambdaQueryWrapper<Snippet>()
                 .eq(Snippet::getId, snippetId));

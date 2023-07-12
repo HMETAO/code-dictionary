@@ -7,8 +7,8 @@ import com.hmetao.code_dictionary.entity.User;
 import com.hmetao.code_dictionary.mapper.FriendInformationMapper;
 import com.hmetao.code_dictionary.service.FriendInformationService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.hmetao.code_dictionary.utils.MapUtils;
-import com.hmetao.code_dictionary.utils.SaTokenUtils;
+import com.hmetao.code_dictionary.utils.MapUtil;
+import com.hmetao.code_dictionary.utils.SaTokenUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -29,7 +29,7 @@ public class FriendInformationServiceImpl extends ServiceImpl<FriendInformationM
     @Override
     public List<FriendInformationDTO> getInformation(Long id) {
         // 获取登录用户
-        User sysUser = SaTokenUtils.getLoginUserInfo();
+        User sysUser = SaTokenUtil.getLoginUserInfo();
         // 获取消息(最后30条)
         List<FriendInformation> contents = baseMapper.selectList(new LambdaQueryWrapper<FriendInformation>()
                 .eq(FriendInformation::getMasterId, sysUser.getId())
@@ -42,7 +42,7 @@ public class FriendInformationServiceImpl extends ServiceImpl<FriendInformationM
 
         // 映射成DTO
         return contents.stream()
-                .map(content -> MapUtils.beanMap(content, FriendInformationDTO.class))
+                .map(content -> MapUtil.beanMap(content, FriendInformationDTO.class))
                 .sorted(Comparator.comparing(FriendInformationDTO::getCreateTime))
                 .collect(Collectors.toList());
     }

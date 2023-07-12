@@ -13,7 +13,7 @@ import com.qiniu.util.Auth;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class QiniuUtils {
+public class QiniuUtil {
     public static void upload2qiniu(QiNiuProperties qiuProperties, byte[] bytes, String fileName) throws RuntimeException {
         //构造一个带指定 Region 对象的配置类，指定存储区域，和存储空间选择的区域一致
         Configuration cfg = new Configuration(Region.huanan());

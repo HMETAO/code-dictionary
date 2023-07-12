@@ -4,8 +4,6 @@ import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.StpUtil;
 import com.hmetao.code_dictionary.constants.BaseConstants;
 import com.hmetao.code_dictionary.constants.SSHConstants;
-import com.hmetao.code_dictionary.entity.User;
-import com.hmetao.code_dictionary.utils.SaTokenUtils;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -13,7 +11,6 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import java.util.Map;
-import java.util.Objects;
 
 public class WebSocketInterceptor implements HandshakeInterceptor {
 

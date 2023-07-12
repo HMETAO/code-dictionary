@@ -1,5 +1,7 @@
 package com.hmetao.code_dictionary.handler;
 
+import com.hmetao.code_dictionary.exception.HMETAOException;
+import com.hmetao.code_dictionary.exception.PrintLogException;
 import com.hmetao.code_dictionary.result.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -11,6 +13,21 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(PrintLogException.class)
+    @ResponseBody
+    public ResponseEntity<Result> processException(PrintLogException e) {
+        log.error("{} === > {}", e.getSrc(), e.getMessage(), e);
+        return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
+
+    @ExceptionHandler(HMETAOException.class)
+    @ResponseBody
+    public ResponseEntity<Result> processException(HMETAOException e) {
+        log.error("{} === > " + e.getMessage(), e.getSrc(), e);
+        return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
+
 
     @ExceptionHandler(Exception.class)
     @ResponseBody

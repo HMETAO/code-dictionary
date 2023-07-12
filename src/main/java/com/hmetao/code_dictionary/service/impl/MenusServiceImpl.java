@@ -5,8 +5,7 @@ import com.hmetao.code_dictionary.entity.Menus;
 import com.hmetao.code_dictionary.mapper.MenusMapper;
 import com.hmetao.code_dictionary.service.MenusService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.hmetao.code_dictionary.utils.MapUtils;
-import org.springframework.beans.BeanUtils;
+import com.hmetao.code_dictionary.utils.MapUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, Menus> implements
         // 找到顶级父类
         menus.stream().filter(f -> f.getPid() == 0).forEach(item -> {
             // 映射为DTO对象
-            MenusDTO menusDTO = MapUtils.beanMap(item, MenusDTO.class);
+            MenusDTO menusDTO = MapUtil.beanMap(item, MenusDTO.class);
             // 插入菜单列表，并查询子节点
             menusDTOs.add(findChildren(menus, menusDTO));
         });
@@ -50,7 +49,7 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, Menus> implements
         trees.stream()
                 .filter(f -> f.getPid().equals(node.getId()))
                 .forEach(item -> {
-                    MenusDTO menusDTO = MapUtils.beanMap(item, MenusDTO.class);
+                    MenusDTO menusDTO = MapUtil.beanMap(item, MenusDTO.class);
                     // 都是它儿子，递归查询并加入列表
                     node.getChildren().add(findChildren(trees, menusDTO));
                 });

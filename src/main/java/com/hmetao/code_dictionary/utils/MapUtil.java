@@ -6,7 +6,7 @@ import org.springframework.beans.BeanUtils;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-public class MapUtils {
+public class MapUtil {
     public static <T> T beanMap(Object source, Class<T> mapClazz) {
         T target = null;
         try {
