@@ -1,7 +1,8 @@
 # 使用基础镜像
 FROM ubuntu:23.10
-RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g; s/security.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list
-RUN  apt-get update --fix-missing
+RUN sed -i "s@/archive.ubuntu.com/@/mirrors.tuna.tsinghua.edu.cn/@g" /etc/apt/sources.list \
+       && rm -Rf /var/lib/apt/lists/* \
+       && apt-get update
 RUN  apt-get install -y openjdk-11-jdk build-essential
 
 # 设置环境变量
