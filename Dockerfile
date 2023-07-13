@@ -1,8 +1,8 @@
 # 使用基础镜像
 FROM ubuntu:23.10
 RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g; s/security.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list
-RUN  apt update
-RUN  apt install -y openjdk-11-jdk build-essential
+RUN  apt-get update
+RUN  apt-get install -y openjdk-11-jdk build-essential
 
 # 设置环境变量
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
