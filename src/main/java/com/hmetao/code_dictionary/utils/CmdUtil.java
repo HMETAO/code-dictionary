@@ -21,7 +21,7 @@ public class CmdUtil {
             }
         } else if (CodeEnum.Cpp.equals(type)) {
             if (dir != null && !"".equals(dir)) {
-                return "g++ " + dir + "/Main.cpp -o " + dir + "/C++.out -std=c++11";
+                return "g++ " + dir + "/Main.cpp -o " + dir + "/C++.out -std=c++17";
             } else {
                 return "g++ Main.cpp -o C++.out -std=c++11";
             }
