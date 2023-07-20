@@ -25,17 +25,11 @@ import com.hmetao.code_dictionary.utils.MapUtil;
 import com.hmetao.code_dictionary.utils.QiniuUtil;
 import com.hmetao.code_dictionary.utils.TLSSigAPIv2;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.internal.StringUtil;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
@@ -81,7 +75,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public UserDTO login(LoginForm loginForm) {
-        User userEntity = baseMapper.selectOne(new QueryWrapper<User>().eq("username", loginForm.getUsername()));
+        User userEntity = baseMapper.selectOne(new QueryWrapper<User>().eq("username", loginForm.getUsername().trim()));
         String password = loginForm.getPassword();
         if (userEntity == null)
             throw new AccessErrorException("登录失败：请先完成注册操作");
