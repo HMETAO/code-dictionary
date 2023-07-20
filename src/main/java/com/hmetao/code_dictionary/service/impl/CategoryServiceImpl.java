@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.constants.BaseConstants;
 import com.hmetao.code_dictionary.dto.BaseTreeDTO;
 import com.hmetao.code_dictionary.dto.CategorySnippetMenusDTO;
+import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.Category;
 import com.hmetao.code_dictionary.entity.SnippetCategory;
 import com.hmetao.code_dictionary.entity.User;
@@ -43,7 +44,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Override
     public List<CategorySnippetMenusDTO> getCategorySnippetMenus(Boolean snippet) {
         // 获取登录用户
-        User sysUser = SaTokenUtil.getLoginUserInfo();
+        UserDTO sysUser = SaTokenUtil.getLoginUserInfo();
 
         // 查询出该用户所有的category
         List<Category> categories = new ArrayList<>(baseMapper.selectList(new LambdaQueryWrapper<Category>()
@@ -87,7 +88,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Override
     public CategorySnippetMenusDTO insertCategory(CategoryForm categoryForm) {
         // 获取登录用户
-        User sysUser = SaTokenUtil.getLoginUserInfo();
+        UserDTO sysUser = SaTokenUtil.getLoginUserInfo();
         Category category = MapUtil.beanMap(categoryForm, Category.class);
         category.setUserId(sysUser.getId());
         baseMapper.insert(category);
@@ -101,7 +102,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Transactional
     public void deleteCategory(Long categoryId) {
         // 获取用户信息
-        User sysUser = SaTokenUtil.getLoginUserInfo();
+        UserDTO sysUser = SaTokenUtil.getLoginUserInfo();
         Long userId = sysUser.getId();
 
         // 查询category
@@ -153,7 +154,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     private Map<String, List<CategorySnippetMenusDTO>> getMapOfSnippetGroupedByCategory(List<Category> categories) {
         // 查出category下的所有snippet
         List<Long> categoryIds = categories.stream().map(Category::getId).collect(Collectors.toList());
-        List<SnippetCategory> snippets = getSnippetCategoriesByIds(categoryIds);
+        List<SnippetCategory> snippets = Collections.emptyList();
+        if (!categories.isEmpty())
+            snippets = getSnippetCategoriesByIds(categoryIds);
 
         // 按category分组找出每个category下的snippet(类似每个文件夹下的文件 category就是文件夹 snippet就是文件)
         return snippets.stream().map(snippet -> {
@@ -167,7 +170,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                 .collect(Collectors.groupingBy(CategorySnippetMenusDTO::getParentId));
     }
 
-    private List<Category> generateInitialCategory(User sysUser) {
+    private List<Category> generateInitialCategory(UserDTO sysUser) {
         Category category = new Category();
         category.setUserId(sysUser.getId());
         category.setName(BaseConstants.BASE_GROUP);

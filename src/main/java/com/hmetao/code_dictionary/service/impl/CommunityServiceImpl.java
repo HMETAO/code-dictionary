@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hmetao.code_dictionary.dto.CommunityDTO;
+import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.Community;
 import com.hmetao.code_dictionary.entity.Snippet;
 import com.hmetao.code_dictionary.entity.User;
@@ -47,7 +48,7 @@ public class CommunityServiceImpl extends ServiceImpl<CommunityMapper, Community
 
     @Override
     public void insertCommunity(Long snippetId) {
-        User user = SaTokenUtil.getLoginUserInfo();
+        UserDTO user = SaTokenUtil.getLoginUserInfo();
         // 安全检查判断这个snippetId是否是这个用户的
         Snippet snippet = snippetService.getOne(new LambdaQueryWrapper<Snippet>()
                 .eq(Snippet::getId, snippetId));

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.constants.BaseConstants;
 import com.hmetao.code_dictionary.dto.SnippetDTO;
 import com.hmetao.code_dictionary.dto.SnippetUploadImageDTO;
+import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.Category;
 import com.hmetao.code_dictionary.entity.Snippet;
 import com.hmetao.code_dictionary.entity.SnippetCategory;
@@ -70,7 +71,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
     @Override
     public SnippetDTO getSnippet(Integer id) {
         // 获取登录用户
-        User sysUser = SaTokenUtil.getLoginUserInfo();
+        UserDTO sysUser = SaTokenUtil.getLoginUserInfo();
         // 获取该用户的snippet
         Snippet snippet = baseMapper.selectOne(new LambdaQueryWrapper<Snippet>()
                 .eq(Snippet::getUid, sysUser.getId())
@@ -84,7 +85,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
     @Transactional
     public SnippetDTO insertSnippet(SnippetForm snippetForm) {
         // 获取登录用户
-        User sysUser = SaTokenUtil.getLoginUserInfo();
+        UserDTO sysUser = SaTokenUtil.getLoginUserInfo();
 
         SnippetCategory exit = snippetCategoryService.getOne(new LambdaQueryWrapper<SnippetCategory>()
                 .eq(SnippetCategory::getCategoryId,
@@ -110,7 +111,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
     @Transactional
     public void deleteSnippet(Long snippetId) {
         // 获取登录用户
-        User sysUser = SaTokenUtil.getLoginUserInfo();
+        UserDTO sysUser = SaTokenUtil.getLoginUserInfo();
 
         baseMapper.delete(new LambdaQueryWrapper<Snippet>()
                 .eq(Snippet::getUid, sysUser.getId())
@@ -128,7 +129,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
 
     @Override
     public SnippetUploadImageDTO uploadImage(SnippetUploadImageForm snippetUploadImageForm) {
-        User user = SaTokenUtil.getLoginUserInfo();
+       UserDTO user = SaTokenUtil.getLoginUserInfo();
         ArrayList<MultipartFile> files = snippetUploadImageForm.getFiles();
         LocalDate now = LocalDate.now();
         List<String> urls = new ArrayList<>();
@@ -151,7 +152,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
 
     @Override
     public void receiveSnippet(ReceiveSnippetForm receiveSnippetForm) {
-        User user = SaTokenUtil.getLoginUserInfo();
+       UserDTO user = SaTokenUtil.getLoginUserInfo();
         // 查询发送人snippet
         Snippet snippet = baseMapper.selectOne(new LambdaQueryWrapper<Snippet>()
                 .eq(Snippet::getId, receiveSnippetForm.getSnippetId())
@@ -177,7 +178,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
     @Override
     public String runCode(RunCodeForm runCodeForm) {
         // 获取登录用户
-        User user = SaTokenUtil.getLoginUserInfo();
+       UserDTO user = SaTokenUtil.getLoginUserInfo();
         // 运行代码
         return judgeUtil.runCode(runCodeForm.getCode(),
                 runCodeForm.getCodeEnum(), runCodeForm.getArgs(),

@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod
+    active: dev
 server:
   port: 8972
   ssl:
@@ -43,3 +43,7 @@ qiniu:
 pagehelper:
   helper-dialect: mysql
   reasonable: true
+tencent-im:
+  SDKAppID: 1400814487
+  SecretKey: bc24d12f122541ad69329f825d7cba9e5e5cf5e3deb39939d09ceda36bfe752f
+

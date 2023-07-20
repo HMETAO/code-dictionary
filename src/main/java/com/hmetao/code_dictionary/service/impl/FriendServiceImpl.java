@@ -1,6 +1,7 @@
 package com.hmetao.code_dictionary.service.impl;
 
 import com.hmetao.code_dictionary.dto.FriendDTO;
+import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.Friend;
 import com.hmetao.code_dictionary.entity.User;
 import com.hmetao.code_dictionary.mapper.FriendMapper;
@@ -30,7 +31,7 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     @Override
     public List<FriendDTO> getFriends() {
         // 获取登录用户
-        User sysUser = SaTokenUtil.getLoginUserInfo();
+        UserDTO sysUser = SaTokenUtil.getLoginUserInfo();
         log.info("FriendServiceImpl === > 用户： {} 查询friend列表", sysUser.getId());
         // 查询列表
         return friendMapper.getFriendsByMasterId(sysUser.getId());

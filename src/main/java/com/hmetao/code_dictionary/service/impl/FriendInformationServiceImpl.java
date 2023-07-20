@@ -2,6 +2,7 @@ package com.hmetao.code_dictionary.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.hmetao.code_dictionary.dto.FriendInformationDTO;
+import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.FriendInformation;
 import com.hmetao.code_dictionary.entity.User;
 import com.hmetao.code_dictionary.mapper.FriendInformationMapper;
@@ -29,7 +30,7 @@ public class FriendInformationServiceImpl extends ServiceImpl<FriendInformationM
     @Override
     public List<FriendInformationDTO> getInformation(Long id) {
         // 获取登录用户
-        User sysUser = SaTokenUtil.getLoginUserInfo();
+        UserDTO sysUser = SaTokenUtil.getLoginUserInfo();
         // 获取消息(最后30条)
         List<FriendInformation> contents = baseMapper.selectList(new LambdaQueryWrapper<FriendInformation>()
                 .eq(FriendInformation::getMasterId, sysUser.getId())

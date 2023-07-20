@@ -45,4 +45,7 @@ public class UserDTO implements Serializable {
     @ApiModelProperty(value = "token")
     private String token;
 
+    @ApiModelProperty(value = "UserSig")
+    private String userSig;
+
 }

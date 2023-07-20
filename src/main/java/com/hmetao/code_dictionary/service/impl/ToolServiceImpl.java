@@ -6,6 +6,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hmetao.code_dictionary.constants.BaseConstants;
 import com.hmetao.code_dictionary.dto.ToolDTO;
+import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.Tool;
 import com.hmetao.code_dictionary.entity.User;
 import com.hmetao.code_dictionary.exception.ValidationException;
@@ -49,7 +50,7 @@ public class ToolServiceImpl extends ServiceImpl<ToolMapper, Tool> implements To
 
     @Override
     public PageInfo<ToolDTO> getTools(Integer pageSize, Integer pageNum) {
-        User userInfo = SaTokenUtil.getLoginUserInfo();
+        UserDTO userInfo = SaTokenUtil.getLoginUserInfo();
         PageHelper.startPage(pageNum, pageSize);
         List<Tool> tools = baseMapper.selectList(new LambdaQueryWrapper<Tool>().eq(Tool::getUid, userInfo.getId()));
         return MapUtil.PageInfoCopy(tools,
@@ -58,7 +59,7 @@ public class ToolServiceImpl extends ServiceImpl<ToolMapper, Tool> implements To
 
     @Override
     public void upload(List<MultipartFile> files) {
-        User userInfo = SaTokenUtil.getLoginUserInfo();
+        UserDTO userInfo = SaTokenUtil.getLoginUserInfo();
         Long userId = userInfo.getId();
         HashMap<String, InputStream> uploadFileMap = new HashMap<>();
         // 构造tools对象批量插入数据库表
@@ -91,7 +92,7 @@ public class ToolServiceImpl extends ServiceImpl<ToolMapper, Tool> implements To
 
     @Override
     public void download(List<Long> ids, HttpServletResponse response) throws IOException {
-        User user = SaTokenUtil.getLoginUserInfo();
+       UserDTO user = SaTokenUtil.getLoginUserInfo();
         Long userId = user.getId();
         response.setContentType("application/zip;charset=utf-8");
         response.setHeader("content-disposition", "attachment;filename=" + buildDownloadName());
@@ -125,7 +126,7 @@ public class ToolServiceImpl extends ServiceImpl<ToolMapper, Tool> implements To
 
     @Override
     public void deleteTool(Long toolId) {
-        User userInfo = SaTokenUtil.getLoginUserInfo();
+        UserDTO userInfo = SaTokenUtil.getLoginUserInfo();
         Tool sysTool = baseMapper.selectOne(new LambdaQueryWrapper<Tool>()
                 .eq(Tool::getUid, userInfo.getId())
                 .eq(Tool::getId, toolId));
