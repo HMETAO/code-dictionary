@@ -21,19 +21,13 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class MenusDTO implements Serializable {
+public class MenusDTO extends BaseTreeDTO<Long> implements Serializable  {
 
     private static final long serialVersionUID = 1L;
-
-    private Long id;
 
     private String menusName;
 
     private String path;
-
-    private Long pid;
-
-    List<MenusDTO> children;
 
 
 }

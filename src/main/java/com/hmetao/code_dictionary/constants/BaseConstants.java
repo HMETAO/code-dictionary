@@ -24,4 +24,6 @@ public class BaseConstants {
     // 通用分组
     public static final String BASE_GROUP = "通用分组";
 
+    // 基本权限标识
+    public static final String BASE_PERMS = "base";
 }

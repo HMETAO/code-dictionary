@@ -1,6 +1,7 @@
 package com.hmetao.code_dictionary.handler;
 
 import cn.dev33.satoken.exception.NotLoginException;
+import cn.dev33.satoken.exception.NotRoleException;
 import com.hmetao.code_dictionary.exception.ValidationException;
 import com.hmetao.code_dictionary.result.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -36,13 +37,24 @@ public class ValidationExceptionHandler {
     }
 
     /**
+     * 角色不存在
+     * @param e NotRoleException
+     * @return 失败原因
+     */
+    @ExceptionHandler(NotRoleException.class)
+    public ResponseEntity<Result> notRoleException(Exception e) {
+        log.error("ValidationExceptionHandler === > " + e.getMessage(), e);
+        return Result.error(HttpStatus.FORBIDDEN, "访问接口的权限不足");
+    }
+
+    /**
      * 有关校验信息失败异常
      *
      * @param e ValidationException
      * @return 失败原因
      */
     @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<Result> ValidationException(ValidationException e) {
+    public ResponseEntity<Result> validationException(ValidationException e) {
         log.error("ValidationExceptionHandler === > " + e.getMessage(), e);
         return Result.error(HttpStatus.BAD_REQUEST, e.getMessage());
     }

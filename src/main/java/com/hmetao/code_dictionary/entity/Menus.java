@@ -42,4 +42,7 @@ public class Menus extends BaseEntity implements Serializable {
     private Long pid;
 
 
+    @ApiModelProperty(value = "权限标识")
+    private String perms;
+
 }

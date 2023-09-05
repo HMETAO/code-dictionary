@@ -1,15 +1,25 @@
 package com.hmetao.code_dictionary.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.hmetao.code_dictionary.constants.BaseConstants;
+import com.hmetao.code_dictionary.dto.BaseTreeDTO;
 import com.hmetao.code_dictionary.dto.MenusDTO;
+import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.Menus;
 import com.hmetao.code_dictionary.mapper.MenusMapper;
 import com.hmetao.code_dictionary.service.MenusService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.utils.MapUtil;
+import com.hmetao.code_dictionary.utils.SaTokenUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -24,36 +34,33 @@ import java.util.List;
 public class MenusServiceImpl extends ServiceImpl<MenusMapper, Menus> implements MenusService {
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<MenusDTO> getMenus() {
-        List<Menus> menus = this.list(null);
-        return build(menus);
-    }
+        // 获取权限列表
+        List<String> permissionList = StpUtil.getPermissionList();
+        Wrapper<Menus> wrapper;
 
-    private List<MenusDTO> build(List<Menus> menus) {
-        List<MenusDTO> menusDTOs = new ArrayList<>();
-        // 找到顶级父类
-        menus.stream().filter(f -> f.getPid() == 0).forEach(item -> {
-            // 映射为DTO对象
-            MenusDTO menusDTO = MapUtil.beanMap(item, MenusDTO.class);
-            // 插入菜单列表，并查询子节点
-            menusDTOs.add(findChildren(menus, menusDTO));
-        });
-        return menusDTOs;
-    }
+        // 最高权限
+        if (permissionList.contains("*")) {
+            wrapper = Wrappers.emptyWrapper();
+        } else {
+            // 进行截取权限标识操作
+            List<String> permissionPath = permissionList.stream()
+                    .map(permission -> permission.contains("-") ? permission.split("-")[0] : permission).collect(Collectors.toList());
+            // 基础menus权限标识
+            permissionPath.add(BaseConstants.BASE_PERMS);
 
+            wrapper = new LambdaQueryWrapper<Menus>().in(Menus::getPerms, permissionPath);
+        }
 
-    private MenusDTO findChildren(List<Menus> trees, MenusDTO node) {
-        node.setChildren(new ArrayList<>());
-
-        // 查询儿子节点列表
-        trees.stream()
-                .filter(f -> f.getPid().equals(node.getId()))
-                .forEach(item -> {
-                    MenusDTO menusDTO = MapUtil.beanMap(item, MenusDTO.class);
-                    // 都是它儿子，递归查询并加入列表
-                    node.getChildren().add(findChildren(trees, menusDTO));
-                });
-
-        return node;
+        List<MenusDTO> menusDTOS = baseMapper.selectList(wrapper)
+                .stream()
+                .distinct()
+                .map(menu -> {
+                    MenusDTO menusDTO = MapUtil.beanMap(menu, MenusDTO.class);
+                    menusDTO.setParentId(menu.getPid());
+                    return menusDTO;
+                }).collect(Collectors.toList());
+        return (List<MenusDTO>) BaseTreeDTO.buildTree(menusDTOS, 0L);
     }
 }
