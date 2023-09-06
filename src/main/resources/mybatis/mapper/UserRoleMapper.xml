@@ -9,4 +9,16 @@
                             on ur.role_id = r.id
         where ur.user_id = #{userId}
     </select>
+
+
+    <select id="getRolesByUserIds" resultType="com.hmetao.code_dictionary.po.UserRolePO">
+        select ur.user_id as id,r.id as rid,role_sign, role_name
+        from user_role ur
+        inner join role r on ur.role_id = r.id
+        where ur.user_id in
+        <foreach collection="userIds" item="userId" open=" (" separator="," close=") ">
+            #{userId}
+        </foreach>
+    </select>
+
 </mapper>

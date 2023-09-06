@@ -7,16 +7,23 @@ import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
 import com.hmetao.code_dictionary.constants.BaseConstants;
+import com.hmetao.code_dictionary.dto.RoleDTO;
 import com.hmetao.code_dictionary.dto.UserDTO;
+import com.hmetao.code_dictionary.dto.UserInfoDTO;
+import com.hmetao.code_dictionary.dto.UserRoleDTO;
 import com.hmetao.code_dictionary.entity.User;
 import com.hmetao.code_dictionary.entity.UserRole;
 import com.hmetao.code_dictionary.exception.AccessErrorException;
 import com.hmetao.code_dictionary.exception.HMETAOException;
 import com.hmetao.code_dictionary.exception.ValidationException;
 import com.hmetao.code_dictionary.form.LoginForm;
+import com.hmetao.code_dictionary.form.QueryForm;
 import com.hmetao.code_dictionary.form.UserRegistryForm;
 import com.hmetao.code_dictionary.mapper.UserMapper;
+import com.hmetao.code_dictionary.mapper.UserRoleMapper;
+import com.hmetao.code_dictionary.po.UserRolePO;
 import com.hmetao.code_dictionary.properties.QiNiuProperties;
 import com.hmetao.code_dictionary.properties.TencentImProperties;
 import com.hmetao.code_dictionary.service.UserRoleService;
@@ -38,6 +45,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -65,6 +73,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private TencentImProperties tencentImProperties;
+
+    @Resource
+    private UserRoleMapper userRoleMapper;
 
     private TLSSigAPIv2 tlsSigAPIv2;
 
@@ -135,6 +146,39 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         } catch (IOException e) {
             throw new HMETAOException("UserServiceImpl", " 注册用户接口 ERROR");
         }
+    }
+
+    @Override
+    public List<UserRoleDTO> getUsers(QueryForm queryForm) {
+        PageHelper.startPage(queryForm.getPageNum(), queryForm.getPageSize());
+        // 分页查询出全部的user
+        List<UserInfoDTO> userInfoList = baseMapper.getUserInfoList();
+
+        List<Long> userIds = new ArrayList<>();
+        List<UserRoleDTO> userRoleDTOList = userInfoList.stream()
+                .map(userInfoDTO -> {
+                    // 保存用户的id
+                    userIds.add(userInfoDTO.getId());
+                    // 转成DTO对象
+                    return MapUtil.beanMap(userInfoDTO, UserRoleDTO.class);
+                }).collect(Collectors.toList());
+        // 查询出所有用户对应的role
+        List<UserRolePO> userRolePOS = userRoleMapper.getRolesByUserIds(userIds);
+
+        Map<Long, List<UserRolePO>> userRolePOMap = userRolePOS.stream().collect(Collectors.groupingBy(UserRolePO::getId));
+        // 填入对应用户的roles
+        for (UserRoleDTO userRoleDTO : userRoleDTOList) {
+            userRoleDTO.setRoles(findAndBuildRoleDTO(userRolePOMap, userRoleDTO.getId()));
+        }
+        return userRoleDTOList;
+    }
+
+
+    private static List<RoleDTO> findAndBuildRoleDTO(Map<Long, List<UserRolePO>> userRolePOMap, Long userId) {
+        return userRolePOMap.getOrDefault(userId, Collections.emptyList())
+                .stream()
+                .map(po -> new RoleDTO(po.getId(), po.getRoleName(), po.getRoleSign()))
+                .collect(Collectors.toList());
     }
 
     private void registryTencentIM(String userID, String avatar) {
