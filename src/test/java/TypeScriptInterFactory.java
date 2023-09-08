@@ -1,4 +1,5 @@
 import com.hmetao.code_dictionary.dto.CommunityDTO;
+import com.hmetao.code_dictionary.dto.UserInfoDTO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -24,7 +25,7 @@ import java.util.jar.JarFile;
 public class TypeScriptInterFactory {
 
     public static void main(String[] args) {
-        toTsType(CommunityDTO.class);
+        toTsType(UserInfoDTO.class);
     }
 
 

@@ -1,5 +1,6 @@
 package com.hmetao.code_dictionary.service;
 
+import com.github.pagehelper.PageInfo;
 import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.dto.UserInfoDTO;
 import com.hmetao.code_dictionary.dto.UserRoleDTO;
@@ -25,5 +26,5 @@ public interface UserService extends IService<User> {
 
     void registry(UserRegistryForm userRegistryForm);
 
-    List<UserRoleDTO> getUsers(QueryForm queryForm);
+    PageInfo<UserRoleDTO> getUsers(QueryForm queryForm);
 }

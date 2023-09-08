@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hmetao.code_dictionary.constants.BaseConstants;
 import com.hmetao.code_dictionary.dto.RoleDTO;
 import com.hmetao.code_dictionary.dto.UserDTO;
@@ -149,7 +150,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public List<UserRoleDTO> getUsers(QueryForm queryForm) {
+    public PageInfo<UserRoleDTO> getUsers(QueryForm queryForm) {
         PageHelper.startPage(queryForm.getPageNum(), queryForm.getPageSize());
         // 分页查询出全部的user
         List<UserInfoDTO> userInfoList = baseMapper.getUserInfoList();
@@ -170,7 +171,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         for (UserRoleDTO userRoleDTO : userRoleDTOList) {
             userRoleDTO.setRoles(findAndBuildRoleDTO(userRolePOMap, userRoleDTO.getId()));
         }
-        return userRoleDTOList;
+        return MapUtil.PageInfoCopy(userInfoList, userRoleDTOList);
     }
 
 
