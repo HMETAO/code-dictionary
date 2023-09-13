@@ -139,7 +139,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 插入数据库
             baseMapper.insert(user);
             // 将用户导入腾讯IM平台
-            registryTencentIM(user.getUsername(), user.getAvatar());
+            registryTencentIMAccount(user.getUsername(), user.getAvatar());
 
             // 分配普通用户权限
             UserRole userRole = new UserRole(BaseConstants.BASE_ROLE_USER, user.getId(), BaseConstants.BASE_ADMIN_USER);
@@ -174,6 +174,47 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return MapUtil.PageInfoCopy(userInfoList, userRoleDTOList);
     }
 
+    @Override
+    @Transactional
+    public void deleteUserId(Long userId) {
+        User user = baseMapper.selectById(userId);
+        if (user == null) throw new ValidationException("未找到需要删除的用户");
+
+        // 删除用户与角色之间的联系
+        userRoleMapper.delete(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, userId));
+
+        // 删除该用户
+        baseMapper.deleteById(userId);
+
+        // 删除腾讯IM账号
+        deleteTencentIMAccount(user);
+    }
+
+    private void deleteTencentIMAccount(User user) {
+        String url = UriComponentsBuilder.fromUriString("https://console.tim.qq.com/v4/im_open_login_svc/account_delete")
+                .queryParam("sdkappid", tencentImProperties.getSDKAppID())
+                .queryParam("identifier", "HMETAO")
+                .queryParam("usersig", tlsSigAPIv2.genUserSig("HMETAO", 86400))
+                .queryParam("random", RandomUtil.randomLong(4294967295L))
+                .queryParam("contentType", "json").toUriString();
+        HashMap<String, ArrayList<HashMap<String, String>>> map = new HashMap<>();
+        // 删除用户的账号（使用用户名标识的ID）
+        ArrayList<HashMap<String, String>> accounts = new ArrayList<>();
+        HashMap<String, String> obj = new HashMap<>();
+        obj.put("UserID", user.getUsername());
+        accounts.add(obj);
+        map.put("DeleteItem", accounts);
+        tencentIMRequestHandler(url, map);
+    }
+
+    private <T> void tencentIMRequestHandler(String url, HashMap<String, T> map) {
+        Map<String, Object> body = restTemplate.postForObject(url, map, Map.class);
+        Integer code = (Integer) Objects.requireNonNull(body).get("ErrorCode");
+        if (code == null || !code.equals(0)) {
+            throw new HMETAOException("UserServiceImpl", (String) body.get("ErrorInfo"));
+        }
+    }
+
 
     private static List<RoleDTO> findAndBuildRoleDTO(Map<Long, List<UserRolePO>> userRolePOMap, Long userId) {
         return userRolePOMap.getOrDefault(userId, Collections.emptyList())
@@ -182,7 +223,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .collect(Collectors.toList());
     }
 
-    private void registryTencentIM(String userID, String avatar) {
+    private void registryTencentIMAccount(String userID, String avatar) {
         String url = UriComponentsBuilder.fromUriString("https://console.tim.qq.com/v4/im_open_login_svc/account_import")
                 .queryParam("sdkappid", tencentImProperties.getSDKAppID())
                 .queryParam("identifier", "HMETAO")
@@ -193,11 +234,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         map.put("UserID", userID);
         if (!StringUtils.isEmpty(avatar))
             map.put("FaceUrl", avatar);
-        Map<String, Object> body = restTemplate.postForObject(url, map, Map.class);
-        Integer code = (Integer) Objects.requireNonNull(body).get("ErrorCode");
-        if (code == null || !code.equals(0)) {
-            throw new HMETAOException("UserServiceImpl", (String) body.get("ErrorInfo"));
-        }
+        tencentIMRequestHandler(url, map);
     }
 
 

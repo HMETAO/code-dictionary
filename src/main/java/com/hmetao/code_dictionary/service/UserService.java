@@ -27,4 +27,6 @@ public interface UserService extends IService<User> {
     void registry(UserRegistryForm userRegistryForm);
 
     PageInfo<UserRoleDTO> getUsers(QueryForm queryForm);
+
+    void deleteUserId(Long userId);
 }
