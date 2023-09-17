@@ -3,6 +3,7 @@ package com.hmetao.code_dictionary.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.hmetao.code_dictionary.dto.UserDTO;
+import com.hmetao.code_dictionary.dto.UserRoleDTO;
 import com.hmetao.code_dictionary.form.LoginForm;
 import com.hmetao.code_dictionary.form.UserRegistryForm;
 import com.hmetao.code_dictionary.result.Result;
@@ -51,6 +52,18 @@ public class UserController {
     public ResponseEntity<Result> logout() {
         StpUtil.logout();
         return Result.success(HttpStatus.OK, "登出成功");
+    }
+
+    /**
+     * 查询单个用户
+     *
+     * @param userId 用户ID
+     * @return 统一返回
+     */
+    @GetMapping("{userId}")
+    public ResponseEntity<Result> getUser(@PathVariable("userId") Long userId) {
+        UserRoleDTO userRoleDTO = userService.getUser(userId);
+        return Result.success(userRoleDTO);
     }
 
     /**

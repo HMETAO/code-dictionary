@@ -7,7 +7,7 @@
         from user_role ur
                  inner join role r
                             on ur.role_id = r.id
-        where ur.user_id = #{userId}
+        where ur.user_id = #{userId} and r.is_deleted = 0 and r.status = 1
     </select>
 
 
@@ -19,6 +19,7 @@
         <foreach collection="userIds" item="userId" open=" (" separator="," close=") ">
             #{userId}
         </foreach>
+        and r.is_deleted = 0 and r.status = 1
     </select>
 
 </mapper>

@@ -31,6 +31,7 @@ import com.hmetao.code_dictionary.service.UserRoleService;
 import com.hmetao.code_dictionary.service.UserService;
 import com.hmetao.code_dictionary.utils.MapUtil;
 import com.hmetao.code_dictionary.utils.QiniuUtil;
+import com.hmetao.code_dictionary.utils.SaTokenUtil;
 import com.hmetao.code_dictionary.utils.TLSSigAPIv2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -188,6 +189,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 删除腾讯IM账号
         deleteTencentIMAccount(user);
+    }
+
+    @Override
+    public UserRoleDTO getUser(Long userId) {
+        UserDTO sysUser = SaTokenUtil.getLoginUserInfo();
+        // 判断是否是登录用户，查自己放行
+        if (!Objects.equals(sysUser.getId(), userId)) {
+            // 判断是否有select权限
+            StpUtil.checkPermission("user-select");
+        }
+        // 查询实际要的用户信息
+        User user = baseMapper.selectById(userId);
+        if (user == null) throw new ValidationException("未找到需要删除的用户");
+        UserRoleDTO userRoleDTO = MapUtil.beanMap(user, UserRoleDTO.class);
+        // 查询用户的role
+        userRoleDTO.setRoles(userRoleMapper.getRoleList(user.getId()));
+        return userRoleDTO;
     }
 
     private void deleteTencentIMAccount(User user) {

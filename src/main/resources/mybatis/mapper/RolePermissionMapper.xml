@@ -10,5 +10,6 @@
         <foreach collection="collection" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
+        and p.is_deleted = 0
     </select>
 </mapper>
