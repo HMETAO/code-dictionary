@@ -4,8 +4,10 @@ package com.hmetao.code_dictionary.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.dto.UserRoleDTO;
+import com.hmetao.code_dictionary.form.BaseUserInfoForm;
 import com.hmetao.code_dictionary.form.LoginForm;
 import com.hmetao.code_dictionary.form.UserRegistryForm;
+import com.hmetao.code_dictionary.form.UserRoleUpdateForm;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -75,6 +77,19 @@ public class UserController {
     @PostMapping("registry")
     public ResponseEntity<Result> registry(@Valid UserRegistryForm userRegistryForm) {
         userService.registry(userRegistryForm);
+        return Result.success(HttpStatus.CREATED);
+    }
+
+
+    /**
+     * 更新单个用户
+     *
+     * @param baseUserInfoForm 用户信息
+     * @return 统一返回
+     */
+    @PutMapping
+    public ResponseEntity<Result> updateUser(@Valid @RequestBody UserRoleUpdateForm userRoleUpdateForm) {
+        userService.updateUser(userRoleUpdateForm);
         return Result.success(HttpStatus.CREATED);
     }
 }

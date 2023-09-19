@@ -19,9 +19,7 @@ import com.hmetao.code_dictionary.entity.UserRole;
 import com.hmetao.code_dictionary.exception.AccessErrorException;
 import com.hmetao.code_dictionary.exception.HMETAOException;
 import com.hmetao.code_dictionary.exception.ValidationException;
-import com.hmetao.code_dictionary.form.LoginForm;
-import com.hmetao.code_dictionary.form.QueryForm;
-import com.hmetao.code_dictionary.form.UserRegistryForm;
+import com.hmetao.code_dictionary.form.*;
 import com.hmetao.code_dictionary.mapper.UserMapper;
 import com.hmetao.code_dictionary.mapper.UserRoleMapper;
 import com.hmetao.code_dictionary.po.UserRolePO;
@@ -36,6 +34,7 @@ import com.hmetao.code_dictionary.utils.TLSSigAPIv2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -61,7 +60,7 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
-
+    private static final String LOG_INFO_CLASS_KEY = "UserServiceImpl === > ";
     @Resource
     private QiNiuProperties qiNiuProperties;
 
@@ -188,7 +187,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         baseMapper.deleteById(userId);
 
         // 删除腾讯IM账号
-        deleteTencentIMAccount(user);
+        deleteTencentIMAccount(user.getUsername());
     }
 
     @Override
@@ -208,7 +207,48 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return userRoleDTO;
     }
 
-    private void deleteTencentIMAccount(User user) {
+    @Override
+    @Transactional
+    public void updateUser(UserRoleUpdateForm baseUserInfoForm) {
+        UserDTO sysUser = SaTokenUtil.getLoginUserInfo();
+        // 判断更新的是不是自己
+        if (!Objects.equals(baseUserInfoForm.getId(), sysUser.getId())) {
+            // 检查是否有修改别人信息的权限
+            StpUtil.checkPermission("user-update");
+        }
+
+        // 查询出要修改用户
+        User user = baseMapper.selectById(baseUserInfoForm.getId());
+        // 更新用户信息
+        baseMapper.updateById(MapUtil.beanMap(baseUserInfoForm, User.class));
+
+        // 修改用户的角色
+        ArrayList<Long> roles = baseUserInfoForm.getRoles();
+        if (!CollectionUtils.isEmpty(roles))
+            coverUserRole(sysUser.getId(), user.getId(), roles);
+
+        // 如果用户修改了用户名需要同步修改腾讯IM的用户名
+        if (!user.getUsername().equals(baseUserInfoForm.getUsername())) {
+            deleteTencentIMAccount(user.getUsername());
+            registryTencentIMAccount(baseUserInfoForm.getUsername(), user.getAvatar());
+        }
+
+    }
+
+    private void coverUserRole(Long sysUserId, Long userId, ArrayList<Long> roles) {
+        // 覆盖用户角色
+        log.info(LOG_INFO_CLASS_KEY + "{} 赋予 {} 权限：{}", sysUserId, userId, roles);
+        userRoleMapper.delete(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, userId));
+        // 创建 UserRole 并批量保存
+        List<UserRole> userRoles = roles.stream()
+                .map(roleId -> new UserRole(roleId, userId, sysUserId))
+                .collect(Collectors.toList());
+        userRoleService.saveBatch(userRoles);
+    }
+
+
+    private void deleteTencentIMAccount(String username) {
+        log.info(LOG_INFO_CLASS_KEY + "删除腾讯IM账号 {}", username);
         String url = UriComponentsBuilder.fromUriString("https://console.tim.qq.com/v4/im_open_login_svc/account_delete")
                 .queryParam("sdkappid", tencentImProperties.getSDKAppID())
                 .queryParam("identifier", "HMETAO")
@@ -219,7 +259,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 删除用户的账号（使用用户名标识的ID）
         ArrayList<HashMap<String, String>> accounts = new ArrayList<>();
         HashMap<String, String> obj = new HashMap<>();
-        obj.put("UserID", user.getUsername());
+        obj.put("UserID", username);
         accounts.add(obj);
         map.put("DeleteItem", accounts);
         tencentIMRequestHandler(url, map);
@@ -242,6 +282,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     private void registryTencentIMAccount(String userID, String avatar) {
+        log.info(LOG_INFO_CLASS_KEY + "注册腾讯IM账号 {}", userID);
         String url = UriComponentsBuilder.fromUriString("https://console.tim.qq.com/v4/im_open_login_svc/account_import")
                 .queryParam("sdkappid", tencentImProperties.getSDKAppID())
                 .queryParam("identifier", "HMETAO")
