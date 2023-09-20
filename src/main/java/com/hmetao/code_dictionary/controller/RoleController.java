@@ -1,6 +1,7 @@
 package com.hmetao.code_dictionary.controller;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hmetao.code_dictionary.dto.RoleDTO;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.RoleService;
@@ -35,7 +36,7 @@ public class RoleController {
      * @return 统一返回
      */
     @GetMapping
-    public ResponseEntity<Result> getRoles() {
+    public ResponseEntity<Result> getRoles() throws JsonProcessingException {
         return Result.success(roleService.getRoles());
     }
 }

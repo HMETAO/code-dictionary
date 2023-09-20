@@ -1,5 +1,6 @@
 package com.hmetao.code_dictionary.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hmetao.code_dictionary.dto.RoleDTO;
 import com.hmetao.code_dictionary.entity.Role;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -16,6 +17,6 @@ import java.util.List;
  */
 public interface RoleService extends IService<Role> {
 
-    List<RoleDTO> getRoles();
+    List<RoleDTO> getRoles() throws JsonProcessingException;
 
 }

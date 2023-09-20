@@ -6,4 +6,6 @@ public class RedisConstants {
     public static final String GITHUB_TREND_KEY = "cd:github:trend:";
 
     public static final String CALENDAR_CONTESTS_KEY = "cd:calendar:contest";
+
+    public static final String ROLES_KEY = "cd:role:roles";
 }

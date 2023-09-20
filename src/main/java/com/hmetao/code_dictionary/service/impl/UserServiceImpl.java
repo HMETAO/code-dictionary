@@ -224,7 +224,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 修改用户的角色
         ArrayList<Long> roles = baseUserInfoForm.getRoles();
-        if (!CollectionUtils.isEmpty(roles)) {
+        if (roles != null) {
             StpUtil.checkPermission("role-insert");
             coverUserRole(sysUser.getId(), user.getId(), roles);
         }
