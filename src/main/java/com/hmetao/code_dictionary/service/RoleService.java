@@ -1,7 +1,10 @@
 package com.hmetao.code_dictionary.service;
 
+import com.hmetao.code_dictionary.dto.RoleDTO;
 import com.hmetao.code_dictionary.entity.Role;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 /**
  * <p>
@@ -12,5 +15,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2022-07-16
  */
 public interface RoleService extends IService<Role> {
+
+    List<RoleDTO> getRoles();
 
 }

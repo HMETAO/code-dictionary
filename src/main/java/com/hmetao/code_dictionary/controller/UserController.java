@@ -84,7 +84,7 @@ public class UserController {
     /**
      * 更新单个用户
      *
-     * @param baseUserInfoForm 用户信息
+     * @param userRoleUpdateForm 用户信息
      * @return 统一返回
      */
     @PutMapping

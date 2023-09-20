@@ -1,6 +1,7 @@
 package com.hmetao.code_dictionary.controller;
 
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.hmetao.code_dictionary.form.QueryForm;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.UserService;
@@ -25,6 +26,7 @@ public class AdminUserController {
      * @return 统一返回
      */
     @GetMapping
+    @SaCheckPermission("user-select")
     public ResponseEntity<Result> getUsers(QueryForm queryForm) {
         return Result.success(userService.getUsers(queryForm));
     }
@@ -36,6 +38,7 @@ public class AdminUserController {
      * @return 统一返回
      */
     @DeleteMapping("{userId}")
+    @SaCheckPermission("user-delete")
     public ResponseEntity<Result> deleteUser(@PathVariable("userId") Long userId) {
         userService.deleteUserId(userId);
         return Result.success();

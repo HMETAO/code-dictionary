@@ -224,8 +224,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 修改用户的角色
         ArrayList<Long> roles = baseUserInfoForm.getRoles();
-        if (!CollectionUtils.isEmpty(roles))
+        if (!CollectionUtils.isEmpty(roles)) {
+            StpUtil.checkPermission("role-insert");
             coverUserRole(sysUser.getId(), user.getId(), roles);
+        }
 
         // 如果用户修改了用户名需要同步修改腾讯IM的用户名
         if (!user.getUsername().equals(baseUserInfoForm.getUsername())) {
