@@ -12,4 +12,15 @@
         </foreach>
         and p.is_deleted = 0
     </select>
+    <select id="getPermissionByRoleIds" resultType="com.hmetao.code_dictionary.po.RolePermissionPO">
+        select role_id as roleId,permission_id as permissionId,
+        `name`,`path`
+        from role_permission rp inner join permission p on
+        rp.permission_id = p.id
+        where rp.role_id in
+        <foreach collection="roleIds" item="roleId" open=" (" separator="," close=") ">
+            #{roleId}
+        </foreach>
+        and p.is_deleted = 0
+    </select>
 </mapper>

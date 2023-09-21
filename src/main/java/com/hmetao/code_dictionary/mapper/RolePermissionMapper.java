@@ -3,6 +3,7 @@ package com.hmetao.code_dictionary.mapper;
 import com.hmetao.code_dictionary.dto.PermissionDTO;
 import com.hmetao.code_dictionary.entity.RolePermission;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.hmetao.code_dictionary.po.RolePermissionPO;
 
 import java.util.List;
 
@@ -17,4 +18,7 @@ import java.util.List;
 public interface RolePermissionMapper extends BaseMapper<RolePermission> {
 
     List<PermissionDTO> getPermissionList(List<Long> roleIds);
+
+    List<RolePermissionPO> getPermissionByRoleIds(List<Long> roleIds);
+
 }

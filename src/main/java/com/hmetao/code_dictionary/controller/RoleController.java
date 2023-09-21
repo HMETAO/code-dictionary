@@ -1,8 +1,10 @@
 package com.hmetao.code_dictionary.controller;
 
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hmetao.code_dictionary.dto.RoleDTO;
+import com.hmetao.code_dictionary.form.QueryForm;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.RoleService;
 import org.springframework.http.ResponseEntity;
@@ -39,5 +41,18 @@ public class RoleController {
     public ResponseEntity<Result> getRoles() throws JsonProcessingException {
         return Result.success(roleService.getRoles());
     }
+
+    /**
+     * 查询角色列表
+     *
+     * @param queryForm 分页
+     * @return 分页对象
+     */
+    @GetMapping("page")
+    @SaCheckPermission("role-select")
+    public ResponseEntity<Result> getRolesPage(QueryForm queryForm) {
+        return Result.success(roleService.getRolesPage(queryForm));
+    }
+
 }
 
