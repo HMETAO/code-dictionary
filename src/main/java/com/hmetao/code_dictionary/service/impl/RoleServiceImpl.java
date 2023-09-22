@@ -20,7 +20,10 @@ import com.hmetao.code_dictionary.service.RoleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.utils.MapUtil;
 import com.hmetao.code_dictionary.utils.RedisUtil;
+import com.hmetao.code_dictionary.utils.SaTokenUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -46,16 +49,12 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     public static final String LOG_INFO_KEY = "RoleServiceImpl === > ";
 
     @Resource
-    private RedisUtil redisUtil;
-
-    @Resource
-    private ObjectMapper objectMapper;
-
-    @Resource
     private RolePermissionMapper rolePermissionMapper;
 
     @Override
-    public List<RoleDTO> getRoles() throws JsonProcessingException {
+    @Cacheable(value = {"role#86400"}, key = RedisConstants.ROLES_KEY + "+T(com.hmetao.code_dictionary.utils.SaTokenUtil).getLoginUserId()")
+    public List<RoleDTO> getRoles() {
+        Long sysUserId = SaTokenUtil.getLoginUserId();
         try {
             // 检查是否有查询role的权限
             StpUtil.checkPermission("role-select");
@@ -63,26 +62,13 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
             // 返回空角色列表
             return new ArrayList<>();
         }
-        // 查缓存
-        String rolesJson = redisUtil.getCacheObject(RedisConstants.ROLES_KEY);
-        // 缓存内无
-        if (StringUtils.isEmpty(rolesJson)) {
-            log.info(LOG_INFO_KEY + "roles缓存内无，将从数据库查询");
-            // 查询角色列表
-            List<Role> roles = baseMapper.selectList(Wrappers.emptyWrapper());
-            List<RoleDTO> roleDTOS = roleMappingRoleDTOS(roles);
-
-            if (CollectionUtils.isEmpty(roleDTOS)) roleDTOS = Collections.emptyList();
-
-            // 转成json字符串
-            rolesJson = objectMapper.writeValueAsString(roleDTOS);
-            // 放入redis
-            redisUtil.setCacheObject(RedisConstants.ROLES_KEY, rolesJson);
-            log.info(LOG_INFO_KEY + "roles: {}", rolesJson);
-            return roleDTOS;
-        }
-        return objectMapper.readValue(rolesJson, new TypeReference<>() {
-        });
+        log.info(LOG_INFO_KEY + "用户：{} 的roles缓存内无，将从数据库查询", sysUserId);
+        // 查询角色列表
+        List<Role> roles = baseMapper.selectList(Wrappers.emptyWrapper());
+        List<RoleDTO> roleDTOS = roleMappingRoleDTOS(roles);
+        if (CollectionUtils.isEmpty(roleDTOS)) roleDTOS = Collections.emptyList();
+        log.info(LOG_INFO_KEY + "{} 的roles: {}", sysUserId, roleDTOS);
+        return roleDTOS;
     }
 
     private static List<RoleDTO> roleMappingRoleDTOS(List<Role> roles) {

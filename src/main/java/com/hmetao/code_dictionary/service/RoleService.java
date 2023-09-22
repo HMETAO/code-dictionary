@@ -20,7 +20,7 @@ import java.util.List;
  */
 public interface RoleService extends IService<Role> {
 
-    List<RoleDTO> getRoles() throws JsonProcessingException;
+    List<RoleDTO> getRoles();
 
     PageInfo<RolePermissionDTO> getRolesPage(QueryForm queryForm);
 }

@@ -38,7 +38,7 @@ public class RoleController {
      * @return 统一返回
      */
     @GetMapping
-    public ResponseEntity<Result> getRoles() throws JsonProcessingException {
+    public ResponseEntity<Result> getRoles() {
         return Result.success(roleService.getRoles());
     }
 

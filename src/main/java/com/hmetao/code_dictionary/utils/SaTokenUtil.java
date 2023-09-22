@@ -8,6 +8,10 @@ import com.hmetao.code_dictionary.entity.User;
 
 public class SaTokenUtil {
 
+    public static Long getLoginUserId() {
+        return getLoginUserInfo().getId();
+    }
+
     public static UserDTO getLoginUserInfo() {
         return (UserDTO) StpUtil.getSession().get(BaseConstants.LOGIN_USERINFO_SESSION_KEY);
     }
