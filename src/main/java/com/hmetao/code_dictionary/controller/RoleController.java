@@ -9,6 +9,7 @@ import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.RoleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
@@ -54,5 +55,17 @@ public class RoleController {
         return Result.success(roleService.getRolesPage(queryForm));
     }
 
+
+    /**
+     * 查询单个角色信息
+     *
+     * @param roleId 角色ID
+     * @return 统一返回
+     */
+    @GetMapping("{roleId}")
+    @SaCheckPermission("role-select")
+    public ResponseEntity<Result> getRole(@PathVariable Long roleId) {
+        return Result.success(roleService.getRole(roleId));
+    }
 }
 

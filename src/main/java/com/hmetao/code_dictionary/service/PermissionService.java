@@ -16,5 +16,5 @@ import java.util.List;
  */
 public interface PermissionService extends IService<Permission> {
 
-    List<PermissionDTO> getPermission();
+    List<PermissionDTO> getPermissions();
 }

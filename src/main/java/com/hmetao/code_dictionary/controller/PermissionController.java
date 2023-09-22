@@ -28,8 +28,8 @@ public class PermissionController {
     private PermissionService permissionService;
 
     @GetMapping
-    public ResponseEntity<Result> getPermission() {
-        return Result.success(permissionService.getPermission());
+    public ResponseEntity<Result> getPermissions() {
+        return Result.success(permissionService.getPermissions());
     }
 
 }

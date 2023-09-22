@@ -34,7 +34,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 
     @Override
     @Cacheable(value = {"permission#86400"}, key = RedisConstants.PERMISSION_KEY + "+T(com.hmetao.code_dictionary.utils.SaTokenUtil).getLoginUserId()")
-    public List<PermissionDTO> getPermission() {
+    public List<PermissionDTO> getPermissions() {
         Long sysUserId = SaTokenUtil.getLoginUserId();
         try {
             StpUtil.checkPermission("permission-select");

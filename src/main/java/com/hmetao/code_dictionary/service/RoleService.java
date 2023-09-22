@@ -23,4 +23,6 @@ public interface RoleService extends IService<Role> {
     List<RoleDTO> getRoles();
 
     PageInfo<RolePermissionDTO> getRolesPage(QueryForm queryForm);
+
+    RolePermissionDTO getRole(Long roleId);
 }

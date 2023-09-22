@@ -12,6 +12,7 @@ import com.hmetao.code_dictionary.dto.PermissionDTO;
 import com.hmetao.code_dictionary.dto.RoleDTO;
 import com.hmetao.code_dictionary.dto.RolePermissionDTO;
 import com.hmetao.code_dictionary.entity.Role;
+import com.hmetao.code_dictionary.exception.ValidationException;
 import com.hmetao.code_dictionary.form.QueryForm;
 import com.hmetao.code_dictionary.mapper.RoleMapper;
 import com.hmetao.code_dictionary.mapper.RolePermissionMapper;
@@ -29,10 +30,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -100,6 +98,17 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
             }
         });
         return MapUtil.PageInfoCopy(roles, resultDTO);
+    }
+
+    @Override
+    public RolePermissionDTO getRole(Long roleId) {
+        // 查找角色
+        Role role = baseMapper.selectById(roleId);
+        if (role == null) throw new ValidationException("未查找到角色");
+        RolePermissionDTO rolePermissionDTO = MapUtil.beanMap(role, RolePermissionDTO.class);
+        // 获取角色对应的permission
+        rolePermissionDTO.setPerms(rolePermissionMapper.getPermissionList(Collections.singletonList(roleId)));
+        return rolePermissionDTO;
     }
 
     private static List<PermissionDTO> findAndBuildPermissionDTO(Map<Long, List<RolePermissionPO>> rolePermissionMap, Long roleId) {

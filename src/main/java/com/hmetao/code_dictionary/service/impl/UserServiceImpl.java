@@ -200,7 +200,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         // 查询实际要的用户信息
         User user = baseMapper.selectById(userId);
-        if (user == null) throw new ValidationException("未找到需要删除的用户");
+        if (user == null) throw new ValidationException("未查找到用户");
         UserRoleDTO userRoleDTO = MapUtil.beanMap(user, UserRoleDTO.class);
         // 查询用户的role
         userRoleDTO.setRoles(userRoleMapper.getRoleList(user.getId()));
