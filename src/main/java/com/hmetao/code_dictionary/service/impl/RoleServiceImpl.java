@@ -3,36 +3,33 @@ package com.hmetao.code_dictionary.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hmetao.code_dictionary.constants.RedisConstants;
 import com.hmetao.code_dictionary.dto.PermissionDTO;
 import com.hmetao.code_dictionary.dto.RoleDTO;
 import com.hmetao.code_dictionary.dto.RolePermissionDTO;
+import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.Role;
 import com.hmetao.code_dictionary.entity.RolePermission;
+import com.hmetao.code_dictionary.entity.UserRole;
 import com.hmetao.code_dictionary.exception.ValidationException;
 import com.hmetao.code_dictionary.form.QueryForm;
 import com.hmetao.code_dictionary.form.RolePermissionForm;
 import com.hmetao.code_dictionary.mapper.RoleMapper;
 import com.hmetao.code_dictionary.mapper.RolePermissionMapper;
+import com.hmetao.code_dictionary.mapper.UserRoleMapper;
 import com.hmetao.code_dictionary.po.RolePermissionPO;
 import com.hmetao.code_dictionary.service.RolePermissionService;
 import com.hmetao.code_dictionary.service.RoleService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.utils.MapUtil;
-import com.hmetao.code_dictionary.utils.RedisUtil;
 import com.hmetao.code_dictionary.utils.SaTokenUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -56,6 +53,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
 
     @Resource
     private RolePermissionService rolePermissionService;
+
+    @Resource
+    private UserRoleMapper userRoleMapper;
 
 
     @Override
@@ -138,6 +138,26 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         // 批量存入中间表
         rolePermissionService.saveBatch(rolePermissions);
         log.info(LOG_INFO_KEY + "{} 添加新角色： {} 附带权限：{}", sysUserId, role, rolePermissions);
+    }
+
+    @Override
+    @Transactional
+    public void deleteRole(Long roleId) {
+        UserDTO userInfo = SaTokenUtil.getLoginUserInfo();
+        Role sysRole = baseMapper.selectById(roleId);
+        if (sysRole == null) throw new ValidationException("未找到需要删除role");
+        if (Objects.equals(sysRole.getRoleSign(), "admin")) throw new ValidationException("管理员角色拒绝删除");
+        log.info(LOG_INFO_KEY + "用户： {} 删除角色： {}", userInfo.getUsername(), sysRole.getRoleName());
+        // 删除角色
+        baseMapper.deleteById(roleId);
+        // 删除角色的权限
+        rolePermissionMapper.delete(new LambdaQueryWrapper<RolePermission>().eq(RolePermission::getRoleId, roleId));
+        // 查询有该角色的用户然后踢下线
+        List<UserRole> userRoles = userRoleMapper.selectList(Wrappers.lambdaQuery(UserRole.class).eq(UserRole::getRoleId, roleId));
+        userRoles.forEach(userRole -> {
+            // 踢下线
+            StpUtil.logout(userRole.getUserId());
+        });
     }
 
     private static List<PermissionDTO> findAndBuildPermissionDTO(Map<Long, List<RolePermissionPO>> rolePermissionMap, Long roleId) {

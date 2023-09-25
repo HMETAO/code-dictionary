@@ -2,8 +2,7 @@ package com.hmetao.code_dictionary.controller;
 
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.hmetao.code_dictionary.dto.RoleDTO;
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.hmetao.code_dictionary.form.QueryForm;
 import com.hmetao.code_dictionary.form.RolePermissionForm;
 import com.hmetao.code_dictionary.result.Result;
@@ -13,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * <p>
@@ -77,7 +75,20 @@ public class RoleController {
     @SaCheckPermission("role-insert")
     public ResponseEntity<Result> insertRole(@RequestBody RolePermissionForm rolePermissionForm) {
         roleService.insertRole(rolePermissionForm);
-        return Result.success(HttpStatus.ACCEPTED);
+        return Result.success(HttpStatus.CREATED);
+    }
+
+    /**
+     * 删除角色
+     *
+     * @param roleId 角色Id
+     * @return 统一返回
+     */
+    @DeleteMapping("{roleId}")
+    @SaCheckRole("role-delete")
+    public ResponseEntity<Result> deleteRole(@PathVariable Long roleId) {
+        roleService.deleteRole(roleId);
+        return Result.success(HttpStatus.NO_CONTENT);
     }
 }
 

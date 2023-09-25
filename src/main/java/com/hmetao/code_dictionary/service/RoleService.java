@@ -1,11 +1,10 @@
 package com.hmetao.code_dictionary.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.github.pagehelper.PageInfo;
 import com.hmetao.code_dictionary.dto.RoleDTO;
 import com.hmetao.code_dictionary.dto.RolePermissionDTO;
 import com.hmetao.code_dictionary.entity.Role;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.hmetao.code_dictionary.form.QueryForm;
 import com.hmetao.code_dictionary.form.RolePermissionForm;
 
@@ -28,4 +27,6 @@ public interface RoleService extends IService<Role> {
     RolePermissionDTO getRole(Long roleId);
 
     void insertRole(RolePermissionForm rolePermissionForm);
+
+    void deleteRole(Long roleId);
 }
