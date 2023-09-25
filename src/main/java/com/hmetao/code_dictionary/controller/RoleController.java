@@ -5,14 +5,12 @@ import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hmetao.code_dictionary.dto.RoleDTO;
 import com.hmetao.code_dictionary.form.QueryForm;
+import com.hmetao.code_dictionary.form.RolePermissionForm;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.RoleService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -66,6 +64,20 @@ public class RoleController {
     @SaCheckPermission("role-select")
     public ResponseEntity<Result> getRole(@PathVariable Long roleId) {
         return Result.success(roleService.getRole(roleId));
+    }
+
+
+    /**
+     * 插入角色
+     *
+     * @param rolePermissionForm 角色信息
+     * @return 统一返回
+     */
+    @PostMapping
+    @SaCheckPermission("role-insert")
+    public ResponseEntity<Result> insertRole(@RequestBody RolePermissionForm rolePermissionForm) {
+        roleService.insertRole(rolePermissionForm);
+        return Result.success(HttpStatus.ACCEPTED);
     }
 }
 

@@ -1,6 +1,7 @@
 package com.hmetao.code_dictionary.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -12,11 +13,14 @@ import com.hmetao.code_dictionary.dto.PermissionDTO;
 import com.hmetao.code_dictionary.dto.RoleDTO;
 import com.hmetao.code_dictionary.dto.RolePermissionDTO;
 import com.hmetao.code_dictionary.entity.Role;
+import com.hmetao.code_dictionary.entity.RolePermission;
 import com.hmetao.code_dictionary.exception.ValidationException;
 import com.hmetao.code_dictionary.form.QueryForm;
+import com.hmetao.code_dictionary.form.RolePermissionForm;
 import com.hmetao.code_dictionary.mapper.RoleMapper;
 import com.hmetao.code_dictionary.mapper.RolePermissionMapper;
 import com.hmetao.code_dictionary.po.RolePermissionPO;
+import com.hmetao.code_dictionary.service.RolePermissionService;
 import com.hmetao.code_dictionary.service.RoleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.utils.MapUtil;
@@ -26,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -48,6 +53,10 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
 
     @Resource
     private RolePermissionMapper rolePermissionMapper;
+
+    @Resource
+    private RolePermissionService rolePermissionService;
+
 
     @Override
     @Cacheable(value = {"role#86400"}, key = RedisConstants.ROLES_KEY + "+T(com.hmetao.code_dictionary.utils.SaTokenUtil).getLoginUserId()")
@@ -109,6 +118,26 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         // 获取角色对应的permission
         rolePermissionDTO.setPerms(rolePermissionMapper.getPermissionList(Collections.singletonList(roleId)));
         return rolePermissionDTO;
+    }
+
+    @Override
+    @Transactional
+    public void insertRole(RolePermissionForm rolePermissionForm) {
+        // 判断是否出现重复
+        Long sysCount = baseMapper.selectCount(new LambdaQueryWrapper<Role>().eq(Role::getRoleName, rolePermissionForm.getRoleName()).or().eq(Role::getRoleSign, rolePermissionForm.getRoleSign()));
+        // 发生重复
+        if (sysCount > 0) throw new ValidationException("角色名或角色标识发生重复");
+
+        Long sysUserId = SaTokenUtil.getLoginUserId();
+        Role role = MapUtil.beanMap(rolePermissionForm, Role.class);
+        // 先插入role
+        baseMapper.insert(role);
+        List<Long> perms = rolePermissionForm.getPerms();
+        // 创建中间表对象
+        List<RolePermission> rolePermissions = perms.stream().map(p -> new RolePermission(role.getId(), p, sysUserId)).collect(Collectors.toList());
+        // 批量存入中间表
+        rolePermissionService.saveBatch(rolePermissions);
+        log.info(LOG_INFO_KEY + "{} 添加新角色： {} 附带权限：{}", sysUserId, role, rolePermissions);
     }
 
     private static List<PermissionDTO> findAndBuildPermissionDTO(Map<Long, List<RolePermissionPO>> rolePermissionMap, Long roleId) {

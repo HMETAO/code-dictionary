@@ -27,6 +27,11 @@ public class PermissionController {
     @Resource
     private PermissionService permissionService;
 
+    /**
+     * 查询所有权限
+     *
+     * @return 统一返回
+     */
     @GetMapping
     public ResponseEntity<Result> getPermissions() {
         return Result.success(permissionService.getPermissions());

@@ -7,6 +7,7 @@ import com.hmetao.code_dictionary.dto.RolePermissionDTO;
 import com.hmetao.code_dictionary.entity.Role;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.hmetao.code_dictionary.form.QueryForm;
+import com.hmetao.code_dictionary.form.RolePermissionForm;
 
 import java.util.List;
 
@@ -25,4 +26,6 @@ public interface RoleService extends IService<Role> {
     PageInfo<RolePermissionDTO> getRolesPage(QueryForm queryForm);
 
     RolePermissionDTO getRole(Long roleId);
+
+    void insertRole(RolePermissionForm rolePermissionForm);
 }
