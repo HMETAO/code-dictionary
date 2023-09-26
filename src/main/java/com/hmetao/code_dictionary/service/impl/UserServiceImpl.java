@@ -19,7 +19,10 @@ import com.hmetao.code_dictionary.entity.UserRole;
 import com.hmetao.code_dictionary.exception.AccessErrorException;
 import com.hmetao.code_dictionary.exception.HMETAOException;
 import com.hmetao.code_dictionary.exception.ValidationException;
-import com.hmetao.code_dictionary.form.*;
+import com.hmetao.code_dictionary.form.LoginForm;
+import com.hmetao.code_dictionary.form.QueryForm;
+import com.hmetao.code_dictionary.form.UserRegistryForm;
+import com.hmetao.code_dictionary.form.UserRoleUpdateForm;
 import com.hmetao.code_dictionary.mapper.UserMapper;
 import com.hmetao.code_dictionary.mapper.UserRoleMapper;
 import com.hmetao.code_dictionary.po.UserRolePO;
@@ -34,7 +37,6 @@ import com.hmetao.code_dictionary.utils.TLSSigAPIv2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -219,14 +221,31 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 查询出要修改用户
         User user = baseMapper.selectById(baseUserInfoForm.getId());
+
         // 更新用户信息
         baseMapper.updateById(MapUtil.beanMap(baseUserInfoForm, User.class));
 
         // 修改用户的角色
         ArrayList<Long> roles = baseUserInfoForm.getRoles();
+
         if (roles != null) {
-            StpUtil.checkPermission("role-insert");
-            coverUserRole(sysUser.getId(), user.getId(), roles);
+            // 判断是否发生变化
+            // 查询当前用户已有角色
+            List<RoleDTO> sysRole = userRoleMapper.getRoleList(user.getId());
+            roles.sort(Long::compare);
+            sysRole.sort(Comparator.comparingLong(RoleDTO::getId));
+            boolean check = roles.size() != sysRole.size();
+            for (int i = 0; i < roles.size() && !check; i++) {
+                if (!Objects.equals(roles.get(i), sysRole.get(i).getId())) {
+                    check = true;
+                    break;
+                }
+            }
+
+            if (check) {
+                StpUtil.checkPermission("role-insert");
+                coverUserRole(sysUser.getId(), user.getId(), roles);
+            }
         }
 
         // 如果用户修改了用户名需要同步修改腾讯IM的用户名
