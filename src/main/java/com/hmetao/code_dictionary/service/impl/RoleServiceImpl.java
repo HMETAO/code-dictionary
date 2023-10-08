@@ -4,9 +4,13 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hmetao.code_dictionary.constants.RedisConstants;
+import com.hmetao.code_dictionary.constants.TimeConstants;
 import com.hmetao.code_dictionary.dto.PermissionDTO;
 import com.hmetao.code_dictionary.dto.RoleDTO;
 import com.hmetao.code_dictionary.dto.RolePermissionDTO;
@@ -24,15 +28,17 @@ import com.hmetao.code_dictionary.po.RolePermissionPO;
 import com.hmetao.code_dictionary.service.RolePermissionService;
 import com.hmetao.code_dictionary.service.RoleService;
 import com.hmetao.code_dictionary.utils.MapUtil;
+import com.hmetao.code_dictionary.utils.RedisUtil;
 import com.hmetao.code_dictionary.utils.SaTokenUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -57,10 +63,15 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     @Resource
     private UserRoleMapper userRoleMapper;
 
+    @Resource
+    private RedisUtil redisUtil;
+
+    @Resource
+    private ObjectMapper objectMapper;
 
     @Override
-    @Cacheable(value = {"role#86400"}, key = RedisConstants.ROLES_KEY + "+T(com.hmetao.code_dictionary.utils.SaTokenUtil).getLoginUserId()")
-    public List<RoleDTO> getRoles() {
+//    @Cacheable(value = {"role#86400"}, key = RedisConstants.ROLES_KEY + "+T(com.hmetao.code_dictionary.utils.SaTokenUtil).getLoginUserId()")
+    public List<RoleDTO> getRoles() throws JsonProcessingException {
         Long sysUserId = SaTokenUtil.getLoginUserId();
         try {
             // 检查是否有查询role的权限
@@ -69,13 +80,21 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
             // 返回空角色列表
             return new ArrayList<>();
         }
-        log.info(LOG_INFO_KEY + "用户：{} 的roles缓存内无，将从数据库查询", sysUserId);
-        // 查询角色列表
-        List<Role> roles = baseMapper.selectList(Wrappers.emptyWrapper());
-        List<RoleDTO> roleDTOS = roleMappingRoleDTOS(roles);
-        if (CollectionUtils.isEmpty(roleDTOS)) roleDTOS = Collections.emptyList();
-        log.info(LOG_INFO_KEY + "{} 的roles: {}", sysUserId, roleDTOS);
-        return roleDTOS;
+        // 查缓存
+        String roleJson = redisUtil.getCacheObject(RedisConstants.ROLES_KEY);
+        if (StringUtils.isEmpty(roleJson)) {
+            log.info(LOG_INFO_KEY + "用户：{} 的roles缓存内无，将从数据库查询", sysUserId);
+            // 查询所有角色
+            List<Role> roles = baseMapper.selectList(Wrappers.emptyWrapper());
+            List<RoleDTO> roleDTOS = roleMappingRoleDTOS(roles);
+            if (CollectionUtils.isEmpty(roleDTOS)) roleDTOS = Collections.emptyList();
+            log.info(LOG_INFO_KEY + "{} 的roles: {}", sysUserId, roleDTOS);
+            // 放入redis
+            redisUtil.setCacheObject(RedisConstants.ROLES_KEY, objectMapper.writeValueAsString(roleDTOS), TimeConstants.DAY_SECONDS, TimeUnit.SECONDS);
+            return roleDTOS;
+        }
+        return objectMapper.readValue(roleJson, new TypeReference<>() {
+        });
     }
 
     private static List<RoleDTO> roleMappingRoleDTOS(List<Role> roles) {

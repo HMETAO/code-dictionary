@@ -3,6 +3,7 @@ package com.hmetao.code_dictionary.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.annotation.SaCheckRole;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hmetao.code_dictionary.form.QueryForm;
 import com.hmetao.code_dictionary.form.RolePermissionForm;
 import com.hmetao.code_dictionary.result.Result;
@@ -36,7 +37,7 @@ public class RoleController {
      * @return 统一返回
      */
     @GetMapping
-    public ResponseEntity<Result> getRoles() {
+    public ResponseEntity<Result> getRoles() throws JsonProcessingException {
         return Result.success(roleService.getRoles());
     }
 

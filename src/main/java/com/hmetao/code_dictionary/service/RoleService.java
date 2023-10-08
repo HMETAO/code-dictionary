@@ -1,6 +1,7 @@
 package com.hmetao.code_dictionary.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.pagehelper.PageInfo;
 import com.hmetao.code_dictionary.dto.RoleDTO;
 import com.hmetao.code_dictionary.dto.RolePermissionDTO;
@@ -20,7 +21,7 @@ import java.util.List;
  */
 public interface RoleService extends IService<Role> {
 
-    List<RoleDTO> getRoles();
+    List<RoleDTO> getRoles() throws JsonProcessingException;
 
     PageInfo<RolePermissionDTO> getRolesPage(QueryForm queryForm);
 
