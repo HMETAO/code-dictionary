@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 /**
  * <p>
@@ -89,6 +90,12 @@ public class RoleController {
     public ResponseEntity<Result> deleteRole(@PathVariable Long roleId) {
         roleService.deleteRole(roleId);
         return Result.success(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping
+    public ResponseEntity<Result> updateRole(@Valid @RequestBody RolePermissionForm rolePermissionForm) {
+        roleService.updateRole(rolePermissionForm);
+        return Result.success(HttpStatus.CREATED);
     }
 }
 

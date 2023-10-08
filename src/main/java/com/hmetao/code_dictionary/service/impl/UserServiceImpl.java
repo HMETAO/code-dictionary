@@ -243,7 +243,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
 
             if (check) {
-                StpUtil.checkPermission("role-insert");
+                StpUtil.checkPermission("role-update");
                 coverUserRole(sysUser.getId(), user.getId(), roles);
             }
         }
@@ -260,7 +260,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private void coverUserRole(Long sysUserId, Long userId, ArrayList<Long> roles) {
         // 覆盖用户角色
-        log.info(LOG_INFO_CLASS_KEY + "{} 赋予 {} 权限：{}", sysUserId, userId, roles);
+        log.info(LOG_INFO_CLASS_KEY + "{} 赋予 {} 角色：{}", sysUserId, userId, roles);
         userRoleMapper.delete(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, userId));
         // 创建 UserRole 并批量保存
         List<UserRole> userRoles = roles.stream()

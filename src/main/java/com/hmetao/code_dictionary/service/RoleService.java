@@ -29,4 +29,6 @@ public interface RoleService extends IService<Role> {
     void insertRole(RolePermissionForm rolePermissionForm);
 
     void deleteRole(Long roleId);
+
+    void updateRole(RolePermissionForm rolePermissionForm);
 }

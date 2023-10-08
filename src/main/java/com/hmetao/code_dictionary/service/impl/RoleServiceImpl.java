@@ -160,6 +160,41 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         });
     }
 
+    @Override
+    public void updateRole(RolePermissionForm rolePermissionForm) {
+        List<Long> perms = rolePermissionForm.getPerms();
+        // 查询系统内的perms
+        List<RolePermissionPO> sysPerms = rolePermissionMapper.getPermissionByRoleIds(Collections.singletonList(rolePermissionForm.getId()));
+        boolean check = perms.size() != sysPerms.size();
+        if (!check) {
+            // 判断是否发生改变
+            Collections.sort(perms);
+            sysPerms.sort(Comparator.comparingLong(RolePermissionPO::getPermissionId));
+            for (int i = 0; i < perms.size(); i++) {
+                if (!Objects.equals(sysPerms.get(i).getPermissionId(), perms.get(i))) {
+                    check = true;
+                    break;
+                }
+            }
+        }
+        if (check) {
+            // 判断是否存在更新角色权限
+            StpUtil.checkPermission("permission-update");
+            // 覆盖角色权限
+            coverRolePermission(rolePermissionForm, perms);
+        }
+    }
+
+    private void coverRolePermission(RolePermissionForm rolePermissionForm, List<Long> perms) {
+        log.info(LOG_INFO_KEY + "用户： {} 赋予 {} 权限：{}", SaTokenUtil.getLoginUserId(), rolePermissionForm.getId(), perms);
+        // 删除中间表内容
+        rolePermissionMapper.delete(Wrappers.lambdaQuery(RolePermission.class)
+                .eq(RolePermission::getRoleId, rolePermissionForm.getId()));
+        // 创建中间表对象
+        rolePermissionService.saveBatch(perms.stream()
+                .map(p -> new RolePermission(rolePermissionForm.getId(), p, SaTokenUtil.getLoginUserId())).collect(Collectors.toList()));
+    }
+
     private static List<PermissionDTO> findAndBuildPermissionDTO(Map<Long, List<RolePermissionPO>> rolePermissionMap, Long roleId) {
         return rolePermissionMap.get(roleId).stream().map(po -> new PermissionDTO(po.getPermissionId(), po.getName(), po.getPath())).collect(Collectors.toList());
     }
