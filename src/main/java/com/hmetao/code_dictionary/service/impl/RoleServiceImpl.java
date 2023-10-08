@@ -157,6 +157,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         // 批量存入中间表
         rolePermissionService.saveBatch(rolePermissions);
         log.info(LOG_INFO_KEY + "{} 添加新角色： {} 附带权限：{}", sysUserId, role, rolePermissions);
+        // 删除缓存
+        redisUtil.deleteObject(RedisConstants.ROLES_KEY);
     }
 
     @Override
@@ -177,6 +179,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
             // 踢下线
             StpUtil.logout(userRole.getUserId());
         });
+        // 删除缓存
+        redisUtil.deleteObject(RedisConstants.ROLES_KEY);
     }
 
     @Override
@@ -185,6 +189,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         // 查询系统内的perms
         List<RolePermissionPO> sysPerms = rolePermissionMapper.getPermissionByRoleIds(Collections.singletonList(rolePermissionForm.getId()));
         boolean check = perms.size() != sysPerms.size();
+        // 删除缓存
+        redisUtil.deleteObject(RedisConstants.ROLES_KEY);
         if (!check) {
             // 判断是否发生改变
             Collections.sort(perms);
