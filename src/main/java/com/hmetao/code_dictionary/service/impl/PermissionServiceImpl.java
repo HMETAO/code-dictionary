@@ -6,10 +6,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hmetao.code_dictionary.constants.RedisConstants;
 import com.hmetao.code_dictionary.constants.TimeConstants;
 import com.hmetao.code_dictionary.dto.PermissionDTO;
 import com.hmetao.code_dictionary.entity.Permission;
+import com.hmetao.code_dictionary.form.QueryForm;
 import com.hmetao.code_dictionary.mapper.PermissionMapper;
 import com.hmetao.code_dictionary.service.PermissionService;
 import com.hmetao.code_dictionary.utils.MapUtil;
@@ -47,17 +50,18 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 
     @Override
 //    @Cacheable(value = {"permission#86400"}, key = RedisConstants.PERMISSION_KEY + "+T(com.hmetao.code_dictionary.utils.SaTokenUtil).getLoginUserId()")
-    public List<PermissionDTO> getPermissions() throws JsonProcessingException {
+    public PageInfo<PermissionDTO> getPermissions(QueryForm queryForm) throws JsonProcessingException {
         Long sysUserId = SaTokenUtil.getLoginUserId();
         try {
             StpUtil.checkPermission("permission-select");
         } catch (Exception e) {
-            return Collections.emptyList();
+            return new PageInfo<>(Collections.emptyList());
         }
 
         String permissionJson = redisUtil.getCacheObject(RedisConstants.PERMISSION_KEY);
         if (StringUtils.isEmpty(permissionJson)) {
             log.info(LOGO_INFO_KEY + "缓存内无用户： {} 的权限，将查询数据库", sysUserId);
+            PageHelper.startPage(queryForm.getPageNum(), queryForm.getPageSize());
             // 将权限查出
             List<Permission> permissions = baseMapper.selectList(Wrappers.emptyWrapper());
             // 转成DTO
@@ -67,9 +71,11 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
                 permissionDTOS = Collections.emptyList();
             }
             log.info(LOGO_INFO_KEY + "{} 的permission：{}", sysUserId, permissionDTOS);
+            // 映射成page对象
+            PageInfo<PermissionDTO> permissionPageInfo = MapUtil.PageInfoCopy(permissions, permissionDTOS);
             // 缓存到redis
-            redisUtil.setCacheObject(RedisConstants.PERMISSION_KEY, objectMapper.writeValueAsString(permissionDTOS), TimeConstants.DAY_SECONDS, TimeUnit.SECONDS);
-            return permissionDTOS;
+            redisUtil.setCacheObject(RedisConstants.PERMISSION_KEY + queryForm.getPageNum() + queryForm.getPageSize(), objectMapper.writeValueAsString(permissionPageInfo), TimeConstants.DAY_SECONDS, TimeUnit.SECONDS);
+            return permissionPageInfo;
         }
         return objectMapper.readValue(permissionJson, new TypeReference<>() {
         });

@@ -2,10 +2,10 @@ package com.hmetao.code_dictionary.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.pagehelper.PageInfo;
 import com.hmetao.code_dictionary.dto.PermissionDTO;
 import com.hmetao.code_dictionary.entity.Permission;
-
-import java.util.List;
+import com.hmetao.code_dictionary.form.QueryForm;
 
 /**
  * <p>
@@ -17,5 +17,5 @@ import java.util.List;
  */
 public interface PermissionService extends IService<Permission> {
 
-    List<PermissionDTO> getPermissions() throws JsonProcessingException;
+    PageInfo<PermissionDTO> getPermissions(QueryForm queryForm) throws JsonProcessingException;
 }

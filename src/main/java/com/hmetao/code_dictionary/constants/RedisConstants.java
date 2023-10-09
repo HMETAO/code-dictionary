@@ -8,5 +8,5 @@ public class RedisConstants {
     public static final String CALENDAR_CONTESTS_KEY = "cd:calendar:contest";
 
     public static final String ROLES_KEY = "cd:role:roles";
-    public static final String PERMISSION_KEY = "cd:permission:permissions";
+    public static final String PERMISSION_KEY = "cd:permission:permissions:";
 }

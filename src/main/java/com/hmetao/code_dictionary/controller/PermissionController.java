@@ -2,6 +2,7 @@ package com.hmetao.code_dictionary.controller;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.hmetao.code_dictionary.form.QueryForm;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.PermissionService;
 import org.springframework.http.ResponseEntity;
@@ -32,8 +33,8 @@ public class PermissionController {
      * @return 统一返回
      */
     @GetMapping
-    public ResponseEntity<Result> getPermissions() throws JsonProcessingException {
-        return Result.success(permissionService.getPermissions());
+    public ResponseEntity<Result> getPermissions(QueryForm queryForm) throws JsonProcessingException {
+        return Result.success(permissionService.getPermissions(queryForm));
     }
 
 }
