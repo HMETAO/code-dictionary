@@ -1,7 +1,9 @@
 package com.hmetao.code_dictionary.mapper;
 
-import com.hmetao.code_dictionary.entity.Permission;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.hmetao.code_dictionary.entity.Permission;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +15,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface PermissionMapper extends BaseMapper<Permission> {
 
+    List<Long> getUserIdsByPermissionId(Long id);
 }

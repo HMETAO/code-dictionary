@@ -12,6 +12,7 @@ import com.hmetao.code_dictionary.constants.RedisConstants;
 import com.hmetao.code_dictionary.constants.TimeConstants;
 import com.hmetao.code_dictionary.dto.PermissionDTO;
 import com.hmetao.code_dictionary.entity.Permission;
+import com.hmetao.code_dictionary.form.PermissionUpdateForm;
 import com.hmetao.code_dictionary.form.QueryForm;
 import com.hmetao.code_dictionary.mapper.PermissionMapper;
 import com.hmetao.code_dictionary.service.PermissionService;
@@ -79,5 +80,18 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         }
         return objectMapper.readValue(permissionJson, new TypeReference<>() {
         });
+    }
+
+    @Override
+    public void updatePermission(PermissionUpdateForm permissionUpdateForm) {
+        log.info(LOGO_INFO_KEY + "用户 {} 更新权限： {}", SaTokenUtil.getLoginUserId(), permissionUpdateForm);
+        baseMapper.updateById(MapUtil.beanMap(permissionUpdateForm, Permission.class));
+        // 把有这个权限的都踢下线
+        List<Long> userIds = baseMapper.getUserIdsByPermissionId(permissionUpdateForm.getId());
+        if (!CollectionUtils.isEmpty(userIds)) {
+            for (Long userId : userIds) {
+                StpUtil.logout(userId);
+            }
+        }
     }
 }
