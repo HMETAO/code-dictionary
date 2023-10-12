@@ -94,4 +94,11 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
             }
         }
     }
+
+    @Override
+
+    public PermissionDTO getPermission(Long permissionId) {
+        Permission permission = baseMapper.selectById(permissionId);
+        return MapUtil.beanMap(permission, PermissionDTO.class);
+    }
 }

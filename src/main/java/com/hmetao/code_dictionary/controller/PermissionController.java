@@ -51,5 +51,15 @@ public class PermissionController {
         return Result.success(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * 查询当个permission
+     * @param permissionId permissionId
+     * @return 统一返回
+     */
+    @GetMapping("{permissionId}")
+    @SaCheckPermission("permission-select")
+    public ResponseEntity<Result> getPermission(@PathVariable("permissionId") Long permissionId) throws JsonProcessingException {
+        return Result.success(permissionService.getPermission(permissionId));
+    }
 }
 
