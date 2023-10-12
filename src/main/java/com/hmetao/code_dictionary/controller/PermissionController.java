@@ -59,10 +59,16 @@ public class PermissionController {
      */
     @GetMapping("{permissionId}")
     @SaCheckPermission("permission-select")
-    public ResponseEntity<Result> getPermission(@PathVariable("permissionId") Long permissionId) throws JsonProcessingException {
+    public ResponseEntity<Result> getPermission(@PathVariable("permissionId") Long permissionId) {
         return Result.success(permissionService.getPermission(permissionId));
     }
 
+    /**
+     * 删除permission
+     *
+     * @param permissionId permissionId
+     * @return 统一返回
+     */
     @DeleteMapping("{permissionId}")
     public ResponseEntity<Result> deletePermission(@PathVariable("permissionId") Long permissionId) {
         permissionService.deletePermission(permissionId);
