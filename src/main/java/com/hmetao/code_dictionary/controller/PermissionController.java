@@ -53,6 +53,7 @@ public class PermissionController {
 
     /**
      * 查询当个permission
+     *
      * @param permissionId permissionId
      * @return 统一返回
      */
@@ -61,5 +62,12 @@ public class PermissionController {
     public ResponseEntity<Result> getPermission(@PathVariable("permissionId") Long permissionId) throws JsonProcessingException {
         return Result.success(permissionService.getPermission(permissionId));
     }
+
+    @DeleteMapping("{permissionId}")
+    public ResponseEntity<Result> deletePermission(@PathVariable("permissionId") Long permissionId) {
+        permissionService.deletePermission(permissionId);
+        return Result.success(HttpStatus.NO_CONTENT);
+    }
+
 }
 

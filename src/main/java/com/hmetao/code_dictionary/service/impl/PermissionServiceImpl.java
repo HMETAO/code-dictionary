@@ -87,7 +87,11 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         log.info(LOGO_INFO_KEY + "用户 {} 更新权限： {}", SaTokenUtil.getLoginUserId(), permissionUpdateForm);
         baseMapper.updateById(MapUtil.beanMap(permissionUpdateForm, Permission.class));
         // 把有这个权限的都踢下线
-        List<Long> userIds = baseMapper.getUserIdsByPermissionId(permissionUpdateForm.getId());
+        logoutHavePermissionUser(permissionUpdateForm.getId());
+    }
+
+    private void logoutHavePermissionUser(Long permissionId) {
+        List<Long> userIds = baseMapper.getUserIdsByPermissionId(permissionId);
         if (!CollectionUtils.isEmpty(userIds)) {
             for (Long userId : userIds) {
                 StpUtil.logout(userId);
@@ -100,5 +104,12 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
     public PermissionDTO getPermission(Long permissionId) {
         Permission permission = baseMapper.selectById(permissionId);
         return MapUtil.beanMap(permission, PermissionDTO.class);
+    }
+
+    @Override
+    public void deletePermission(Long permissionId) {
+        log.info(LOGO_INFO_KEY + "用户 {} 删除权限： {}", SaTokenUtil.getLoginUserId(), permissionId);
+        baseMapper.deleteById(permissionId);
+        logoutHavePermissionUser(permissionId);
     }
 }
