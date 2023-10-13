@@ -3,6 +3,7 @@ package com.hmetao.code_dictionary.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.hmetao.code_dictionary.entity.Permission;
 import com.hmetao.code_dictionary.form.PermissionUpdateForm;
 import com.hmetao.code_dictionary.form.QueryForm;
 import com.hmetao.code_dictionary.result.Result;
@@ -75,5 +76,17 @@ public class PermissionController {
         return Result.success(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * 插入permission
+     *
+     * @param permission permission信息
+     * @return 统一返回
+     */
+
+    @PostMapping
+    public ResponseEntity<Result> insertPermission(@RequestBody Permission permission) {
+        permissionService.insertPermission(permission);
+        return Result.success(HttpStatus.CREATED);
+    }
 }
 

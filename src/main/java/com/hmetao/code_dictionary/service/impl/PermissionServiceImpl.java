@@ -112,4 +112,10 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         baseMapper.deleteById(permissionId);
         logoutHavePermissionUser(permissionId);
     }
+
+    @Override
+    public void insertPermission(Permission permission) {
+        log.info(LOGO_INFO_KEY + "用户 {} 添加权限： {}", SaTokenUtil.getLoginUserId(), permission);
+        baseMapper.insert(permission);
+    }
 }

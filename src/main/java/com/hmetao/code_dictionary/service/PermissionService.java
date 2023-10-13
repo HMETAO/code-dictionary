@@ -25,4 +25,6 @@ public interface PermissionService extends IService<Permission> {
     PermissionDTO getPermission(Long permissionId);
 
     void deletePermission(Long permissionId);
+
+    void insertPermission(Permission permission);
 }
