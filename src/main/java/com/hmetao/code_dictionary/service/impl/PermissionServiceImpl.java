@@ -12,6 +12,7 @@ import com.hmetao.code_dictionary.constants.RedisConstants;
 import com.hmetao.code_dictionary.constants.TimeConstants;
 import com.hmetao.code_dictionary.dto.PermissionDTO;
 import com.hmetao.code_dictionary.entity.Permission;
+import com.hmetao.code_dictionary.exception.ValidationException;
 import com.hmetao.code_dictionary.form.PermissionUpdateForm;
 import com.hmetao.code_dictionary.form.QueryForm;
 import com.hmetao.code_dictionary.mapper.PermissionMapper;
@@ -85,7 +86,10 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
     @Override
     public void updatePermission(PermissionUpdateForm permissionUpdateForm) {
         log.info(LOGO_INFO_KEY + "用户 {} 更新权限： {}", SaTokenUtil.getLoginUserId(), permissionUpdateForm);
-        baseMapper.updateById(MapUtil.beanMap(permissionUpdateForm, Permission.class));
+        int c = baseMapper.updateById(MapUtil.beanMap(permissionUpdateForm, Permission.class));
+        if (c != 1) {
+            throw new ValidationException("传入的权限信息有误，更新失败，请检查传入");
+        }
         // 把有这个权限的都踢下线
         logoutHavePermissionUser(permissionUpdateForm.getId());
     }

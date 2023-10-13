@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 /**
  * <p>
@@ -47,7 +48,7 @@ public class PermissionController {
      */
     @PutMapping
     @SaCheckPermission("permission-update")
-    public ResponseEntity<Result> updatePermission(@RequestBody PermissionUpdateForm permissionUpdateForm) {
+    public ResponseEntity<Result> updatePermission(@RequestBody @Valid PermissionUpdateForm permissionUpdateForm) {
         permissionService.updatePermission(permissionUpdateForm);
         return Result.success(HttpStatus.NO_CONTENT);
     }
@@ -82,9 +83,8 @@ public class PermissionController {
      * @param permission permission信息
      * @return 统一返回
      */
-
     @PostMapping
-    public ResponseEntity<Result> insertPermission(@RequestBody Permission permission) {
+    public ResponseEntity<Result> insertPermission(@RequestBody @Valid Permission permission) {
         permissionService.insertPermission(permission);
         return Result.success(HttpStatus.CREATED);
     }
