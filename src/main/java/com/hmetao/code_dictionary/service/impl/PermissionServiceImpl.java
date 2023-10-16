@@ -59,8 +59,8 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         } catch (Exception e) {
             return new PageInfo<>(Collections.emptyList());
         }
-
-        String permissionJson = redisUtil.getCacheObject(RedisConstants.PERMISSION_KEY);
+        String redisKey = RedisConstants.PERMISSION_KEY + queryForm.getPageNum() + ":" + queryForm.getPageSize();
+        String permissionJson = redisUtil.getCacheObject(redisKey);
         if (StringUtils.isEmpty(permissionJson)) {
             log.info(LOGO_INFO_KEY + "缓存内无用户： {} 的权限，将查询数据库", sysUserId);
             PageHelper.startPage(queryForm.getPageNum(), queryForm.getPageSize());
@@ -76,7 +76,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
             // 映射成page对象
             PageInfo<PermissionDTO> permissionPageInfo = MapUtil.PageInfoCopy(permissions, permissionDTOS);
             // 缓存到redis
-            redisUtil.setCacheObject(RedisConstants.PERMISSION_KEY + queryForm.getPageNum() + queryForm.getPageSize(), objectMapper.writeValueAsString(permissionPageInfo), TimeConstants.DAY_SECONDS, TimeUnit.SECONDS);
+            redisUtil.setCacheObject(redisKey, objectMapper.writeValueAsString(permissionPageInfo), TimeConstants.DAY_SECONDS, TimeUnit.SECONDS);
             return permissionPageInfo;
         }
         return objectMapper.readValue(permissionJson, new TypeReference<>() {
