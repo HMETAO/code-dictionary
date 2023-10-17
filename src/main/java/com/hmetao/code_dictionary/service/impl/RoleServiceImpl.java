@@ -214,6 +214,10 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     @Override
     public void updateStatus(RoleStatusForm roleStatusForm) {
         log.info(LOG_INFO_KEY + "用户： {} 更新角色： {}", SaTokenUtil.getLoginUserId(), roleStatusForm.getId());
+        // 拒绝关闭admin角色
+        if (roleStatusForm.getId().equals(1L)) {
+            throw new ValidationException("管理员角色状态拒绝切换");
+        }
         baseMapper.updateById(MapUtil.beanMap(roleStatusForm, Role.class));
         // 删除缓存
         redisUtil.deleteObject(RedisConstants.ROLES_KEY);
