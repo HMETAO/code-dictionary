@@ -6,6 +6,7 @@ import cn.dev33.satoken.annotation.SaCheckRole;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hmetao.code_dictionary.form.QueryForm;
 import com.hmetao.code_dictionary.form.RolePermissionForm;
+import com.hmetao.code_dictionary.form.RoleStatusForm;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.RoleService;
 import org.springframework.http.HttpStatus;
@@ -93,10 +94,27 @@ public class RoleController {
         return Result.success(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * 更新角色
+     *
+     * @param rolePermissionForm 角色信息
+     * @return 统一返回
+     */
     @PutMapping
     public ResponseEntity<Result> updateRole(@Valid @RequestBody RolePermissionForm rolePermissionForm) {
         roleService.updateRole(rolePermissionForm);
         return Result.success(HttpStatus.CREATED);
+    }
+
+    /**
+     * 更新角色状态
+     *
+     * @return 统一返回
+     */
+    @PutMapping("status")
+    public ResponseEntity<Result> updateStatus(@RequestBody RoleStatusForm roleStatusForm) {
+        roleService.updateStatus(roleStatusForm);
+        return Result.success();
     }
 }
 

@@ -8,6 +8,7 @@ import com.hmetao.code_dictionary.dto.RolePermissionDTO;
 import com.hmetao.code_dictionary.entity.Role;
 import com.hmetao.code_dictionary.form.QueryForm;
 import com.hmetao.code_dictionary.form.RolePermissionForm;
+import com.hmetao.code_dictionary.form.RoleStatusForm;
 
 import java.util.List;
 
@@ -32,4 +33,6 @@ public interface RoleService extends IService<Role> {
     void deleteRole(Long roleId);
 
     void updateRole(RolePermissionForm rolePermissionForm);
+
+    void updateStatus(RoleStatusForm roleStatusForm);
 }

@@ -21,6 +21,7 @@ import com.hmetao.code_dictionary.entity.UserRole;
 import com.hmetao.code_dictionary.exception.ValidationException;
 import com.hmetao.code_dictionary.form.QueryForm;
 import com.hmetao.code_dictionary.form.RolePermissionForm;
+import com.hmetao.code_dictionary.form.RoleStatusForm;
 import com.hmetao.code_dictionary.mapper.RoleMapper;
 import com.hmetao.code_dictionary.mapper.RolePermissionMapper;
 import com.hmetao.code_dictionary.mapper.UserRoleMapper;
@@ -208,6 +209,14 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
             // 覆盖角色权限
             coverRolePermission(rolePermissionForm, perms);
         }
+    }
+
+    @Override
+    public void updateStatus(RoleStatusForm roleStatusForm) {
+        log.info(LOG_INFO_KEY + "用户： {} 更新角色： {}", SaTokenUtil.getLoginUserId(), roleStatusForm.getId());
+        baseMapper.updateById(MapUtil.beanMap(roleStatusForm, Role.class));
+        // 删除缓存
+        redisUtil.deleteObject(RedisConstants.ROLES_KEY);
     }
 
     private void coverRolePermission(RolePermissionForm rolePermissionForm, List<Long> perms) {
