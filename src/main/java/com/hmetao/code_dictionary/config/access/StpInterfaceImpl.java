@@ -3,13 +3,13 @@ package com.hmetao.code_dictionary.config.access;
 import cn.dev33.satoken.stp.StpInterface;
 import com.hmetao.code_dictionary.dto.PermissionDTO;
 import com.hmetao.code_dictionary.dto.RoleDTO;
-import com.hmetao.code_dictionary.entity.User;
 import com.hmetao.code_dictionary.service.RolePermissionService;
 import com.hmetao.code_dictionary.service.UserRoleService;
-import com.hmetao.code_dictionary.service.UserService;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +28,9 @@ public class StpInterfaceImpl implements StpInterface {
                 .stream()
                 .map(RoleDTO::getId)
                 .collect(Collectors.toList());
-
+        if (CollectionUtils.isEmpty(roleList)) {
+            return Collections.emptyList();
+        }
         return rolePermissionService.getPermissionList(roleList)
                 .stream()
                 .map(PermissionDTO::getPath)
