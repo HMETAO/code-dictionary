@@ -5,7 +5,7 @@ import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -81,6 +81,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private TLSSigAPIv2 tlsSigAPIv2;
 
+    private static final Boolean USER_STATUS = true;
+
     @PostConstruct
     public void initMethod() {
         tlsSigAPIv2 = new TLSSigAPIv2(tencentImProperties.getSDKAppID(), tencentImProperties.getSecretKey());
@@ -88,10 +90,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public UserDTO login(LoginForm loginForm) {
-        User userEntity = baseMapper.selectOne(new QueryWrapper<User>().eq("username", loginForm.getUsername().trim()));
+        User userEntity = baseMapper.selectOne(Wrappers.lambdaQuery(User.class)
+                .eq(User::getUsername, loginForm.getUsername()));
         String password = loginForm.getPassword();
-        if (userEntity == null)
-            throw new AccessErrorException("登录失败：请先完成注册操作");
+        if (userEntity == null) throw new AccessErrorException("登录失败：请先完成注册操作");
+        if (userEntity.getStatus() != USER_STATUS) throw new AccessErrorException("登录失败：账号已被封禁");
         // 判断密码是否相同
         if (checkPassword(userEntity, password)) {
             // 登录成功
