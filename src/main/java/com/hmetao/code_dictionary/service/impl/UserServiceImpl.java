@@ -253,7 +253,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             registryTencentIMAccount(baseUserInfoForm.getUsername(), user.getAvatar());
         }
         // 把更新的人踢下线
-        StpUtil.logout(user.getId());
+        StpUtil.kickout(user.getId());
 
     }
 

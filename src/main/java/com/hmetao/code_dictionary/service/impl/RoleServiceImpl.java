@@ -178,7 +178,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         List<UserRole> userRoles = userRoleMapper.selectList(Wrappers.lambdaQuery(UserRole.class).eq(UserRole::getRoleId, roleId));
         userRoles.forEach(userRole -> {
             // 踢下线
-            StpUtil.logout(userRole.getUserId());
+            StpUtil.kickout(userRole.getUserId());
         });
         // 删除缓存
         redisUtil.deleteObject(RedisConstants.ROLES_KEY);

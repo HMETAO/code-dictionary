@@ -98,7 +98,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         List<Long> userIds = baseMapper.getUserIdsByPermissionId(permissionId);
         if (!CollectionUtils.isEmpty(userIds)) {
             for (Long userId : userIds) {
-                StpUtil.logout(userId);
+                StpUtil.kickout(userId);
             }
         }
     }
