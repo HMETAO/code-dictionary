@@ -1,14 +1,11 @@
 package com.hmetao.code_dictionary.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.github.pagehelper.PageInfo;
 import com.hmetao.code_dictionary.dto.UserDTO;
-import com.hmetao.code_dictionary.dto.UserInfoDTO;
 import com.hmetao.code_dictionary.dto.UserRoleDTO;
 import com.hmetao.code_dictionary.entity.User;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.hmetao.code_dictionary.form.*;
-
-import java.util.List;
 
 /**
  * <p>
@@ -31,4 +28,6 @@ public interface UserService extends IService<User> {
     UserRoleDTO getUser(Long userId);
 
     void updateUser(UserRoleUpdateForm baseUserInfoForm);
+
+    void updateStatus(UserStatusForm userStatusForm);
 }

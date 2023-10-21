@@ -3,6 +3,7 @@ package com.hmetao.code_dictionary.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.hmetao.code_dictionary.form.QueryForm;
+import com.hmetao.code_dictionary.form.UserStatusForm;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,13 @@ public class AdminUserController {
     @SaCheckPermission("user-select")
     public ResponseEntity<Result> getUsers(QueryForm queryForm) {
         return Result.success(userService.getUsers(queryForm));
+    }
+
+    @PutMapping("status")
+    @SaCheckPermission("user-update")
+    public ResponseEntity<Result> updateStatus(@RequestBody UserStatusForm userStatusForm) {
+        userService.updateStatus(userStatusForm);
+        return Result.success();
     }
 
     /**

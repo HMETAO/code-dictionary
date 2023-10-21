@@ -19,10 +19,7 @@ import com.hmetao.code_dictionary.entity.UserRole;
 import com.hmetao.code_dictionary.exception.AccessErrorException;
 import com.hmetao.code_dictionary.exception.HMETAOException;
 import com.hmetao.code_dictionary.exception.ValidationException;
-import com.hmetao.code_dictionary.form.LoginForm;
-import com.hmetao.code_dictionary.form.QueryForm;
-import com.hmetao.code_dictionary.form.UserRegistryForm;
-import com.hmetao.code_dictionary.form.UserRoleUpdateForm;
+import com.hmetao.code_dictionary.form.*;
 import com.hmetao.code_dictionary.mapper.UserMapper;
 import com.hmetao.code_dictionary.mapper.UserRoleMapper;
 import com.hmetao.code_dictionary.po.UserRolePO;
@@ -49,6 +46,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.hmetao.code_dictionary.service.impl.RoleServiceImpl.LOG_INFO_KEY;
 
 /**
  * <p>
@@ -256,6 +255,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 把更新的人踢下线
         StpUtil.logout(user.getId());
 
+    }
+
+    @Override
+    public void updateStatus(UserStatusForm userStatusForm) {
+        log.info(LOG_INFO_KEY + "用户： {} 更新用户： {}", SaTokenUtil.getLoginUserId(), userStatusForm.getId());
+        // 拒绝关闭admin角色
+        if (userStatusForm.getId().equals(1L)) {
+            throw new ValidationException("管理员用户状态拒绝切换");
+        }
+        baseMapper.updateById(MapUtil.beanMap(userStatusForm, User.class));
     }
 
     private void coverUserRole(Long sysUserId, Long userId, ArrayList<Long> roles) {

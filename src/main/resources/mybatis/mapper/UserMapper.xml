@@ -11,9 +11,8 @@
     </resultMap>
 
     <select id="getUserInfoList" resultMap="UserInfoDTOMap" resultType="com.hmetao.code_dictionary.dto.UserRoleDTO">
-        select id, email, avatar, mobile, username, last_login_time
+        select id, email, avatar, mobile, username, last_login_time, status
         from user
-        where status = 1
-          and is_deleted = 0
+        where is_deleted = 0
     </select>
 </mapper>
