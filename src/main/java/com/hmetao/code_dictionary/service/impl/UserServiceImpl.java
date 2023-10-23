@@ -102,13 +102,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             UserDTO userDTO = MapUtil.beanMap(userEntity, UserDTO.class);
             String userSig = tlsSigAPIv2.genUserSig(userEntity.getUsername(), 86400);
             userDTO.setUserSig(userSig);
+            // 获取token
+            SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
+            userDTO.setToken(tokenInfo.getTokenValue());
             // 用户信息放入token-session
             StpUtil.getTokenSession().set(BaseConstants.LOGIN_USERINFO_SESSION_KEY, userDTO);
             // 用户信息放入user-session
             StpUtil.getSession().set(BaseConstants.LOGIN_USERINFO_SESSION_KEY, userDTO);
-            // 获取token
-            SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
-            userDTO.setToken(tokenInfo.getTokenValue());
             return userDTO;
         }
         throw new AccessErrorException("登录失败：请检查用户名或密码");

@@ -4,18 +4,20 @@ package com.hmetao.code_dictionary.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.dto.UserRoleDTO;
-import com.hmetao.code_dictionary.form.BaseUserInfoForm;
+import com.hmetao.code_dictionary.exception.ValidationException;
 import com.hmetao.code_dictionary.form.LoginForm;
 import com.hmetao.code_dictionary.form.UserRegistryForm;
 import com.hmetao.code_dictionary.form.UserRoleUpdateForm;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.UserService;
+import com.hmetao.code_dictionary.utils.SaTokenUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.Objects;
 
 /**
  * <p>
@@ -91,6 +93,23 @@ public class UserController {
     public ResponseEntity<Result> updateUser(@Valid @RequestBody UserRoleUpdateForm userRoleUpdateForm) {
         userService.updateUser(userRoleUpdateForm);
         return Result.success(HttpStatus.CREATED);
+    }
+
+
+    /**
+     * 校验token是否正确
+     *
+     * @param token token
+     * @return 统一返回
+     */
+    @GetMapping("check")
+    public ResponseEntity<Result> checkUser(@RequestParam(name = "token") String token) {
+        // 判断这个token是不是自己的
+        if (!Objects.equals(SaTokenUtil.getLoginUserInfo().getToken(), token)) {
+            throw new ValidationException("token非本人");
+        }
+        StpUtil.checkActivityTimeout();
+        return Result.success(HttpStatus.OK);
     }
 }
 
