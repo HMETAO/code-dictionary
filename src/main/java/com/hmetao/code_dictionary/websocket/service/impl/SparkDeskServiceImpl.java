@@ -34,7 +34,7 @@ public class SparkDeskServiceImpl implements SparkDeskService {
     @Override
     public void chat(WebSocketSession session, TextMessage textMessage, UserDTO user) {
         AIChatRequest aiChatRequest = buildChatRequest(textMessage, user);
-
+        StringBuilder sb = new StringBuilder();
         sparkDeskClient.chat(new ChatListener(aiChatRequest) {
             //异常回调
             @SneakyThrows
@@ -47,19 +47,18 @@ public class SparkDeskServiceImpl implements SparkDeskService {
             @Override
             public void onChatOutput(AIChatResponse aiChatResponse) {
                 List<Text> res = aiChatResponse.getPayload().getChoices().getText();
-                StringBuilder sb = new StringBuilder();
                 res.forEach(item -> sb.append(item.getContent()));
-                try {
-                    session.sendMessage(new TextMessage(sb.toString().getBytes()));
-                } catch (IOException e) {
-                    close(session, e.getMessage());
-                }
             }
 
             //会话结束回调
             @Override
             @SneakyThrows
             public void onChatEnd() {
+                try {
+                    session.sendMessage(new TextMessage(sb.toString().getBytes()));
+                } catch (IOException e) {
+                    close(session, e.getMessage());
+                }
             }
 
             //会话结束 获取token使用信息回调
