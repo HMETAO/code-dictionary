@@ -1,6 +1,6 @@
 package com.hmetao.code_dictionary.websocket.handler;
 
-import com.hmetao.code_dictionary.constants.SSHConstants;
+import com.hmetao.code_dictionary.constants.WebSocketConstants;
 import com.hmetao.code_dictionary.websocket.service.WebSSHService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,7 +17,7 @@ public class WebSSHWebSocketHandler implements WebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession webSocketSession) throws Exception {
-        log.info("用户:{},连接WebSSH", webSocketSession.getAttributes().get(SSHConstants.SSH_SESSION_KEY));
+        log.info("用户:{},连接WebSSH", webSocketSession.getAttributes().get(WebSocketConstants.WEBSOCKET_USERINFO_SESSION_KEY));
         //调用初始化连接
         webSSHService.initConnection(webSocketSession);
     }
@@ -25,7 +25,7 @@ public class WebSSHWebSocketHandler implements WebSocketHandler {
     @Override
     public void handleMessage(WebSocketSession webSocketSession, WebSocketMessage<?> webSocketMessage) throws Exception {
         if (webSocketMessage instanceof TextMessage) {
-            log.info("用户:{},发送命令:{}", webSocketSession.getAttributes().get(SSHConstants.SSH_SESSION_KEY), webSocketMessage);
+            log.info("用户:{},发送命令:{}", webSocketSession.getAttributes().get(WebSocketConstants.WEBSOCKET_USERINFO_SESSION_KEY), webSocketMessage);
             //调用service接收消息
             webSSHService.recvHandle(((TextMessage) webSocketMessage).getPayload(), webSocketSession);
         } else if (webSocketMessage instanceof BinaryMessage) {
@@ -44,7 +44,7 @@ public class WebSSHWebSocketHandler implements WebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession webSocketSession, CloseStatus closeStatus) throws Exception {
-        log.info("用户:{}断开webssh连接", webSocketSession.getAttributes().get(SSHConstants.SSH_SESSION_KEY));
+        log.info("用户:{}断开webssh连接", webSocketSession.getAttributes().get(WebSocketConstants.WEBSOCKET_USERINFO_SESSION_KEY));
         //调用service关闭连接
         webSSHService.close(webSocketSession, null);
     }

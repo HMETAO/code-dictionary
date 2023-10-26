@@ -1,9 +1,11 @@
 package com.hmetao.code_dictionary.websocket.service.impl;
 
 import com.hmetao.code_dictionary.constants.SSHConstants;
+import com.hmetao.code_dictionary.constants.WebSocketConstants;
+import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.User;
-import com.hmetao.code_dictionary.websocket.pojo.SSHConnectInfo;
 import com.hmetao.code_dictionary.form.WebSSHForm;
+import com.hmetao.code_dictionary.websocket.pojo.SSHConnectInfo;
 import com.hmetao.code_dictionary.websocket.service.WebSSHService;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.JSch;
@@ -39,7 +41,7 @@ public class WebSSHServiceImpl implements WebSSHService {
     @Override
     public void initConnection(WebSocketSession session) {
         // 获取user信息
-        User user = (User) session.getAttributes().get(SSHConstants.SSH_SESSION_KEY);
+        UserDTO user = (UserDTO) session.getAttributes().get(WebSocketConstants.WEBSOCKET_USERINFO_SESSION_KEY);
         // 缓存
         SSHConnectInfo sshConnectInfo = new SSHConnectInfo(new JSch(), user, session, null);
         sshMap.put(user.getId(), sshConnectInfo);
@@ -57,7 +59,7 @@ public class WebSSHServiceImpl implements WebSSHService {
 
     @Override
     public void recvHandle(String buffer, WebSocketSession session) {
-        User user = (User) session.getAttributes().get(SSHConstants.SSH_SESSION_KEY);
+        UserDTO user = (UserDTO) session.getAttributes().get(WebSocketConstants.WEBSOCKET_USERINFO_SESSION_KEY);
         SSHConnectInfo sshConnectInfo = sshMap.get(user.getId());
         if (sshConnectInfo != null) {
             try {
@@ -131,7 +133,7 @@ public class WebSSHServiceImpl implements WebSSHService {
         if (!StringUtils.isEmpty(message))
             session.close(new CloseStatus(CloseStatus.REQUIRED_EXTENSION.getCode(), message));
 
-        User user = (User) session.getAttributes().get(SSHConstants.SSH_SESSION_KEY);
+        User user = (User) session.getAttributes().get(WebSocketConstants.WEBSOCKET_USERINFO_SESSION_KEY);
         Long userId = user.getId();
         SSHConnectInfo sshConnectInfo = sshMap.get(userId);
         if (sshConnectInfo != null) {

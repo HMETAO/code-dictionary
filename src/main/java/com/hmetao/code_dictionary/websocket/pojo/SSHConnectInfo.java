@@ -1,6 +1,6 @@
 package com.hmetao.code_dictionary.websocket.pojo;
 
-import com.hmetao.code_dictionary.entity.User;
+import com.hmetao.code_dictionary.dto.UserDTO;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.JSch;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,7 @@ import org.springframework.web.socket.WebSocketSession;
 public class SSHConnectInfo {
     private JSch jsch;
 
-    private User user;
+    private UserDTO user;
 
     private WebSocketSession session;
     private Channel channel;
