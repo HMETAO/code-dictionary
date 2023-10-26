@@ -22,6 +22,7 @@ public class WebSocketInterceptor implements HandshakeInterceptor {
             ServletServerHttpRequest request = (ServletServerHttpRequest) serverHttpRequest;
             URI uri = request.getURI();
             String query = uri.getQuery();
+            if (query == null) return false;
             // 保存登录用户到websocket的session
             SaSession tokenSession = StpUtil.getTokenSessionByToken(query.replaceAll("token=", ""));
             if (tokenSession == null) return false;
