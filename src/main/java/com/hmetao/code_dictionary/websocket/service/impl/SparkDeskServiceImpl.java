@@ -54,10 +54,12 @@ public class SparkDeskServiceImpl implements SparkDeskService {
             @Override
             @SneakyThrows
             public void onChatEnd() {
-                try {
-                    session.sendMessage(new TextMessage(sb.toString().getBytes()));
-                } catch (IOException e) {
-                    close(session, e.getMessage());
+                if (sb.length() > 0) {
+                    try {
+                        session.sendMessage(new TextMessage(sb.toString().getBytes()));
+                    } catch (IOException e) {
+                        close(session, e.getMessage());
+                    }
                 }
             }
 

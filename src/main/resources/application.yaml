@@ -4,8 +4,9 @@ spring:
 server:
   port: 8972
   ssl:
-    enabled: false
-
+    key-store: classpath:www.hmetao.cn.pfx
+    key-store-password: do4pys4d
+    key-store-type: PKCS12
 # Sa-Token配置
 sa-token:
   # token 名称 (同时也是cookie名称)
