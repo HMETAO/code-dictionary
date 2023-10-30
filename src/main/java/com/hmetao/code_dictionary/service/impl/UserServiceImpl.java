@@ -97,6 +97,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userEntity.getStatus() != USER_STATUS) throw new AccessErrorException("登录失败：账号已被封禁");
         // 判断密码是否相同
         if (checkPassword(userEntity, password)) {
+            // 已登录过了
+            if (StpUtil.isLogin()) {
+                return SaTokenUtil.getLoginUserInfo();
+            }
             // 登录成功
             StpUtil.login(userEntity.getId(), true);
             UserDTO userDTO = MapUtil.beanMap(userEntity, UserDTO.class);

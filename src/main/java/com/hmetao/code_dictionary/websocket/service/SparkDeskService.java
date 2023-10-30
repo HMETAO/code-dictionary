@@ -7,5 +7,5 @@ import org.springframework.web.socket.WebSocketSession;
 public interface SparkDeskService {
 
 
-    void chat(WebSocketSession webSocketSession, TextMessage textMessage, UserDTO user);
+    void chat(WebSocketSession webSocketSession, TextMessage textMessage, UserDTO user) throws Exception;
 }

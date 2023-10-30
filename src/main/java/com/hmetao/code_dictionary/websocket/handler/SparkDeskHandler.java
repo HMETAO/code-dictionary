@@ -25,7 +25,7 @@ public class SparkDeskHandler implements WebSocketHandler {
     }
 
     @Override
-    public void handleMessage(WebSocketSession webSocketSession, @NotNull WebSocketMessage<?> webSocketMessage) {
+    public void handleMessage(WebSocketSession webSocketSession, @NotNull WebSocketMessage<?> webSocketMessage) throws Exception {
         TextMessage textMessage = (TextMessage) webSocketMessage;
         UserDTO user = (UserDTO) webSocketSession.getAttributes().get(WebSocketConstants.WEBSOCKET_USERINFO_SESSION_KEY);
         sparkDeskService.chat(webSocketSession, textMessage, user);
