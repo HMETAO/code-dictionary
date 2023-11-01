@@ -1,6 +1,4 @@
-import com.hmetao.code_dictionary.dto.CommunityDTO;
-import com.hmetao.code_dictionary.dto.UserInfoDTO;
-import com.hmetao.code_dictionary.form.BaseUserInfoForm;
+import com.hmetao.code_dictionary.form.SnippetCategoryMenusChangeForm;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -26,7 +24,7 @@ import java.util.jar.JarFile;
 public class TypeScriptInterFactory {
 
     public static void main(String[] args) {
-        toTsType(BaseUserInfoForm.class);
+        toTsType(SnippetCategoryMenusChangeForm.class);
     }
 
 

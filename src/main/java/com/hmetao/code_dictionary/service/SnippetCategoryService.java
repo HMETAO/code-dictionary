@@ -1,7 +1,8 @@
 package com.hmetao.code_dictionary.service;
 
-import com.hmetao.code_dictionary.entity.SnippetCategory;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.hmetao.code_dictionary.entity.SnippetCategory;
+import com.hmetao.code_dictionary.form.SnippetCategoryMenusChangeForm;
 
 /**
  * <p>
@@ -13,4 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface SnippetCategoryService extends IService<SnippetCategory> {
 
+    void updateSnippetCategory(SnippetCategoryMenusChangeForm snippetCategoryMenusChangeForm);
 }

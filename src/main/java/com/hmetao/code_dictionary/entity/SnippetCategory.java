@@ -37,6 +37,6 @@ public class SnippetCategory implements Serializable {
     @ApiModelProperty(value = "片段标题")
     private String snippetTitle;
 
-    @ApiModelProperty(value = "snippet 类型")
+    @ApiModelProperty(value = "snippet 类型 (0：cd 1：markdown)")
     private Integer type;
 }
