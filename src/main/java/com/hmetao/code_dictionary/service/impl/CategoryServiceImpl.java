@@ -9,7 +9,6 @@ import com.hmetao.code_dictionary.dto.CategorySnippetMenusDTO;
 import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.Category;
 import com.hmetao.code_dictionary.entity.SnippetCategory;
-import com.hmetao.code_dictionary.entity.User;
 import com.hmetao.code_dictionary.form.CategoryForm;
 import com.hmetao.code_dictionary.mapper.CategoryMapper;
 import com.hmetao.code_dictionary.service.CategoryService;
@@ -52,7 +51,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
         // 如果没有分类生成一个默认分类
         if (CollectionUtils.isEmpty(categories) && snippet) {
-            categories = generateInitialCategory(sysUser);
+            categories = generateInitialCategory(sysUser.getId());
         }
 
         // 转换成DTO后续构造为树形结构
@@ -170,9 +169,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                 .collect(Collectors.groupingBy(CategorySnippetMenusDTO::getParentId));
     }
 
-    private List<Category> generateInitialCategory(UserDTO sysUser) {
+    @Override
+    public List<Category> generateInitialCategory(Long userId) {
         Category category = new Category();
-        category.setUserId(sysUser.getId());
+        category.setUserId(userId);
         category.setName(BaseConstants.BASE_GROUP);
         category.setIsSystem(true);
         baseMapper.insert(category);

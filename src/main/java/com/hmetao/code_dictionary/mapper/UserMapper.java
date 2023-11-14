@@ -1,9 +1,8 @@
 package com.hmetao.code_dictionary.mapper;
 
-import com.hmetao.code_dictionary.dto.UserInfoDTO;
-import com.hmetao.code_dictionary.dto.UserRoleDTO;
-import com.hmetao.code_dictionary.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.hmetao.code_dictionary.dto.UserInfoDTO;
+import com.hmetao.code_dictionary.entity.User;
 
 import java.util.List;
 
@@ -18,4 +17,6 @@ import java.util.List;
 public interface UserMapper extends BaseMapper<User> {
 
     List<UserInfoDTO> getUserInfoList();
+
+    User getUserByUsernameOrMobile(String username, String mobile);
 }

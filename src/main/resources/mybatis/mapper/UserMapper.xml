@@ -15,4 +15,11 @@
         from user
         where is_deleted = 0
     </select>
+
+    <select id="getUserByUsernameOrMobile" resultType="com.hmetao.code_dictionary.entity.User">
+        select *
+        from user
+        where username = #{username}
+           or mobile = #{mobile}
+    </select>
 </mapper>

@@ -121,10 +121,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     @Transactional
     public void registry(UserRegistryForm userRegistryForm) {
-        Long count = baseMapper.selectCount(new LambdaQueryWrapper<User>()
-                .eq(User::getUsername, userRegistryForm.getUsername())
-                .or().eq(User::getMobile, userRegistryForm.getMobile()));
-        if (count > 0) {
+        // 检查是否有重复的用户名和手机号
+        User checkUser = baseMapper.getUserByUsernameOrMobile(userRegistryForm.getUsername(), userRegistryForm.getMobile());
+        if (checkUser != null) {
             throw new ValidationException("注册失败：用户名或手机号重复");
         }
 

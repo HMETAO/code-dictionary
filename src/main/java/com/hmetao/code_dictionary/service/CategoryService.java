@@ -22,4 +22,6 @@ public interface CategoryService extends IService<Category> {
     CategorySnippetMenusDTO insertCategory(CategoryForm categoryForm);
 
     void deleteCategory(Long categoryId);
+
+    List<Category> generateInitialCategory(Long userId);
 }

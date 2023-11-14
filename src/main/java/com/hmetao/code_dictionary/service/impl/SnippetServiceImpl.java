@@ -9,7 +9,6 @@ import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.Category;
 import com.hmetao.code_dictionary.entity.Snippet;
 import com.hmetao.code_dictionary.entity.SnippetCategory;
-import com.hmetao.code_dictionary.entity.User;
 import com.hmetao.code_dictionary.form.ReceiveSnippetForm;
 import com.hmetao.code_dictionary.form.RunCodeForm;
 import com.hmetao.code_dictionary.form.SnippetForm;
@@ -129,7 +128,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
 
     @Override
     public SnippetUploadImageDTO uploadImage(SnippetUploadImageForm snippetUploadImageForm) {
-       UserDTO user = SaTokenUtil.getLoginUserInfo();
+        UserDTO user = SaTokenUtil.getLoginUserInfo();
         ArrayList<MultipartFile> files = snippetUploadImageForm.getFiles();
         LocalDate now = LocalDate.now();
         List<String> urls = new ArrayList<>();
@@ -152,7 +151,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
 
     @Override
     public void receiveSnippet(ReceiveSnippetForm receiveSnippetForm) {
-       UserDTO user = SaTokenUtil.getLoginUserInfo();
+        UserDTO user = SaTokenUtil.getLoginUserInfo();
         // 查询发送人snippet
         Snippet snippet = baseMapper.selectOne(new LambdaQueryWrapper<Snippet>()
                 .eq(Snippet::getId, receiveSnippetForm.getSnippetId())
@@ -167,6 +166,8 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
         Category category = categoryService.getOne(new LambdaQueryWrapper<Category>()
                 .eq(Category::getName, BaseConstants.BASE_GROUP)
                 .eq(Category::getUserId, user.getId()));
+        if (category == null)
+            category = categoryService.generateInitialCategory(user.getId()).get(0);
         // 存入中间表
         SnippetCategory snippetCategory = new SnippetCategory(category.getId(),
                 copySnippet.getId(),
@@ -178,7 +179,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
     @Override
     public String runCode(RunCodeForm runCodeForm) {
         // 获取登录用户
-       UserDTO user = SaTokenUtil.getLoginUserInfo();
+        UserDTO user = SaTokenUtil.getLoginUserInfo();
         // 运行代码
         return judgeUtil.runCode(runCodeForm.getCode(),
                 runCodeForm.getCodeEnum(), runCodeForm.getArgs(),
