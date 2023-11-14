@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod
+    active: dev
 server:
   port: 8972
   ssl:
@@ -23,6 +23,9 @@ sa-token:
   token-style: uuid
   # 是否输出操作日志
   is-log: false
+  # 不从cookie内读取
+  is-read-cookie: false
+
 ali:
   oss:
     endpoint: https://oss-cn-hangzhou.aliyuncs.com
