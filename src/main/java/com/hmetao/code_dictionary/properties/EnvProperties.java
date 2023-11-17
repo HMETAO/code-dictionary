@@ -4,7 +4,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
-@ConfigurationProperties(prefix = "judge")
-public class JudgeProperties {
+@ConfigurationProperties(prefix = "env")
+public class EnvProperties {
     private String path;
 }

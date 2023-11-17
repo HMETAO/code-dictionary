@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @SpringBootApplication
 @EnableTransactionManagement
 @MapperScan("com.hmetao.code_dictionary.mapper")
-@EnableConfigurationProperties({SparkDeskProperties.class, AliOSSProperties.class, QiNiuProperties.class, JudgeProperties.class, TencentImProperties.class})
+@EnableConfigurationProperties({SparkDeskProperties.class, AliOSSProperties.class, QiNiuProperties.class, EnvProperties.class, TencentImProperties.class})
 public class CodeDictionaryApplication {
     public static void main(String[] args) {
         SpringApplication.run(CodeDictionaryApplication.class, args);
@@ -24,7 +24,6 @@ public class CodeDictionaryApplication {
     /**
      * http重定向到https
      *
-     * @return
      */
     @Bean
     public TomcatServletWebServerFactory servletContainer() {

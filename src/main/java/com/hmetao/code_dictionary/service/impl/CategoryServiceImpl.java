@@ -70,15 +70,15 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         Map<String, List<CategorySnippetMenusDTO>> categorySnippetMap = getMapOfSnippetGroupedByCategory(categories);
 
         // 构建树状结构
-        return (List<CategorySnippetMenusDTO>) BaseTreeDTO.buildTree(categorySnippetMenusDTOS, "0", !snippet ? null : node -> {
-            String categoryId = node.getId();
+        return (List<CategorySnippetMenusDTO>) BaseTreeDTO.buildTree(categorySnippetMenusDTOS, "0", !snippet ? null : parent -> {
+            String categoryId = parent.getId();
             if (categorySnippetMap.containsKey(categoryId)) {
                 // 将snippet放入对应的category下
-                List<CategorySnippetMenusDTO> nodeChildren = (List<CategorySnippetMenusDTO>) node.getChildren();
+                List<CategorySnippetMenusDTO> nodeChildren = (List<CategorySnippetMenusDTO>) parent.getChildren();
                 if (nodeChildren != null) {
                     nodeChildren.addAll(categorySnippetMap.get(categoryId));
                 } else {
-                    node.setChildren(categorySnippetMap.get(categoryId));
+                    parent.setChildren(categorySnippetMap.get(categoryId));
                 }
             }
         });

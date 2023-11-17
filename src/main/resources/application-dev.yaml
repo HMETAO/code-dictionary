@@ -33,5 +33,5 @@ logging:
       hmetao:
         code_dictionary:
           mapper: debug
-judge:
-  path: C:/judge
+env:
+  path: C:/

@@ -3,10 +3,7 @@ package com.hmetao.code_dictionary.controller;
 
 import com.hmetao.code_dictionary.dto.SnippetDTO;
 import com.hmetao.code_dictionary.dto.SnippetUploadImageDTO;
-import com.hmetao.code_dictionary.form.ReceiveSnippetForm;
-import com.hmetao.code_dictionary.form.RunCodeForm;
-import com.hmetao.code_dictionary.form.SnippetForm;
-import com.hmetao.code_dictionary.form.SnippetUploadImageForm;
+import com.hmetao.code_dictionary.form.*;
 import com.hmetao.code_dictionary.result.Result;
 import com.hmetao.code_dictionary.service.SnippetService;
 import org.springframework.http.HttpStatus;
@@ -14,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 
 /**
  * <p>
@@ -121,4 +120,14 @@ public class SnippetController {
     }
 
 
+    /**
+     * 导出snippet
+     *
+     * @param snippetDownloadForm 需要下载snippet的信息
+     * @param response            统一返回
+     */
+    @PostMapping("download")
+    public void downloadSnippets(@RequestBody SnippetDownloadForm snippetDownloadForm, HttpServletResponse response) throws IOException {
+        snippetService.download(snippetDownloadForm, response);
+    }
 }
