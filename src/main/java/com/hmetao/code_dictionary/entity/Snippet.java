@@ -44,6 +44,9 @@ public class Snippet extends BaseEntity implements Serializable {
     @ApiModelProperty(value = "置顶（0:不置顶，1:置顶）")
     private Boolean top;
 
+    @ApiModelProperty(value = "snippet类型")
+    private Integer type;
+
 
     public Snippet(String title, Long uid, String snippet) {
         this.title = title;
