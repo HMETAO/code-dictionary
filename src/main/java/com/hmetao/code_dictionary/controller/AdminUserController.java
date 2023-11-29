@@ -32,6 +32,13 @@ public class AdminUserController {
         return Result.success(userService.getUsers(queryForm));
     }
 
+
+    /**
+     * 更新用户状态
+     *
+     * @param userStatusForm 请求参数
+     * @return 统一返回
+     */
     @PutMapping("status")
     @SaCheckPermission("user-update")
     public ResponseEntity<Result> updateStatus(@RequestBody UserStatusForm userStatusForm) {
