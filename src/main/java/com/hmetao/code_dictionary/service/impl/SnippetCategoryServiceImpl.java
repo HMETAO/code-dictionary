@@ -37,6 +37,9 @@ public class SnippetCategoryServiceImpl extends ServiceImpl<SnippetCategoryMappe
         } else {
             // 否则是分类对文章的操作
             SnippetCategory snippetCategory = new SnippetCategory();
+            if (snippetCategoryMenusChangeForm.getPid() == 0) {
+                throw new RuntimeException("不能将snippet挂到最外层");
+            }
             snippetCategory.setCategoryId(snippetCategoryMenusChangeForm.getPid());
             baseMapper.update(snippetCategory, Wrappers.lambdaUpdate(SnippetCategory.class)
                     .eq(SnippetCategory::getSnippetId, snippetCategoryMenusChangeForm.getCurrentId()));

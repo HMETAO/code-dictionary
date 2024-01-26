@@ -5,6 +5,7 @@ import com.hmetao.code_dictionary.dto.SnippetDTO;
 import com.hmetao.code_dictionary.dto.SnippetUploadImageDTO;
 import com.hmetao.code_dictionary.entity.Snippet;
 import com.hmetao.code_dictionary.form.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -34,4 +35,6 @@ public interface SnippetService extends IService<Snippet> {
     String runCode(RunCodeForm runCodeForm);
 
     void download(SnippetDownloadForm snippetDownloadForm, HttpServletResponse response) throws IOException;
+
+    void upload(MultipartFile file) throws IOException;
 }

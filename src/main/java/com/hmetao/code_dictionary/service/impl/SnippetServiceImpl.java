@@ -1,14 +1,12 @@
 package com.hmetao.code_dictionary.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.constants.BaseConstants;
-import com.hmetao.code_dictionary.dto.CategorySnippetMenusDTO;
-import com.hmetao.code_dictionary.dto.SnippetDTO;
-import com.hmetao.code_dictionary.dto.SnippetUploadImageDTO;
-import com.hmetao.code_dictionary.dto.UserDTO;
+import com.hmetao.code_dictionary.dto.*;
 import com.hmetao.code_dictionary.entity.Category;
 import com.hmetao.code_dictionary.entity.Snippet;
 import com.hmetao.code_dictionary.entity.SnippetCategory;
@@ -23,6 +21,9 @@ import com.hmetao.code_dictionary.utils.JudgeUtil;
 import com.hmetao.code_dictionary.utils.MapUtil;
 import com.hmetao.code_dictionary.utils.QiniuUtil;
 import com.hmetao.code_dictionary.utils.SaTokenUtil;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,8 +41,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import static com.hmetao.code_dictionary.constants.BaseConstants.QINIU_OSS_MARKDOWN_IMAGE_UPLOAD_PREFIX;
@@ -93,12 +96,15 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
     public SnippetDTO insertSnippet(SnippetForm snippetForm) {
         // 获取登录用户
         UserDTO sysUser = SaTokenUtil.getLoginUserInfo();
-
+        if (snippetForm.getCategoryId() == 0) {
+            throw new RuntimeException("拒绝将 Snippet 放置最外层");
+        }
         SnippetCategory exit = snippetCategoryService.getOne(new LambdaQueryWrapper<SnippetCategory>()
-                .eq(SnippetCategory::getCategoryId,
-                        snippetForm.getCategoryId()).eq(SnippetCategory::getSnippetTitle, snippetForm.getTitle()), true);
+                .eq(SnippetCategory::getCategoryId, snippetForm.getCategoryId())
+                .eq(SnippetCategory::getSnippetTitle, snippetForm.getTitle())
+                .eq(SnippetCategory::getType, snippetForm.getType()), true);
         if (exit != null) {
-            throw new RuntimeException("在改分组下已存在此 Title 的 Snippet");
+            throw new RuntimeException("在该分组下已存在此 Title 的 Snippet");
         }
 
         // 写入snippet
@@ -214,7 +220,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
         root.setChildren(categorySnippetMenus);
 
         // 剪掉不需要下载的分支
-        dfs(root, snippetIdsSet);
+        cutBranches(root, snippetIdsSet);
 
         String prefix = FileUtil.getTmpDir() + "/code-dictionary_" + userId;
         // 查询要下载的snippet信息
@@ -236,6 +242,155 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
         generateSnippetFileAndCompressItToStream(map, root, response.getOutputStream(), prefix);
         // 删除临时文件
         FileUtil.del(prefix);
+    }
+
+    // 数据结构：字典树
+    static class Trie {
+        HashMap<String, Trie> nodes;
+
+        Integer type;
+
+        Boolean snippet;
+
+        String parentId;
+
+        String id;
+
+        public Trie(Integer type, Boolean snippet, String parentId, String id) {
+            this.id = id;
+            this.type = type;
+            this.snippet = snippet;
+            this.parentId = parentId;
+            this.nodes = new HashMap<>();
+        }
+
+        public Trie() {
+            this.nodes = new HashMap<>();
+            this.id = "0";
+        }
+
+        public Trie append(String word, Integer type, Boolean snippet, String parentId, String id) {
+            HashMap<String, Trie> children = this.nodes;
+            if (checkNotContainerTrieNode(type, snippet, this, word)) {
+                children.put(word, new Trie(type, snippet, parentId, id));
+            }
+            return children.get(word);
+        }
+
+        @Data
+        @NoArgsConstructor
+        @AllArgsConstructor
+        static class TrieDTO {
+            private String parentId;
+
+            private String label;
+
+            private Boolean curSnippet;
+
+            private Integer curType;
+        }
+
+        public void insert(String[] words, Boolean snippet, Integer type, Function<TrieDTO, Trie> fun) {
+            Trie read = this;
+            int n = words.length;
+            for (int i = 0; i < n; i++) {
+                // 当前类型属性
+                Boolean curSnippet = i == n - 1 ? snippet : false;
+                Integer curType = i == n - 1 ? type : null;
+                // 判断是否存在
+                HashMap<String, Trie> children = read.nodes;
+                if (checkNotContainerTrieNode(curType, curSnippet, read, words[i])) {
+                    children.put(words[i], fun.apply(new TrieDTO(read.id, words[i], curSnippet, curType)));
+                }
+                read = children.get(words[i]);
+            }
+        }
+
+        private boolean checkNotContainerTrieNode(Integer type, Boolean snippet, Trie trie, String word) {
+            // 判断是否存在，或 是否存在完全相同
+            if (!trie.nodes.containsKey(word)) return true;
+            Trie node = trie.nodes.get(word);
+            return !node.snippet.equals(snippet) || !Objects.equals(node.type, type);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void upload(MultipartFile file) throws IOException {
+        ZipInputStream zis = new ZipInputStream(file.getInputStream());
+        // 笔记列表，构建字典树
+        Trie root = buildTrie();
+        ZipEntry entry;
+        while ((entry = zis.getNextEntry()) != null) {
+            String[] words = entry.getName().split("/");
+            int n = words.length;
+            boolean snippet = false; // 是否为snippet类型
+            Integer type = null; // 后缀类型格式
+            // 判断当前entry的属性信息
+            if (!entry.isDirectory()) {
+                snippet = true;
+                String lastWord = words[n - 1];
+                // markdown还是code还是其他第三方类型
+                if (lastWord.endsWith("cd")) {
+                    type = 0;
+                    words[n - 1] = lastWord.replaceAll(".cd", "");
+                } else if (lastWord.endsWith("md")) {
+                    type = 1;
+                    words[n - 1] = lastWord.replaceAll(".md", "");
+                } else type = 2;
+            }
+
+            // 将每一个解压出来的entry插入到字典树中
+            root.insert(words, snippet, type, (Trie.TrieDTO dto) -> {
+                // 插入逻辑并构造字典树节点对象返回
+                String id;
+                // 判断是分组还是笔记区别插入
+                if (!dto.getCurSnippet()) {
+                    log.info("{} 用户新增category： {}", SaTokenUtil.getLoginUserId(), dto.label);
+                    // category
+                    CategorySnippetMenusDTO categorySnippetMenusDTO =
+                            categoryService.insertCategory(new CategoryForm(dto.getLabel(), Long.parseLong(dto.getParentId())));
+                    id = categorySnippetMenusDTO.getId();
+                } else {
+                    log.info("{} 用户新增snippet： {}", SaTokenUtil.getLoginUserId(), dto.label);
+                    // snippet
+                    try {
+                        SnippetDTO snippetDTO =
+                                insertSnippet(new SnippetForm(
+                                        dto.getLabel(),
+                                        new String(zis.readAllBytes()),
+                                        Long.parseLong(dto.getParentId()),
+                                        dto.getCurType()));
+                        id = String.valueOf(snippetDTO.getId());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                return new Trie(dto.getCurType(), dto.getCurSnippet(), dto.getParentId(), id);
+            });
+        }
+    }
+
+    private Trie buildTrie() {
+        Trie root = new Trie();
+        List<CategorySnippetMenusDTO> categorySnippetMenus = categoryService.getCategorySnippetMenus(true);
+        for (CategorySnippetMenusDTO categorySnippetMenusDTO : categorySnippetMenus) {
+            // 使用dfs把结构加载到字典树中
+            loadTire(root, categorySnippetMenusDTO);
+        }
+        return root;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void loadTire(Trie trie, CategorySnippetMenusDTO categorySnippetMenusDTO) {
+        Trie next = trie.append(categorySnippetMenusDTO.getLabel(), categorySnippetMenusDTO.getType(), categorySnippetMenusDTO.getSnippet(),
+                categorySnippetMenusDTO.getParentId(), categorySnippetMenusDTO.getId());
+        List<? extends BaseTreeDTO<String>> children = categorySnippetMenusDTO.getChildren();
+        if (CollectionUtil.isNotEmpty(children)) {
+            for (CategorySnippetMenusDTO child : (List<CategorySnippetMenusDTO>) children) {
+                loadTire(next, child);
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -290,7 +445,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
     }
 
     @SuppressWarnings("unchecked")
-    private boolean dfs(CategorySnippetMenusDTO node, Set<String> set) {
+    private boolean cutBranches(CategorySnippetMenusDTO node, Set<String> set) {
         ListIterator<CategorySnippetMenusDTO> children = (ListIterator<CategorySnippetMenusDTO>) node.getChildren().listIterator();
         boolean ans = false;
 
@@ -299,7 +454,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
             boolean current = false;
             // 判断是否是snippet，不存在的snippet需要删除
             if (next.getSnippet()) current |= set.contains(next.getId());
-            else current |= dfs(next, set); // 如果是category判断子分支是否需要存在
+            else current |= cutBranches(next, set); // 如果是category判断子分支是否需要存在
             if (!current) children.remove(); // 如果不需要存在删除
             ans |= current;
         }

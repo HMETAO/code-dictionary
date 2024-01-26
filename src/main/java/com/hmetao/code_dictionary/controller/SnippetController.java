@@ -9,6 +9,7 @@ import com.hmetao.code_dictionary.service.SnippetService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -129,5 +130,17 @@ public class SnippetController {
     @PostMapping("download")
     public void downloadSnippets(@RequestBody SnippetDownloadForm snippetDownloadForm, HttpServletResponse response) throws IOException {
         snippetService.download(snippetDownloadForm, response);
+    }
+
+    /**
+     * 导入snippet zip包
+     *
+     * @param file zip文件
+     * @return 统一返回
+     */
+    @PostMapping("upload")
+    public ResponseEntity<Result> uploadSnippets(MultipartFile file) throws IOException {
+        snippetService.upload(file);
+        return Result.success();
     }
 }

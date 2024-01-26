@@ -2,6 +2,7 @@ package com.hmetao.code_dictionary.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.constants.BaseConstants;
 import com.hmetao.code_dictionary.dto.BaseTreeDTO;
@@ -144,8 +145,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
         // todo 暂时修复 需要优化为在for外批量更新
         snippetCategory.forEach(item -> {
-            item.setCategoryId(transferCategory.getId());
-            snippetCategoryService.update(item, null);
+            snippetCategoryService.update(null, Wrappers.lambdaUpdate(SnippetCategory.class)
+                    .eq(SnippetCategory::getSnippetId, item.getSnippetId())
+                    .set(SnippetCategory::getCategoryId, transferCategory.getId()));
         });
 
     }
