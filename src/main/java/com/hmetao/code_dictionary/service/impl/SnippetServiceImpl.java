@@ -10,6 +10,7 @@ import com.hmetao.code_dictionary.dto.*;
 import com.hmetao.code_dictionary.entity.Category;
 import com.hmetao.code_dictionary.entity.Snippet;
 import com.hmetao.code_dictionary.entity.SnippetCategory;
+import com.hmetao.code_dictionary.enums.SnippetTypeEnum;
 import com.hmetao.code_dictionary.form.*;
 import com.hmetao.code_dictionary.mapper.SnippetMapper;
 import com.hmetao.code_dictionary.properties.EnvProperties;
@@ -320,6 +321,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
         ZipInputStream zis = new ZipInputStream(file.getInputStream());
         // 笔记列表，构建字典树
         Trie root = buildTrie();
+
         ZipEntry entry;
         while ((entry = zis.getNextEntry()) != null) {
             String[] words = entry.getName().split("/");
@@ -331,13 +333,13 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
                 snippet = true;
                 String lastWord = words[n - 1];
                 // markdown还是code还是其他第三方类型
-                if (lastWord.endsWith("cd")) {
-                    type = 0;
+                if (lastWord.endsWith(".cd")) {
+                    type = SnippetTypeEnum.Code.ordinal();
                     words[n - 1] = lastWord.replaceAll(".cd", "");
-                } else if (lastWord.endsWith("md")) {
-                    type = 1;
+                } else if (lastWord.endsWith(".md")) {
+                    type = SnippetTypeEnum.Markdown.ordinal();
                     words[n - 1] = lastWord.replaceAll(".md", "");
-                } else type = 2;
+                } else type = SnippetTypeEnum.Other.ordinal();
             }
 
             // 将每一个解压出来的entry插入到字典树中
@@ -383,8 +385,14 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
 
     @SuppressWarnings("unchecked")
     private void loadTire(Trie trie, CategorySnippetMenusDTO categorySnippetMenusDTO) {
-        Trie next = trie.append(categorySnippetMenusDTO.getLabel(), categorySnippetMenusDTO.getType(), categorySnippetMenusDTO.getSnippet(),
-                categorySnippetMenusDTO.getParentId(), categorySnippetMenusDTO.getId());
+        // 当前节点追加至父节点中去
+        Trie next = trie.append(
+                categorySnippetMenusDTO.getLabel(),
+                categorySnippetMenusDTO.getType(),
+                categorySnippetMenusDTO.getSnippet(),
+                categorySnippetMenusDTO.getParentId(),
+                categorySnippetMenusDTO.getId());
+
         List<? extends BaseTreeDTO<String>> children = categorySnippetMenusDTO.getChildren();
         if (CollectionUtil.isNotEmpty(children)) {
             for (CategorySnippetMenusDTO child : (List<CategorySnippetMenusDTO>) children) {
