@@ -1,5 +1,6 @@
 package com.hmetao.code_dictionary.dto;
 
+import com.hmetao.code_dictionary.pojo.BaseTree;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,7 +14,7 @@ import java.io.Serializable;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategorySnippetMenusDTO extends BaseTreeDTO<String> implements Serializable {
+public class CategorySnippetMenusDTO extends BaseTree<String> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

@@ -1,14 +1,11 @@
 package com.hmetao.code_dictionary.dto;
 
-import com.hmetao.code_dictionary.entity.BaseEntity;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import com.hmetao.code_dictionary.pojo.BaseTree;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * <p>
@@ -21,7 +18,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class MenusDTO extends BaseTreeDTO<Long> implements Serializable  {
+public class MenusDTO extends BaseTree<Long> implements Serializable  {
 
     private static final long serialVersionUID = 1L;
 

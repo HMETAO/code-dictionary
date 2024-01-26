@@ -5,13 +5,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.constants.BaseConstants;
-import com.hmetao.code_dictionary.dto.BaseTreeDTO;
 import com.hmetao.code_dictionary.dto.CategorySnippetMenusDTO;
 import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.Category;
 import com.hmetao.code_dictionary.entity.SnippetCategory;
 import com.hmetao.code_dictionary.form.CategoryForm;
 import com.hmetao.code_dictionary.mapper.CategoryMapper;
+import com.hmetao.code_dictionary.pojo.BaseTree;
 import com.hmetao.code_dictionary.service.CategoryService;
 import com.hmetao.code_dictionary.service.SnippetCategoryService;
 import com.hmetao.code_dictionary.utils.MapUtil;
@@ -71,7 +71,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         Map<String, List<CategorySnippetMenusDTO>> categorySnippetMap = getMapOfSnippetGroupedByCategory(categories);
 
         // 构建树状结构
-        return (List<CategorySnippetMenusDTO>) BaseTreeDTO.buildTree(categorySnippetMenusDTOS, "0", !snippet ? null : parent -> {
+        return (List<CategorySnippetMenusDTO>) BaseTree.buildTree(categorySnippetMenusDTOS, "0", !snippet ? null : parent -> {
             String categoryId = parent.getId();
             if (categorySnippetMap.containsKey(categoryId)) {
                 // 将snippet放入对应的category下

@@ -6,13 +6,18 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.constants.BaseConstants;
-import com.hmetao.code_dictionary.dto.*;
+import com.hmetao.code_dictionary.dto.CategorySnippetMenusDTO;
+import com.hmetao.code_dictionary.dto.SnippetDTO;
+import com.hmetao.code_dictionary.dto.SnippetUploadImageDTO;
+import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.Category;
 import com.hmetao.code_dictionary.entity.Snippet;
 import com.hmetao.code_dictionary.entity.SnippetCategory;
 import com.hmetao.code_dictionary.enums.SnippetTypeEnum;
 import com.hmetao.code_dictionary.form.*;
 import com.hmetao.code_dictionary.mapper.SnippetMapper;
+import com.hmetao.code_dictionary.pojo.BaseTree;
+import com.hmetao.code_dictionary.pojo.Trie;
 import com.hmetao.code_dictionary.properties.EnvProperties;
 import com.hmetao.code_dictionary.properties.QiNiuProperties;
 import com.hmetao.code_dictionary.service.CategoryService;
@@ -22,9 +27,6 @@ import com.hmetao.code_dictionary.utils.JudgeUtil;
 import com.hmetao.code_dictionary.utils.MapUtil;
 import com.hmetao.code_dictionary.utils.QiniuUtil;
 import com.hmetao.code_dictionary.utils.SaTokenUtil;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +44,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -246,74 +247,6 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
     }
 
     // 数据结构：字典树
-    static class Trie {
-        HashMap<String, Trie> nodes;
-
-        Integer type;
-
-        Boolean snippet;
-
-        String parentId;
-
-        String id;
-
-        public Trie(Integer type, Boolean snippet, String parentId, String id) {
-            this.id = id;
-            this.type = type;
-            this.snippet = snippet;
-            this.parentId = parentId;
-            this.nodes = new HashMap<>();
-        }
-
-        public Trie() {
-            this.nodes = new HashMap<>();
-            this.id = "0";
-        }
-
-        public Trie append(String word, Integer type, Boolean snippet, String parentId, String id) {
-            HashMap<String, Trie> children = this.nodes;
-            if (checkNotContainerTrieNode(type, snippet, this, word)) {
-                children.put(word, new Trie(type, snippet, parentId, id));
-            }
-            return children.get(word);
-        }
-
-        @Data
-        @NoArgsConstructor
-        @AllArgsConstructor
-        static class TrieDTO {
-            private String parentId;
-
-            private String label;
-
-            private Boolean curSnippet;
-
-            private Integer curType;
-        }
-
-        public void insert(String[] words, Boolean snippet, Integer type, Function<TrieDTO, Trie> fun) {
-            Trie read = this;
-            int n = words.length;
-            for (int i = 0; i < n; i++) {
-                // 当前类型属性
-                Boolean curSnippet = i == n - 1 ? snippet : false;
-                Integer curType = i == n - 1 ? type : null;
-                // 判断是否存在
-                HashMap<String, Trie> children = read.nodes;
-                if (checkNotContainerTrieNode(curType, curSnippet, read, words[i])) {
-                    children.put(words[i], fun.apply(new TrieDTO(read.id, words[i], curSnippet, curType)));
-                }
-                read = children.get(words[i]);
-            }
-        }
-
-        private boolean checkNotContainerTrieNode(Integer type, Boolean snippet, Trie trie, String word) {
-            // 判断是否存在，或 是否存在完全相同
-            if (!trie.nodes.containsKey(word)) return true;
-            Trie node = trie.nodes.get(word);
-            return !node.snippet.equals(snippet) || !Objects.equals(node.type, type);
-        }
-    }
 
     @Override
     @Transactional
@@ -348,13 +281,13 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
                 String id;
                 // 判断是分组还是笔记区别插入
                 if (!dto.getCurSnippet()) {
-                    log.info("{} 用户新增category： {}", SaTokenUtil.getLoginUserId(), dto.label);
+                    log.info("{} 用户新增category： {}", SaTokenUtil.getLoginUserId(), dto.getLabel());
                     // category
                     CategorySnippetMenusDTO categorySnippetMenusDTO =
                             categoryService.insertCategory(new CategoryForm(dto.getLabel(), Long.parseLong(dto.getParentId())));
                     id = categorySnippetMenusDTO.getId();
                 } else {
-                    log.info("{} 用户新增snippet： {}", SaTokenUtil.getLoginUserId(), dto.label);
+                    log.info("{} 用户新增snippet： {}", SaTokenUtil.getLoginUserId(), dto.getLabel());
                     // snippet
                     try {
                         SnippetDTO snippetDTO =
@@ -393,7 +326,7 @@ public class SnippetServiceImpl extends ServiceImpl<SnippetMapper, Snippet> impl
                 categorySnippetMenusDTO.getParentId(),
                 categorySnippetMenusDTO.getId());
 
-        List<? extends BaseTreeDTO<String>> children = categorySnippetMenusDTO.getChildren();
+        List<? extends BaseTree<String>> children = categorySnippetMenusDTO.getChildren();
         if (CollectionUtil.isNotEmpty(children)) {
             for (CategorySnippetMenusDTO child : (List<CategorySnippetMenusDTO>) children) {
                 loadTire(next, child);

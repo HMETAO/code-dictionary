@@ -3,21 +3,17 @@ package com.hmetao.code_dictionary.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.constants.BaseConstants;
-import com.hmetao.code_dictionary.dto.BaseTreeDTO;
 import com.hmetao.code_dictionary.dto.MenusDTO;
-import com.hmetao.code_dictionary.dto.UserDTO;
 import com.hmetao.code_dictionary.entity.Menus;
 import com.hmetao.code_dictionary.mapper.MenusMapper;
+import com.hmetao.code_dictionary.pojo.BaseTree;
 import com.hmetao.code_dictionary.service.MenusService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmetao.code_dictionary.utils.MapUtil;
-import com.hmetao.code_dictionary.utils.SaTokenUtil;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,6 +57,6 @@ public class MenusServiceImpl extends ServiceImpl<MenusMapper, Menus> implements
                     menusDTO.setParentId(menu.getPid());
                     return menusDTO;
                 }).collect(Collectors.toList());
-        return (List<MenusDTO>) BaseTreeDTO.buildTree(menusDTOS, 0L);
+        return (List<MenusDTO>) BaseTree.buildTree(menusDTOS, 0L);
     }
 }
