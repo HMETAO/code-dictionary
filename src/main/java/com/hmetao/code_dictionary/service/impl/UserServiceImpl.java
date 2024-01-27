@@ -3,6 +3,7 @@ package com.hmetao.code_dictionary.service.impl;
 import cn.dev33.satoken.secure.SaSecureUtil;
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -32,6 +33,7 @@ import com.hmetao.code_dictionary.utils.QiniuUtil;
 import com.hmetao.code_dictionary.utils.SaTokenUtil;
 import com.hmetao.code_dictionary.utils.TLSSigAPIv2;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -133,14 +135,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             MultipartFile file = userRegistryForm.getFile();
             // 若上传了文件 切 上传的文件并不为空
             if (file != null && !file.isEmpty()) {
-                StringBuilder fileName = new StringBuilder(BaseConstants.QINIU_OSS_UPLOAD_PREFIX);
-                // filename: avatar/date/UUID.jpg
-                fileName.append(localDate.format(DateTimeFormatter.ofPattern("yyyy/MM/dd")))
-                        .append(UUID.randomUUID().toString().replaceAll("-", ""))
-                        .append(".")
-                        .append(Objects.requireNonNull(file.getOriginalFilename()).split("\\.")[1]);
-                // 上传头像文件
-                QiniuUtil.upload2qiniu(qiNiuProperties, file.getBytes(), fileName.toString());
+                StringBuilder fileName = uploadAvatar2Qiniu(file);
                 user.setAvatar(fileName.insert(0, qiNiuProperties.getUrl()).toString());
             }
             // 插入数据库
@@ -154,6 +149,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         } catch (IOException e) {
             throw new HMETAOException("UserServiceImpl", " 注册用户接口 ERROR");
         }
+    }
+
+    @NotNull
+    private StringBuilder uploadAvatar2Qiniu(MultipartFile file) throws IOException {
+        StringBuilder fileName = new StringBuilder(BaseConstants.QINIU_OSS_UPLOAD_PREFIX);
+        // filename: avatar/date/UUID.jpg
+        fileName.append(localDate.format(DateTimeFormatter.ofPattern("yyyy/MM/dd/")))
+                .append(UUID.randomUUID().toString().replaceAll("-", ""))
+                .append(".")
+                .append(Objects.requireNonNull(file.getOriginalFilename()).split("\\.")[1]);
+        // 上传头像文件
+        QiniuUtil.upload2qiniu(qiNiuProperties, file.getBytes(), fileName.toString());
+        return fileName;
     }
 
     @Override
@@ -216,7 +224,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     @Transactional
-    public void updateUser(UserRoleUpdateForm baseUserInfoForm) {
+    public void updateUser(UserRoleUpdateForm baseUserInfoForm) throws IOException {
         UserDTO sysUser = SaTokenUtil.getLoginUserInfo();
         // 判断更新的是不是自己
         if (!Objects.equals(baseUserInfoForm.getId(), sysUser.getId())) {
@@ -226,9 +234,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 查询出要修改用户
         User user = baseMapper.selectById(baseUserInfoForm.getId());
+        // 上传了新的密码
+        if (ObjectUtil.isNotEmpty(baseUserInfoForm.getPassword())) {
+            // 加密
+            baseUserInfoForm.setPassword(SaSecureUtil.md5BySalt(baseUserInfoForm.getPassword(), BaseConstants.SALT_PASSWORD));
+        }
+        User entity = MapUtil.beanMap(baseUserInfoForm, User.class);
+
+        // 上传头像非空
+        if (ObjectUtil.isNotEmpty(baseUserInfoForm.getFile())) {
+            UserDTO userDTO = SaTokenUtil.getLoginUserInfo();
+            String avatar = userDTO.getAvatar().replaceAll(qiNiuProperties.getUrl(), "");
+            // 删除已有头像
+            QiniuUtil.deleteQiniu(qiNiuProperties, avatar);
+            // 上传新头像
+            StringBuilder fileName = uploadAvatar2Qiniu(baseUserInfoForm.getFile());
+            entity.setAvatar(fileName.insert(0, qiNiuProperties.getUrl()).toString());
+        }
 
         // 更新用户信息
-        baseMapper.updateById(MapUtil.beanMap(baseUserInfoForm, User.class));
+        baseMapper.updateById(entity);
 
         // 修改用户的角色
         ArrayList<Long> roles = baseUserInfoForm.getRoles();
@@ -303,6 +328,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         tencentIMRequestHandler(url, map);
     }
 
+    @SuppressWarnings("unchecked")
     private <T> void tencentIMRequestHandler(String url, HashMap<String, T> map) {
         Map<String, Object> body = restTemplate.postForObject(url, map, Map.class);
         Integer code = (Integer) Objects.requireNonNull(body).get("ErrorCode");

@@ -16,6 +16,7 @@ import java.io.Serializable;
 public class BaseUserInfoForm implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    @NotNull
     private Long id;
 
     @NotNull(message = "用户名禁止为空")

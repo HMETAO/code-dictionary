@@ -7,6 +7,8 @@ import com.hmetao.code_dictionary.dto.UserRoleDTO;
 import com.hmetao.code_dictionary.entity.User;
 import com.hmetao.code_dictionary.form.*;
 
+import java.io.IOException;
+
 /**
  * <p>
  * 用户表 服务类
@@ -27,7 +29,7 @@ public interface UserService extends IService<User> {
 
     UserRoleDTO getUser(Long userId);
 
-    void updateUser(UserRoleUpdateForm baseUserInfoForm);
+    void updateUser(UserRoleUpdateForm baseUserInfoForm) throws IOException;
 
     void updateStatus(UserStatusForm userStatusForm);
 }

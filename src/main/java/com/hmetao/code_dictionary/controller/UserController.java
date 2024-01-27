@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -89,8 +90,8 @@ public class UserController {
      * @param userRoleUpdateForm 用户信息
      * @return 统一返回
      */
-    @PutMapping
-    public ResponseEntity<Result> updateUser(@Valid @RequestBody UserRoleUpdateForm userRoleUpdateForm) {
+    @PostMapping("edit")
+    public ResponseEntity<Result> updateUser(@Valid  UserRoleUpdateForm userRoleUpdateForm) throws IOException {
         userService.updateUser(userRoleUpdateForm);
         return Result.success(HttpStatus.CREATED);
     }
