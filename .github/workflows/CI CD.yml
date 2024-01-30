@@ -11,33 +11,34 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: pull code
-      uses: actions/checkout@v3
-      with:
-        # 默认当前分支
-        ref: 'master'
-    - name: Set up Maven
-      uses: stCarolas/setup-maven@v4.5
-      with:
-        maven-version: 3.8.2
-      run: mvn clean package -DskipTests
-    - name: login ali cloud
-      uses: aliyun/acr-login@v1
-      with:
-        login-server: https://registry.cn-hangzhou.aliyuncs.com
-        username: "${{ secrets.ALICLOUD_USERNAME }}"
-        password: "${{ secrets.ALICLOUD_PASSWORD }}"
-    - name: Build and push image
-      run: |
-        docker build -t registry.cn-hangzhou.aliyuncs.com/hmetao_docker/code-dictionary -f Dockerfile .
-        docker push registry.cn-hangzhou.aliyuncs.com/hmetao_docker/code-dictionary
-    - name: executing remote ssh commands using password
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
-        port: ${{ secrets.PORT }}
-        script: /opt/jenkins_shell/deploy.sh 8972
+      - name: pull code
+        uses: actions/checkout@v3
+        with:
+          # 默认当前分支
+          ref: 'master'
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v4.5
+        with:
+          maven-version: 3.8.2
+      - name: maven clean package
+        run: mvn clean package -DskipTests
+      - name: login ali cloud
+        uses: aliyun/acr-login@v1
+        with:
+          login-server: https://registry.cn-hangzhou.aliyuncs.com
+          username: "${{ secrets.ALICLOUD_USERNAME }}"
+          password: "${{ secrets.ALICLOUD_PASSWORD }}"
+      - name: Build and push image
+        run: |
+          docker build -t registry.cn-hangzhou.aliyuncs.com/hmetao_docker/code-dictionary -f Dockerfile .
+          docker push registry.cn-hangzhou.aliyuncs.com/hmetao_docker/code-dictionary
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: /opt/jenkins_shell/deploy.sh 8972
     
         
