@@ -114,7 +114,7 @@ public class SparkDeskServiceImpl implements SparkDeskService {
         //构建请求参数
         InHeader header = InHeader.builder().uid(String.valueOf(user.getId())).appid(sparkDeskProperties.getAppId()).build();
         // domain版本需与client生成的斑版本对应
-        Parameter parameter = Parameter.builder().chat(Chat.builder().domain(SparkDeskConstants.SPARK_V2).maxTokens(2048).temperature(0.3).build()).build();
+        Parameter parameter = Parameter.builder().chat(Chat.builder().domain(SparkDeskConstants.SPARK_V3).maxTokens(2048).temperature(0.3).build()).build();
         List<Text> texts = saveCommunicationMessages(textMessage.getPayload(), Text.Role.USER, session);
         // 放入问题
         InPayload payload = InPayload.builder().message(Message.builder().text(texts).build()).build();
