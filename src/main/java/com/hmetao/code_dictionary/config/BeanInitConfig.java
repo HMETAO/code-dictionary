@@ -34,7 +34,7 @@ public class BeanInitConfig {
     @Bean
     public SparkDeskClient sparkDeskClient() {
         return SparkDeskClient.builder()
-                .host("wss://spark-api.xf-yun.com/v3.1/chat")
+                .host("http://spark-api.xf-yun.com/v3.1/chat")
                 .appid(sparkDeskProperties.getAppId())
                 .apiKey(sparkDeskProperties.getApiKey())
                 .apiSecret(sparkDeskProperties.getApiSecret())
